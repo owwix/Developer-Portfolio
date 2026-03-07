@@ -7,6 +7,14 @@ export const Home: GlobalConfig = {
   },
   fields: [
     {
+      name: 'profilePhoto',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Upload a square or portrait headshot. It will display circle-cropped on the site.',
+      },
+    },
+    {
       name: 'name',
       type: 'text',
       required: true,

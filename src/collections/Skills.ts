@@ -3,44 +3,78 @@ import type { CollectionConfig } from 'payload/types'
 export const Skills: CollectionConfig = {
   slug: 'skills',
   admin: {
-    useAsTitle: 'name',
-    defaultColumns: ['name', 'category', 'proficiency'],
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'updatedAt'],
+  },
+  hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (!data) return data
+        if (!data.title || String(data.title).trim().length === 0) {
+          const count = Array.isArray(data.skills) ? data.skills.length : 0
+          return {
+            ...data,
+            title: count > 0 ? `Skills (${count})` : 'Technical Skills',
+          }
+        }
+        return data
+      },
+    ],
   },
   access: {
     read: () => true,
   },
   fields: [
     {
-      name: 'name',
+      name: 'title',
       type: 'text',
       required: true,
+      defaultValue: 'Technical Skills',
     },
     {
-      name: 'category',
-      type: 'select',
+      name: 'skills',
+      type: 'array',
       required: true,
-      options: [
-        { label: 'Frontend', value: 'frontend' },
-        { label: 'Backend', value: 'backend' },
-        { label: 'DevOps', value: 'devops' },
-        { label: 'Database', value: 'database' },
-        { label: 'Tooling', value: 'tooling' },
-      ],
-    },
-    {
-      name: 'proficiency',
-      type: 'number',
-      required: true,
-      min: 1,
-      max: 5,
+      minRows: 1,
       admin: {
-        description: 'Rate from 1 (beginner) to 5 (expert).',
+        description: 'Add multiple skills and choose a category for each one.',
+        disableListColumn: true,
       },
-    },
-    {
-      name: 'yearsExperience',
-      type: 'number',
-      min: 0,
+      fields: [
+        {
+          name: 'category',
+          type: 'select',
+          required: true,
+          options: [
+            { label: 'Frontend Development', value: 'frontend-development' },
+            { label: 'Backend Development', value: 'backend-development' },
+            { label: 'Programming Languages', value: 'programming-languages' },
+            { label: 'Databases', value: 'databases' },
+            { label: 'Cloud & Deployment', value: 'cloud-deployment' },
+            { label: 'Developer Tools', value: 'developer-tools' },
+          ],
+        },
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'proficiency',
+          type: 'number',
+          required: true,
+          min: 1,
+          max: 5,
+          admin: {
+            description: 'Rate from 1 (beginner) to 5 (expert).',
+          },
+        },
+        {
+          name: 'yearsExperience',
+          type: 'number',
+          min: 0,
+        },
+      ],
     },
   ],
 }

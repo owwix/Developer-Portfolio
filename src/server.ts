@@ -1,15 +1,23 @@
 import dotenv from 'dotenv'
 import express from 'express'
+import path from 'path'
 import payload from 'payload'
 
 dotenv.config()
 
+if (!process.env.PAYLOAD_CONFIG_PATH) {
+  const configFileName = __filename.endsWith('.ts') ? 'payload.config.ts' : 'payload.config.js'
+  process.env.PAYLOAD_CONFIG_PATH = path.resolve(__dirname, configFileName)
+}
+
 const start = async () => {
   const app = express()
+  const publicDir = path.resolve(__dirname, '../public')
+
+  app.use(express.static(publicDir))
 
   await payload.init({
     secret: process.env.PAYLOAD_SECRET ?? '',
-    mongoURL: process.env.MONGODB_URI ?? '',
     express: app,
     onInit: () => {
       payload.logger.info(`Payload admin URL: ${payload.getAdminURL()}`)

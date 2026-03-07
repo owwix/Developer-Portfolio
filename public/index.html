@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developer Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <canvas id="network-bg" aria-hidden="true"></canvas>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <main class="container">
+      <header class="hero card reveal">
+        <div class="hero-main">
+          <img id="avatar" class="avatar" src="" alt="Profile photo" hidden />
+          <div>
+            <h1 id="name">Loading...</h1>
+            <p id="headline" class="headline"></p>
+            <p id="bio" class="bio"></p>
+          </div>
+        </div>
+        <div id="links" class="links"></div>
+      </header>
+
+      <section class="grid">
+        <article class="card reveal">
+          <h2>Projects</h2>
+          <div id="projects" class="stack"></div>
+        </article>
+
+        <article class="card reveal">
+          <h2>Skills</h2>
+          <div id="skills" class="stack"></div>
+        </article>
+
+        <article class="card reveal full">
+          <h2>Experience</h2>
+          <div id="experiences" class="stack"></div>
+        </article>
+
+        <article class="card reveal full">
+          <h2>Lab / Notes</h2>
+          <div id="blogs" class="stack"></div>
+        </article>
+      </section>
+    </main>
+
+    <template id="empty-state">
+      <p class="muted">No content yet.</p>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

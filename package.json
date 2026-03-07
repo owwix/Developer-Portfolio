@@ -5,11 +5,14 @@
   "description": "SWE portfolio CMS powered by Payload",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && PAYLOAD_CONFIG_PATH=dist/payload.config.js payload build",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@payloadcms/bundler-webpack": "^1.0.9",
+    "@payloadcms/db-mongodb": "^2.0.0",
+    "@payloadcms/richtext-slate": "^1.5.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "payload": "^2.17.2"

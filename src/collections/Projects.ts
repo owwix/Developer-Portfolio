@@ -24,6 +24,16 @@ export const Projects: CollectionConfig = {
       required: true,
     },
     {
+      name: 'projectImage',
+      label: 'Project Image',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+        description: 'Optional project image for frontend card display.',
+      },
+    },
+    {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,

@@ -1,0 +1,6 @@
+[02:24:12] [32mINFO[39m (payload): [36mConnected to MongoDB server successfully![39m
+[02:24:12] [32mINFO[39m (payload): [36mStarting Payload...[39m
+[02:24:12] [32mINFO[39m (payload): [36mPayload admin URL: http://localhost:3000/admin[39m
+[02:24:12] [32mINFO[39m (payload): [36mServer running at http://localhost:3094[39m
+webpack built c7fa2a7d8f2569c00759 in 5325ms
+webpack compiled successfully
