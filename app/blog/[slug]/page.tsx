@@ -17,8 +17,13 @@ type Params = {
   slug: string
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const post = await fetchBlogPostBySlug<BlogPost>(params.slug)
+type BlogDetailPageProps = {
+  params: Promise<Params>
+}
+
+export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const post = await fetchBlogPostBySlug<BlogPost>(slug)
 
   if (!post) {
     return {
@@ -38,8 +43,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 }
 
-export default async function BlogDetailPage({ params }: { params: Params }) {
-  const post = await fetchBlogPostBySlug<BlogPost>(params.slug)
+export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
+  const { slug } = await params
+  const post = await fetchBlogPostBySlug<BlogPost>(slug)
   if (!post) notFound()
 
   const { html, toc } = parseMarkdown(post.content || post.summary || '')

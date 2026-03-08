@@ -106,11 +106,14 @@ export default async function HomePage() {
         </div>
         <div className="links">
           {home?.email ? <span className="pill">Email: {home.email}</span> : null}
+          <Link href="/reach-by-phone" className="pill-link">
+            → Reach Me by Phone
+          </Link>
           <Link href="/blog" className="pill-link">
             Lab / Notes
           </Link>
           {(home?.links || []).map((link) =>
-            link?.url ? (
+            link?.url && !String(link.url).toLowerCase().startsWith('mailto:') ? (
               <a href={link.url} key={`${link.label}-${link.url}`} rel="noreferrer" target="_blank">
                 {link.label || 'Link'}
               </a>

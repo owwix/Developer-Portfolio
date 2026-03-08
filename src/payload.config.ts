@@ -6,6 +6,7 @@ import { buildConfig } from 'payload/config'
 import { BlogPosts } from './collections/BlogPosts'
 import { Experiences } from './collections/Experiences'
 import { Media } from './collections/Media'
+import { PhoneRequests } from './collections/PhoneRequests'
 import { Projects } from './collections/Projects'
 import { Skills } from './collections/Skills'
 import { Home } from './globals/Home'
@@ -34,6 +35,7 @@ export default buildConfig({
     Projects,
     Skills,
     Experiences,
+    PhoneRequests,
   ],
   globals: [Home],
   typescript: {

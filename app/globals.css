@@ -629,6 +629,87 @@ p {
   margin: 0.2rem 0;
 }
 
+.phone-form {
+  margin-top: 1rem;
+}
+
+.form-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.form-field span {
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0b1019;
+  color: var(--ink);
+  padding: 0.62rem 0.7rem;
+  font: inherit;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.form-field-full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  margin-top: 0.85rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.submit-btn {
+  justify-self: start;
+  border: 1px solid #53698e;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #10203a, #0c182d);
+  color: var(--ink);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  padding: 0.56rem 0.95rem;
+  cursor: pointer;
+}
+
+.submit-btn:hover:not(:disabled) {
+  border-color: #89a9dd;
+}
+
+.submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.form-message {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.form-success {
+  color: var(--ok);
+}
+
+.form-error {
+  color: #ffb7b7;
+}
+
 .page-not-found .card {
   max-width: 560px;
 }
@@ -664,5 +745,9 @@ p {
   .section-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }
