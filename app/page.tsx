@@ -41,6 +41,17 @@ type ProjectRow = {
   summary?: string
   liveUrl?: string
   repoUrl?: string
+  projectImage?:
+    | string
+    | {
+        url?: string
+        alt?: string
+        sizes?: {
+          avatar?: {
+            url?: string
+          }
+        }
+      }
 }
 
 export default async function HomePage() {

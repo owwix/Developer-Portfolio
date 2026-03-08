@@ -9,6 +9,17 @@ type ProjectRow = {
   summary?: string
   liveUrl?: string
   repoUrl?: string
+  projectImage?:
+    | string
+    | {
+        url?: string
+        alt?: string
+        sizes?: {
+          avatar?: {
+            url?: string
+          }
+        }
+      }
 }
 
 type PaginatedProjectsProps = {
@@ -30,11 +41,28 @@ export default function PaginatedProjects({ projects, pageSize = 3 }: PaginatedP
     return <p className="empty-state">No projects yet.</p>
   }
 
+  const getProjectImage = (project: ProjectRow): string => {
+    if (!project.projectImage || typeof project.projectImage === 'string') {
+      return ''
+    }
+    return project.projectImage.url || project.projectImage.sizes?.avatar?.url || ''
+  }
+
+  const getProjectImageAlt = (project: ProjectRow): string => {
+    if (!project.projectImage || typeof project.projectImage === 'string') {
+      return `${project.title || 'Project'} cover image`
+    }
+    return project.projectImage.alt || `${project.title || 'Project'} cover image`
+  }
+
   return (
     <>
       <div className="stack">
         {paginatedProjects.map((project) => (
           <article className="item" key={project.id || project.slug || project.title}>
+            {getProjectImage(project) ? (
+              <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
+            ) : null}
             <h3>{project.title || 'Untitled Project'}</h3>
             <p>{project.summary || 'No summary available.'}</p>
             <div className="meta">
