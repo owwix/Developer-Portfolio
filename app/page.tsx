@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import BlogCard from '../components/blog/BlogCard'
+import PaginatedProjects from '../components/home/PaginatedProjects'
+import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
 import type { BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
 
@@ -41,10 +43,6 @@ type ProjectRow = {
   repoUrl?: string
 }
 
-function EmptyState({ text }: { text: string }) {
-  return <p className="empty-state">{text}</p>
-}
-
 export default async function HomePage() {
   let home: HomeData | null = null
   let projects: ProjectRow[] = []
@@ -55,7 +53,7 @@ export default async function HomePage() {
   try {
     const [homeRes, projectsRes, skillsRes, expRes, blogRes] = await Promise.all([
       fetchHome<HomeData>(),
-      fetchProjects<{ docs?: ProjectRow[] }>(6),
+      fetchProjects<{ docs?: ProjectRow[] }>(100),
       fetchSkills<{ docs?: SkillRow[] }>(100),
       fetchExperiences<{ docs?: ExperienceRow[] }>(6),
       fetchBlogPosts<{ docs?: BlogPost[] }>(40),
@@ -129,54 +127,12 @@ export default async function HomePage() {
       <section className="grid">
         <article className="card reveal">
           <h2>Projects</h2>
-          {projects.length ? (
-            <div className="stack">
-              {projects.map((project) => (
-                <article className="item" key={project.id || project.slug || project.title}>
-                  <h3>{project.title || 'Untitled Project'}</h3>
-                  <p>{project.summary || 'No summary available.'}</p>
-                  <div className="meta">
-                    {project.liveUrl ? (
-                      <a className="badge badge-link" href={project.liveUrl} rel="noreferrer" target="_blank">
-                        Live URL
-                      </a>
-                    ) : null}
-                    {project.repoUrl ? (
-                      <a className="badge badge-link" href={project.repoUrl} rel="noreferrer" target="_blank">
-                        Repo
-                      </a>
-                    ) : null}
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState text="No projects yet." />
-          )}
+          <PaginatedProjects projects={projects} />
         </article>
 
         <article className="card reveal">
           <h2>Skills</h2>
-          {Object.keys(groupedSkills).length ? (
-            <div className="stack">
-              {Object.entries(groupedSkills)
-                .slice(0, 6)
-                .map(([category, rows]) => (
-                  <section className="skill-category" key={category}>
-                    <h3 className="skill-category-title">{category.replace(/-/g, ' ')}</h3>
-                    <div className="meta">
-                      {rows.slice(0, 6).map((skill) => (
-                        <span className="badge" key={`${category}-${skill.name}`}>
-                          {skill.name}
-                        </span>
-                      ))}
-                    </div>
-                  </section>
-                ))}
-            </div>
-          ) : (
-            <EmptyState text="No skills configured yet." />
-          )}
+          <PaginatedSkillCategories groupedSkills={groupedSkills} />
         </article>
 
         <article className="card reveal full">
@@ -197,7 +153,7 @@ export default async function HomePage() {
               ))}
             </div>
           ) : (
-            <EmptyState text="No experience entries yet." />
+            <p className="empty-state">No experience entries yet.</p>
           )}
         </article>
 
@@ -216,7 +172,7 @@ export default async function HomePage() {
               ))}
             </div>
           ) : (
-            <EmptyState text="No notes published yet." />
+            <p className="empty-state">No notes published yet.</p>
           )}
         </article>
       </section>

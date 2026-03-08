@@ -317,6 +317,49 @@ p {
   border-color: var(--accent);
 }
 
+.pagination-bar {
+  margin-top: 0.72rem;
+  padding-top: 0.68rem;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.pagination-status {
+  margin: 0;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+}
+
+.pagination-controls {
+  display: inline-flex;
+  gap: 0.42rem;
+}
+
+.pagination-btn {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.28rem 0.62rem;
+  background: #080808;
+  color: var(--ink);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.44;
+  cursor: not-allowed;
+}
+
 .blog-grid {
   display: grid;
   gap: 0.75rem;
@@ -353,6 +396,7 @@ p {
 .article-body a:focus-visible,
 .toc a:focus-visible,
 .view-all-link:focus-visible,
+.pagination-btn:focus-visible,
 .links a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
