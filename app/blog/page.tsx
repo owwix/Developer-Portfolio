@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import ArchiveFilters from '../../components/blog/ArchiveFilters'
+import BlogCommandPalette from '../../components/blog/BlogCommandPalette'
 import SectionContextNav from '../../components/blog/SectionContextNav'
 import type { BlogPost } from '../../lib/blog'
+import { getTags, isComingSoon, toDisplayText } from '../../lib/blog'
 import { fetchBlogPosts } from '../../lib/cms'
 
 export const dynamic = 'force-dynamic'
@@ -22,9 +24,19 @@ export default async function BlogArchivePage() {
     console.error(error)
   }
 
+  const commandEntries = posts
+    .filter((post) => Boolean(post?.slug) && !isComingSoon(post))
+    .map((post) => ({
+      title: String(post.title || 'Untitled Article'),
+      slug: String(post.slug || ''),
+      summary: toDisplayText(post.summary),
+      tags: getTags(post),
+    }))
+
   return (
     <main className="container page-blog">
       <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: 'Lab / Notes' }]} />
+      {commandEntries.length ? <BlogCommandPalette entries={commandEntries} /> : null}
       <header className="card page-hero reveal">
         <p className="eyebrow">Engineering Journal</p>
         <h1>Lab / Notes</h1>

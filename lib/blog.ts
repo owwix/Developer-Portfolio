@@ -240,6 +240,7 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
 
     if (trimmed.startsWith('```')) {
       const lang = trimmed.slice(3).trim() || 'plaintext'
+      const normalizedLang = lang.toLowerCase()
       const code: string[] = []
       i += 1
       while (i < lines.length && !lines[i].trim().startsWith('```')) {
@@ -249,8 +250,12 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
       if (i < lines.length) i += 1
 
       const rawCode = code.join('\n')
-      const highlighted = highlightCode(rawCode, lang)
-      chunks.push(`<pre><code class="hljs language-${escapeHTML(lang)}">${highlighted}</code></pre>`)
+      if (normalizedLang === 'mermaid') {
+        chunks.push(`<pre class="mermaid">${escapeHTML(rawCode)}</pre>`)
+      } else {
+        const highlighted = highlightCode(rawCode, lang)
+        chunks.push(`<pre><code class="hljs language-${escapeHTML(lang)}">${highlighted}</code></pre>`)
+      }
       continue
     }
 

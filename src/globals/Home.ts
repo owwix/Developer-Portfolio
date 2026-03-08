@@ -55,6 +55,29 @@ export const Home: GlobalConfig = {
           type: 'text',
           required: true,
         },
+        {
+          name: 'icon',
+          label: 'Icon',
+          type: 'select',
+          defaultValue: 'none',
+          options: [
+            { label: 'None', value: 'none' },
+            { label: 'LinkedIn', value: 'linkedin' },
+            { label: 'GitHub', value: 'github' },
+          ],
+          admin: {
+            description: 'Optional icon shown in the link pill.',
+          },
+        },
+        {
+          name: 'customIcon',
+          label: 'Custom Icon (Optional)',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: 'If set, this image overrides the selected icon.',
+          },
+        },
       ],
     },
   ],

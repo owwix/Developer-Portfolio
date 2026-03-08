@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ArticleBody from '../../../components/blog/ArticleBody'
 import BlogCard from '../../../components/blog/BlogCard'
+import BlogCommandPalette from '../../../components/blog/BlogCommandPalette'
 import ReadingProgress from '../../../components/blog/ReadingProgress'
 import SectionContextNav from '../../../components/blog/SectionContextNav'
 import TagPills from '../../../components/blog/TagPills'
@@ -54,11 +55,21 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { html, toc } = parseMarkdown(bodySource)
 
   let relatedPosts: BlogPost[] = []
+  let commandEntries: Array<{ title: string; slug: string; summary?: string; tags?: string[] }> = []
   try {
-    const allPosts = (await fetchBlogPosts<{ docs?: BlogPost[] }>(20))?.docs || []
+    const allPosts = (await fetchBlogPosts<{ docs?: BlogPost[] }>(200))?.docs || []
+    const publishedPosts = allPosts.filter((entry) => Boolean(entry?.slug) && !isComingSoon(entry))
+
+    commandEntries = publishedPosts.map((entry) => ({
+      title: String(entry.title || 'Untitled Article'),
+      slug: String(entry.slug || ''),
+      summary: toDisplayText(entry.summary),
+      tags: getTags(entry),
+    }))
+
     const activeTags = new Set(getTags(post))
 
-    relatedPosts = allPosts
+    relatedPosts = publishedPosts
       .filter((entry) => entry.slug !== post.slug)
       .map((entry) => {
         const overlap = getTags(entry).filter((tag) => activeTags.has(tag)).length
@@ -84,6 +95,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             { label: post.title || 'Article' },
           ]}
         />
+        {commandEntries.length ? <BlogCommandPalette entries={commandEntries} /> : null}
         <header className="card post-hero reveal">
           <p className="eyebrow">Engineering Article</p>
           <h1>{post.title}</h1>
