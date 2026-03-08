@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: 'Alexander Okonkwo | Software Engineer',
   description:
     'Portfolio of Alexander Okonkwo, a full-stack software engineer building scalable web applications with React, Next.js, TypeScript, and cloud technologies.',
+  icons: {
+    icon: [{ url: '/ao-icon.svg', type: 'image/svg+xml' }],
+    shortcut: '/ao-icon.svg',
+    apple: '/ao-icon.svg',
+  },
   openGraph: {
     title: 'Alexander Okonkwo | Software Engineer',
     description:

@@ -2,9 +2,14 @@ import type { CollectionConfig } from 'payload/types'
 
 export const Experiences: CollectionConfig = {
   slug: 'experiences',
+  labels: {
+    singular: 'Experience',
+    plural: 'Experience',
+  },
   admin: {
     useAsTitle: 'role',
     defaultColumns: ['role', 'company', 'startDate', 'current'],
+    group: 'Portfolio',
   },
   versions: {
     drafts: true,

@@ -3,6 +3,9 @@ import { webpackBundler } from '@payloadcms/bundler-webpack'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { slateEditor } from '@payloadcms/richtext-slate'
 import { buildConfig } from 'payload/config'
+import AdminIcon from './admin/components/AdminIcon'
+import AdminLogo from './admin/components/AdminLogo'
+import EditorialDashboard from './admin/components/EditorialDashboard'
 import { BlogPosts } from './collections/BlogPosts'
 import { Experiences } from './collections/Experiences'
 import { Media } from './collections/Media'
@@ -20,22 +23,40 @@ export default buildConfig({
   admin: {
     bundler: webpackBundler(),
     user: 'users',
+    css: path.resolve(process.cwd(), 'src/admin/admin.css'),
+    meta: {
+      titleSuffix: ' · Alexander Okonkwo CMS',
+      favicon: '/ao-icon.svg',
+      ogImage: '/ao-icon.svg',
+    },
+    components: {
+      beforeDashboard: [EditorialDashboard],
+      graphics: {
+        Icon: AdminIcon,
+        Logo: AdminLogo,
+      },
+    },
   },
   collections: [
-    {
-      slug: 'users',
-      auth: true,
-      admin: {
-        useAsTitle: 'email',
-      },
-      fields: [],
-    },
-    Media,
     BlogPosts,
+    Media,
     Projects,
     Skills,
     Experiences,
     PhoneRequests,
+    {
+      slug: 'users',
+      labels: {
+        singular: 'Editor',
+        plural: 'Editors',
+      },
+      auth: true,
+      admin: {
+        useAsTitle: 'email',
+        group: 'Site',
+      },
+      fields: [],
+    },
   ],
   globals: [Home],
   typescript: {

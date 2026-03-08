@@ -377,7 +377,10 @@ p {
 .section-context-item + .section-context-item::before {
   content: '/';
   margin-right: 0.28rem;
-  color: #5e5e5e;
+  color: #8d8d8d;
+  font-size: 1.08em;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .section-context a {

@@ -2,9 +2,14 @@ import type { CollectionConfig } from 'payload/types'
 
 export const Skills: CollectionConfig = {
   slug: 'skills',
+  labels: {
+    singular: 'Skill Set',
+    plural: 'Skills',
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'updatedAt'],
+    group: 'Portfolio',
   },
   hooks: {
     beforeChange: [

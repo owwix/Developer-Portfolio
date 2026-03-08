@@ -10,9 +10,17 @@ const toSlug = (value: string): string =>
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
+  labels: {
+    singular: 'Note',
+    plural: 'Notes',
+  },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'publishedDate', 'updatedAt'],
+    defaultColumns: ['title', '_status', 'isComingSoon', 'publishedDate', 'updatedAt'],
+    group: 'Publishing',
+  },
+  versions: {
+    drafts: true,
   },
   access: {
     read: () => true,

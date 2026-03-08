@@ -2,9 +2,14 @@ import type { CollectionConfig } from 'payload/types'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
+  labels: {
+    singular: 'Project',
+    plural: 'Projects',
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'featured', 'updatedAt'],
+    group: 'Portfolio',
   },
   versions: {
     drafts: true,

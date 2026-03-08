@@ -2,9 +2,14 @@ import type { CollectionConfig } from 'payload/types'
 
 export const PhoneRequests: CollectionConfig = {
   slug: 'phone-requests',
+  labels: {
+    singular: 'Inquiry',
+    plural: 'Inquiries',
+  },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'phoneNumber', 'status', 'createdAt'],
+    group: 'Site',
   },
   access: {
     create: () => true,

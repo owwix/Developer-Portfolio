@@ -2,6 +2,10 @@ import type { GlobalConfig } from 'payload/types'
 
 export const Home: GlobalConfig = {
   slug: 'home',
+  label: 'Homepage Content',
+  admin: {
+    group: 'Site',
+  },
   access: {
     read: () => true,
   },
