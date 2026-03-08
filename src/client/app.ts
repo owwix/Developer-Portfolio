@@ -131,6 +131,7 @@ const fetchJSON = async (path) => {
 
 const setEmpty = (el) => {
   const tmpl = byId("empty-state");
+  if (!(tmpl instanceof HTMLTemplateElement)) return;
   el.appendChild(tmpl.content.cloneNode(true));
 };
 
@@ -162,6 +163,7 @@ const renderHome = (home) => {
   byId("headline").textContent = home?.headline || "Add headline in Admin > Globals > home";
   byId("bio").textContent = home?.bio || "Add your bio in the home global.";
   const avatarEl = byId("avatar");
+  if (!(avatarEl instanceof HTMLImageElement)) return;
   const photo = home?.profilePhoto && typeof home.profilePhoto === "object" ? home.profilePhoto : null;
   const photoURL = photo?.sizes?.avatar?.url || photo?.url || "";
 
@@ -417,7 +419,7 @@ const renderSkills = (docs) => {
     prevBtn.addEventListener("click", () => {
       const nextIndex = (activeIndex - 1 + orderedKeys.length) % orderedKeys.length;
       activeCategory = orderedKeys[nextIndex];
-      for (const tab of tabs.querySelectorAll(".skill-tab")) {
+      for (const tab of Array.from(tabs.querySelectorAll(".skill-tab"))) {
         tab.classList.remove("is-active");
       }
       tabs.children[nextIndex].classList.add("is-active");
@@ -427,7 +429,7 @@ const renderSkills = (docs) => {
     nextBtn.addEventListener("click", () => {
       const nextIndex = (activeIndex + 1) % orderedKeys.length;
       activeCategory = orderedKeys[nextIndex];
-      for (const tab of tabs.querySelectorAll(".skill-tab")) {
+      for (const tab of Array.from(tabs.querySelectorAll(".skill-tab"))) {
         tab.classList.remove("is-active");
       }
       tabs.children[nextIndex].classList.add("is-active");
@@ -448,7 +450,7 @@ const renderSkills = (docs) => {
     btn.textContent = formatCategory(key);
     btn.addEventListener("click", () => {
       activeCategory = key;
-      for (const tab of tabs.querySelectorAll(".skill-tab")) {
+      for (const tab of Array.from(tabs.querySelectorAll(".skill-tab"))) {
         tab.classList.remove("is-active");
       }
       btn.classList.add("is-active");
@@ -465,7 +467,9 @@ const renderExperiences = (docs) => {
   wrap.innerHTML = "";
   if (!docs.length) return setEmpty(wrap);
 
-  const sorted = [...docs].sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
+  const sorted = [...docs].sort(
+    (a, b) => new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime(),
+  );
   for (const exp of sorted) {
     const card = document.createElement("article");
     card.className = "item";
@@ -489,7 +493,9 @@ const renderBlogs = (docs) => {
   wrap.innerHTML = "";
   if (!docs.length) return setEmpty(wrap);
 
-  const sorted = [...docs].sort((a, b) => new Date(b.publishedDate || 0) - new Date(a.publishedDate || 0));
+  const sorted = [...docs].sort(
+    (a, b) => new Date(b.publishedDate || 0).getTime() - new Date(a.publishedDate || 0).getTime(),
+  );
   const [featured, ...rest] = sorted;
   const getImageURL = (post) => {
     const image = post?.coverImage && typeof post.coverImage === "object" ? post.coverImage : null;
