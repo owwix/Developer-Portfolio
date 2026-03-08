@@ -14,8 +14,8 @@ export default function ReachByPhonePage() {
         <p className="eyebrow">Direct Contact</p>
         <h1>Reach Me by Phone</h1>
         <p className="page-intro">
-          Use this form if you want to discuss a role, contract, or project call. Requests are reviewed in Payload and marked
-          as accepted or declined.
+          Use this form if you want to discuss a role, contract, or project call. I review requests and follow up directly by
+          phone or email.
         </p>
         <Link className="view-all-link" href="/">
           ← Back to Portfolio

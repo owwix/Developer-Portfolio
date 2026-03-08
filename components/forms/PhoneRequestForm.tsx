@@ -74,7 +74,7 @@ export default function PhoneRequestForm() {
   return (
     <form className="phone-form card reveal" onSubmit={onSubmit}>
       <h2>Reach Me by Phone</h2>
-      <p className="page-intro">Submit your number and context. I’ll review this in Payload and accept or decline the request.</p>
+      <p className="page-intro">Submit your number and context, and I’ll follow up directly by phone or email.</p>
 
       <div className="form-grid">
         <label className="form-field" htmlFor="name">
@@ -146,7 +146,7 @@ export default function PhoneRequestForm() {
         <button className="submit-btn" disabled={!canSubmit || isSubmitting} type="submit">
           {isSubmitting ? 'Submitting...' : 'Send Phone Request'}
         </button>
-        {isSuccess ? <p className="form-message form-success">Request sent. I’ll review and update status in Payload.</p> : null}
+        {isSuccess ? <p className="form-message form-success">Request sent. I’ll review it and follow up soon.</p> : null}
         {errorMessage ? <p className="form-message form-error">{errorMessage}</p> : null}
       </div>
     </form>

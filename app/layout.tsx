@@ -47,8 +47,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <NetworkBackground />
         <div className="bg-glow bg-glow-1" aria-hidden="true" />
         <div className="bg-glow bg-glow-2" aria-hidden="true" />
-        <div className="bg-layer" aria-hidden="true" />
-        <div className="bg-grid" aria-hidden="true" />
         {children}
       </body>
     </html>

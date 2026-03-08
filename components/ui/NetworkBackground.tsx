@@ -10,12 +10,22 @@ export default function NetworkBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
-    const densityScale = isCoarsePointer ? 1.9 : 1
-    const alphaScale = isCoarsePointer ? 0.7 : 1
+    const getTouchTuning = () => {
+      if (!isCoarsePointer) {
+        return { densityScale: 1, alphaScale: 1 }
+      }
+      const shortestSide = Math.min(window.innerWidth, window.innerHeight)
+      const isTabletViewport = shortestSide >= 768
+      return isTabletViewport
+        ? { densityScale: 1.25, alphaScale: 0.9 }
+        : { densityScale: 1.9, alphaScale: 0.7 }
+    }
 
     let width = 0
     let height = 0
     let dpr = 1
+    let densityScale = 1
+    let alphaScale = 1
     let rafId = 0
     let tick = 0
     let pointerX = 0
@@ -38,36 +48,35 @@ export default function NetworkBackground() {
       }>
     }> = []
 
-    const layerSpecs = [
-      {
-        depth: 0.35,
-        speed: 0.18,
-        radius: [0.6, 1.2] as [number, number],
-        distance: 130,
-        alpha: 0.12 * alphaScale,
-        density: 14000 * densityScale,
-      },
-      {
-        depth: 0.7,
-        speed: 0.28,
-        radius: [0.9, 1.8] as [number, number],
-        distance: 160,
-        alpha: 0.14 * alphaScale,
-        density: 10500 * densityScale,
-      },
-      {
-        depth: 1.15,
-        speed: 0.42,
-        radius: [1.2, 2.4] as [number, number],
-        distance: 190,
-        alpha: 0.16 * alphaScale,
-        density: 8200 * densityScale,
-      },
-    ]
-
     const buildLayers = () => {
+      const tunedSpecs = [
+        {
+          depth: 0.35,
+          speed: 0.18,
+          radius: [0.6, 1.2] as [number, number],
+          distance: 130,
+          alpha: 0.12 * alphaScale,
+          density: 14000 * densityScale,
+        },
+        {
+          depth: 0.7,
+          speed: 0.28,
+          radius: [0.9, 1.8] as [number, number],
+          distance: 160,
+          alpha: 0.14 * alphaScale,
+          density: 10500 * densityScale,
+        },
+        {
+          depth: 1.15,
+          speed: 0.42,
+          radius: [1.2, 2.4] as [number, number],
+          distance: 190,
+          alpha: 0.16 * alphaScale,
+          density: 8200 * densityScale,
+        },
+      ]
       const area = width * height
-      layers = layerSpecs.map((spec) => {
+      layers = tunedSpecs.map((spec) => {
         const count = Math.max(35, Math.min(220, Math.floor(area / spec.density)))
         return {
           ...spec,
@@ -83,6 +92,9 @@ export default function NetworkBackground() {
     }
 
     const resize = () => {
+      const tuning = getTouchTuning()
+      densityScale = tuning.densityScale
+      alphaScale = tuning.alphaScale
       dpr = Math.min(window.devicePixelRatio || 1, 2.5)
       width = window.innerWidth
       height = window.innerHeight
@@ -153,6 +165,8 @@ export default function NetworkBackground() {
     resize()
     step()
     window.addEventListener('resize', resize)
+    window.visualViewport?.addEventListener('resize', resize)
+    window.visualViewport?.addEventListener('scroll', resize)
     if (!isCoarsePointer) {
       window.addEventListener('pointermove', onPointerMove)
     }
@@ -160,6 +174,8 @@ export default function NetworkBackground() {
     return () => {
       window.cancelAnimationFrame(rafId)
       window.removeEventListener('resize', resize)
+      window.visualViewport?.removeEventListener('resize', resize)
+      window.visualViewport?.removeEventListener('scroll', resize)
       if (!isCoarsePointer) {
         window.removeEventListener('pointermove', onPointerMove)
       }
