@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
+import NetworkBackground from '../components/ui/NetworkBackground'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -43,6 +44,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} lang="en">
       <body>
+        <NetworkBackground />
+        <div className="bg-glow bg-glow-1" aria-hidden="true" />
+        <div className="bg-glow bg-glow-2" aria-hidden="true" />
         <div className="bg-layer" aria-hidden="true" />
         <div className="bg-grid" aria-hidden="true" />
         {children}
