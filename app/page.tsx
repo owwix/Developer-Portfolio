@@ -36,7 +36,7 @@ type HomeLink = {
       }
 }
 
-type SocialIconType = 'linkedin' | 'github'
+type SocialIconType = 'linkedin' | 'github' | 'email' | 'phone'
 
 type SkillRow = {
   name?: string
@@ -75,13 +75,15 @@ type ProjectRow = {
 
 function inferSocialIcon(link: HomeLink): SocialIconType | null {
   const icon = String(link?.icon || '').toLowerCase()
-  if (icon === 'linkedin' || icon === 'github') return icon
+  if (icon === 'linkedin' || icon === 'github' || icon === 'email' || icon === 'phone') return icon
 
   const label = String(link?.label || '').toLowerCase()
   const url = String(link?.url || '').toLowerCase()
 
   if (label.includes('linkedin') || url.includes('linkedin.com')) return 'linkedin'
   if (label.includes('github') || url.includes('github.com')) return 'github'
+  if (label.includes('email') || url.startsWith('mailto:')) return 'email'
+  if (label.includes('phone') || label.includes('call') || url.startsWith('tel:')) return 'phone'
   return null
 }
 
@@ -91,6 +93,28 @@ function getCustomIconUrl(link: HomeLink): string {
 }
 
 function SocialLinkIcon({ type }: { type: SocialIconType }) {
+  if (type === 'email') {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path
+          d="M3.5 5.5h17a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-17a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1m0 2v.23l8.5 5.67 8.5-5.67V7.5l-8.5 5.67L3.5 7.5m0 2.03v6.97h17V9.53l-7.95 5.3a1 1 0 0 1-1.1 0L3.5 9.53"
+          fill="currentColor"
+        />
+      </svg>
+    )
+  }
+
+  if (type === 'phone') {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path
+          d="M7.26 3.24c.39-.39 1-.49 1.5-.24l2.27 1.13c.56.28.84.92.67 1.53l-.49 1.8a1 1 0 0 0 .25.97l2.57 2.57a1 1 0 0 0 .97.25l1.8-.49c.61-.17 1.25.11 1.53.67L21 13.7c.25.5.15 1.11-.24 1.5l-1.55 1.55c-.98.98-2.43 1.35-3.75.96-2.6-.78-5.28-2.95-7.58-5.25-2.3-2.3-4.47-4.98-5.25-7.58-.39-1.32-.02-2.77.96-3.75z"
+          fill="currentColor"
+        />
+      </svg>
+    )
+  }
+
   if (type === 'linkedin') {
     return (
       <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -179,7 +203,14 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="links">
-          {home?.email ? <span className="pill">Email: {home.email}</span> : null}
+          {home?.email ? (
+            <span className="pill social-link-pill">
+              <span aria-hidden="true" className="link-pill-icon">
+                <SocialLinkIcon type="email" />
+              </span>
+              Email: {home.email}
+            </span>
+          ) : null}
           {(home?.links || []).map((link) => {
             if (!link?.url || String(link.url).toLowerCase().startsWith('mailto:')) return null
             const customIconUrl = getCustomIconUrl(link)
@@ -198,8 +229,11 @@ export default async function HomePage() {
               </a>
             )
           })}
-          <Link href="/reach-by-phone" className="pill-link">
-            → Reach Me by Phone
+          <Link href="/reach-by-phone" className="pill-link social-link-pill">
+            <span aria-hidden="true" className="link-pill-icon">
+              <SocialLinkIcon type="phone" />
+            </span>
+            Reach Me by Phone
           </Link>
         </div>
       </header>

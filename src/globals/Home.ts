@@ -64,6 +64,8 @@ export const Home: GlobalConfig = {
             { label: 'None', value: 'none' },
             { label: 'LinkedIn', value: 'linkedin' },
             { label: 'GitHub', value: 'github' },
+            { label: 'Email', value: 'email' },
+            { label: 'Phone', value: 'phone' },
           ],
           admin: {
             description: 'Optional icon shown in the link pill.',
