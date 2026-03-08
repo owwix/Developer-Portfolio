@@ -178,6 +178,22 @@ p {
   max-width: 72ch;
 }
 
+.hero-blog-note {
+  margin-top: 0.7rem;
+  color: #c8d4eb;
+  font-size: 0.98rem;
+}
+
+.hero-blog-link {
+  color: var(--accent-strong);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(188, 214, 255, 0.35);
+}
+
+.hero-blog-link:hover {
+  border-bottom-color: var(--accent);
+}
+
 .hero {
   display: grid;
   gap: 1rem;

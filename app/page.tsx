@@ -102,16 +102,17 @@ export default async function HomePage() {
               {home?.bio ||
                 'Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery.'}
             </p>
+            <p className="hero-blog-note">
+              I document architecture decisions, build logs, and engineering lessons in my{' '}
+              <Link href="/blog" className="hero-blog-link">
+                blog
+              </Link>
+              .
+            </p>
           </div>
         </div>
         <div className="links">
           {home?.email ? <span className="pill">Email: {home.email}</span> : null}
-          <Link href="/reach-by-phone" className="pill-link">
-            → Reach Me by Phone
-          </Link>
-          <Link href="/blog" className="pill-link">
-            Lab / Notes
-          </Link>
           {(home?.links || []).map((link) =>
             link?.url && !String(link.url).toLowerCase().startsWith('mailto:') ? (
               <a href={link.url} key={`${link.label}-${link.url}`} rel="noreferrer" target="_blank">
@@ -119,6 +120,9 @@ export default async function HomePage() {
               </a>
             ) : null,
           )}
+          <Link href="/reach-by-phone" className="pill-link">
+            → Reach Me by Phone
+          </Link>
         </div>
       </header>
 
