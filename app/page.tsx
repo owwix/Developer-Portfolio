@@ -104,9 +104,8 @@ export default async function HomePage() {
             <img alt={home.profilePhoto?.alt || 'Profile photo'} className="avatar" src={home.profilePhoto.url} />
           ) : null}
           <div className="hero-copy">
-            <p className="eyebrow">SOFTWARE ENGINEER</p>
+            <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
             <h1>{home?.name || 'Alexander Okonkwo'}</h1>
-            <p className="headline">Full-Stack Software Engineer</p>
             <p className="bio">
               {home?.bio ||
                 'Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery.'}
