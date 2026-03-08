@@ -31,6 +31,7 @@ body {
   min-height: 100dvh;
   color: var(--ink);
   font-family: var(--font-sans), 'Space Grotesk', sans-serif;
+  background-color: var(--bg);
   background:
     radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.09) 0%, transparent 42%),
     radial-gradient(circle at 84% 78%, rgba(170, 170, 170, 0.11) 0%, transparent 44%),
@@ -793,9 +794,17 @@ p {
   }
 }
 
-@media (pointer: coarse) and (min-width: 900px) {
+@media (pointer: coarse) and (min-width: 700px) {
+  body {
+    background: var(--bg);
+  }
+
   #network-bg {
     opacity: 0.82;
+  }
+
+  .bg-glow {
+    display: none;
   }
 }
 

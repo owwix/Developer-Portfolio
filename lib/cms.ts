@@ -2,11 +2,26 @@ const BASE_URL = process.env.PAYLOAD_PUBLIC_SERVER_URL || `http://localhost:${pr
 
 const normalizeBase = (url: string): string => String(url || '').replace(/\/$/, '')
 
-export async function fetchCMS<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+type FetchOptions = {
+  authToken?: string
+  disableCache?: boolean
+} & RequestInit
+
+type BlogFetchOptions = {
+  draft?: boolean
+  authToken?: string
+}
+
+export async function fetchCMS<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
+  const { authToken, disableCache, headers, ...rest } = options
   const url = `${normalizeBase(BASE_URL)}${path}`
   const res = await fetch(url, {
-    cache: 'no-store',
-    ...options,
+    cache: disableCache ? 'no-store' : 'no-store',
+    headers: {
+      ...(headers || {}),
+      ...(authToken ? { Authorization: `JWT ${authToken}` } : {}),
+    },
+    ...rest,
   })
 
   if (!res.ok) {
@@ -32,12 +47,36 @@ export async function fetchExperiences<T = unknown>(limit = 10): Promise<T> {
   return fetchCMS<T>(`/api/experiences?limit=${limit}&sort=-startDate`)
 }
 
-export async function fetchBlogPosts<T = unknown>(limit = 100): Promise<T> {
-  return fetchCMS<T>(`/api/blog-posts?depth=2&limit=${limit}&sort=-publishedDate`)
+export async function fetchBlogPosts<T = unknown>(limit = 100, options: BlogFetchOptions = {}): Promise<T> {
+  const query = new URLSearchParams({
+    depth: '2',
+    limit: String(limit),
+    sort: '-publishedDate',
+  })
+
+  if (options.draft) {
+    query.set('draft', 'true')
+  }
+
+  return fetchCMS<T>(`/api/blog-posts?${query.toString()}`, {
+    authToken: options.authToken,
+  })
 }
 
-export async function fetchBlogPostBySlug<T = unknown>(slug: string): Promise<T | null> {
-  const safeSlug = encodeURIComponent(slug)
-  const response = await fetchCMS<{ docs?: T[] }>(`/api/blog-posts?depth=2&limit=1&where[slug][equals]=${safeSlug}`)
+export async function fetchBlogPostBySlug<T = unknown>(slug: string, options: BlogFetchOptions = {}): Promise<T | null> {
+  const query = new URLSearchParams({
+    depth: '2',
+    limit: '1',
+    'where[slug][equals]': slug,
+  })
+
+  if (options.draft) {
+    query.set('draft', 'true')
+  }
+
+  const response = await fetchCMS<{ docs?: T[] }>(`/api/blog-posts?${query.toString()}`, {
+    authToken: options.authToken,
+  })
+
   return response?.docs?.[0] || null
 }

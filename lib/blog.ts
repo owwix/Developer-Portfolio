@@ -1,3 +1,5 @@
+import hljs from 'highlight.js/lib/common'
+
 export type BlogTag = {
   tag?: string
 }
@@ -9,7 +11,10 @@ export type BlogPost = {
   summary?: string
   content?: string
   publishedDate?: string
+  createdAt?: string
+  updatedAt?: string
   tags?: BlogTag[]
+  _status?: 'draft' | 'published'
   coverImage?: {
     url?: string
     alt?: string
@@ -26,6 +31,38 @@ export type TocItem = {
   text: string
   level: number
 }
+
+const STOP_WORDS = new Set([
+  'a',
+  'an',
+  'and',
+  'are',
+  'as',
+  'at',
+  'be',
+  'by',
+  'for',
+  'from',
+  'has',
+  'he',
+  'in',
+  'is',
+  'it',
+  'its',
+  'of',
+  'on',
+  'that',
+  'the',
+  'to',
+  'was',
+  'were',
+  'will',
+  'with',
+  'i',
+  'you',
+  'we',
+  'our',
+])
 
 export function formatDate(value?: string): string {
   if (!value) return ''
@@ -48,7 +85,7 @@ export function getCoverImage(post: BlogPost): string {
   return post?.coverImage?.url || post?.coverImage?.sizes?.avatar?.url || ''
 }
 
-function toPlainText(value: string): string {
+export function toPlainText(value: string): string {
   return String(value || '')
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`]*`/g, ' ')
@@ -81,12 +118,33 @@ function slugify(value: string): string {
     .replace(/-+/g, '-')
 }
 
+function tokenize(value: string): string[] {
+  return toPlainText(value)
+    .toLowerCase()
+    .split(/\s+/)
+    .map((token) => token.replace(/[^a-z0-9-]/g, ''))
+    .filter((token) => token.length > 2 && !STOP_WORDS.has(token))
+}
+
 function inlineMarkdown(value: string): string {
   let html = escapeHTML(value)
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
   return html
+}
+
+function highlightCode(code: string, language: string): string {
+  const cleanLang = language.trim().toLowerCase()
+
+  try {
+    if (cleanLang && hljs.getLanguage(cleanLang)) {
+      return hljs.highlight(code, { language: cleanLang, ignoreIllegals: true }).value
+    }
+    return hljs.highlightAuto(code).value
+  } catch {
+    return escapeHTML(code)
+  }
 }
 
 export function parseMarkdown(source: string): { html: string; toc: TocItem[] } {
@@ -113,7 +171,10 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
         i += 1
       }
       if (i < lines.length) i += 1
-      chunks.push(`<pre><code class="language-${escapeHTML(lang)}">${escapeHTML(code.join('\n'))}</code></pre>`)
+
+      const rawCode = code.join('\n')
+      const highlighted = highlightCode(rawCode, lang)
+      chunks.push(`<pre><code class="hljs language-${escapeHTML(lang)}">${highlighted}</code></pre>`)
       continue
     }
 
@@ -178,4 +239,30 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
     html: chunks.join(''),
     toc,
   }
+}
+
+export function rankRelatedPosts(source: BlogPost, candidates: BlogPost[], limit = 3): BlogPost[] {
+  const sourceTags = new Set(getTags(source).map((tag) => tag.toLowerCase()))
+  const sourceTerms = new Set(tokenize([source.title, source.summary, source.content].join(' ')))
+  const now = Date.now()
+
+  return candidates
+    .filter((candidate) => candidate.slug && candidate.slug !== source.slug)
+    .map((candidate) => {
+      const candidateTags = getTags(candidate).map((tag) => tag.toLowerCase())
+      const tagOverlap = candidateTags.filter((tag) => sourceTags.has(tag)).length
+
+      const candidateTerms = tokenize([candidate.title, candidate.summary, candidate.content].join(' '))
+      const keywordOverlap = candidateTerms.filter((term) => sourceTerms.has(term)).length
+
+      const published = candidate.publishedDate ? new Date(candidate.publishedDate).getTime() : 0
+      const ageDays = published ? Math.max(0, (now - published) / (1000 * 60 * 60 * 24)) : 9999
+      const recencyScore = Math.max(0, 1 - ageDays / 365)
+
+      const score = tagOverlap * 8 + keywordOverlap * 2 + recencyScore
+      return { candidate, score }
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((item) => item.candidate)
 }
