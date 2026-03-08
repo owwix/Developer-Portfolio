@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import express from 'express'
+import next from 'next'
 import path from 'path'
 import payload from 'payload'
 
@@ -12,9 +13,9 @@ if (!process.env.PAYLOAD_CONFIG_PATH) {
 
 const start = async () => {
   const app = express()
-  const publicDir = path.resolve(__dirname, '../public')
-
-  app.use(express.static(publicDir))
+  const dev = process.env.NODE_ENV !== 'production'
+  const nextApp = next({ dev, dir: path.resolve(__dirname, '..') })
+  const nextHandler = nextApp.getRequestHandler()
 
   await payload.init({
     secret: process.env.PAYLOAD_SECRET ?? '',
@@ -26,6 +27,12 @@ const start = async () => {
 
   app.get('/health', (_, res) => {
     res.status(200).json({ ok: true })
+  })
+
+  await nextApp.prepare()
+
+  app.all('*', (req, res) => {
+    void nextHandler(req, res)
   })
 
   const port = Number(process.env.PORT ?? 3000)

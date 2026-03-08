@@ -1,11 +1,18 @@
-# Developer Portfolio (Payload CMS)
+# Developer Portfolio (Payload + Next.js)
 
-This repository is set up as a **SWE portfolio CMS backend** using Payload.
+This repository runs a full portfolio experience with:
+- Payload CMS for admin/content APIs
+- Next.js App Router for the public frontend
+- TypeScript across backend (`src/*.ts`) and frontend (`app/**/*.tsx`, `components/**/*.tsx`, `lib/**/*.ts`)
 
 ## What is included
 
 - Payload admin panel at `/admin`
-- Public API access for portfolio data
+- Public API access at `/api/*`
+- Next.js frontend pages:
+  - `/` (portfolio homepage)
+  - `/blog` (notes archive)
+  - `/blog/[slug]` (article detail)
 - Collections for:
   - `projects`
   - `skills`
@@ -40,13 +47,6 @@ This repository is set up as a **SWE portfolio CMS backend** using Payload.
    npm run dev
    ```
 
-Frontend script source lives in `src/client/app.ts`.
-When you change it, compile to browser JS with:
-
-```bash
-npm run build:frontend
-```
-
 5. Open admin panel:
 
    - <http://localhost:3000/admin>
@@ -58,6 +58,9 @@ npm run build:frontend
 - Use `skills` for grouped technical skills and proficiency ratings.
 - Use `experiences` for timeline-based work history and impact bullets.
 
-## Next step (frontend)
+## Build and start
 
-You can now consume Payload's REST or GraphQL APIs from a frontend (Next.js, Astro, etc.) to render your portfolio UI.
+```bash
+npm run build
+npm start
+```
