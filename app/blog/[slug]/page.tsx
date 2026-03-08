@@ -2,14 +2,17 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ArticleBody from '../../../components/blog/ArticleBody'
+import BookmarkButton from '../../../components/blog/BookmarkButton'
 import BlogCard from '../../../components/blog/BlogCard'
 import BlogCommandPalette from '../../../components/blog/BlogCommandPalette'
+import PostAnalyticsSummary from '../../../components/blog/PostAnalyticsSummary'
+import PostAnalyticsTracker from '../../../components/blog/PostAnalyticsTracker'
 import ReadingProgress from '../../../components/blog/ReadingProgress'
 import SectionContextNav from '../../../components/blog/SectionContextNav'
 import TagPills from '../../../components/blog/TagPills'
 import Toc from '../../../components/blog/Toc'
 import type { BlogPost } from '../../../lib/blog'
-import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown, toDisplayText } from '../../../lib/blog'
+import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown, rankRelatedPosts, toDisplayText } from '../../../lib/blog'
 import { fetchBlogPostBySlug, fetchBlogPosts } from '../../../lib/cms'
 
 export const dynamic = 'force-dynamic'
@@ -35,11 +38,28 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
   return {
     title: `${post.title} | Lab / Notes`,
     description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
       type: 'article',
       url: `/blog/${post.slug}`,
+      images: [
+        {
+          url: `/blog/${post.slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: post.title || 'Blog post cover image',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title || 'Lab / Notes',
+      description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
+      images: [`/blog/${post.slug}/opengraph-image`],
     },
   }
 }
@@ -56,6 +76,10 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
   let relatedPosts: BlogPost[] = []
   let commandEntries: Array<{ title: string; slug: string; summary?: string; tags?: string[] }> = []
+  let seriesPosts: BlogPost[] = []
+  let prevInSeries: BlogPost | null = null
+  let nextInSeries: BlogPost | null = null
+  let seriesPart = 0
   try {
     const allPosts = (await fetchBlogPosts<{ docs?: BlogPost[] }>(200))?.docs || []
     const publishedPosts = allPosts.filter((entry) => Boolean(entry?.slug) && !isComingSoon(entry))
@@ -67,27 +91,90 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       tags: getTags(entry),
     }))
 
-    const activeTags = new Set(getTags(post))
+    relatedPosts = rankRelatedPosts(post, publishedPosts, 3)
 
-    relatedPosts = publishedPosts
-      .filter((entry) => entry.slug !== post.slug)
-      .map((entry) => {
-        const overlap = getTags(entry).filter((tag) => activeTags.has(tag)).length
-        return { entry, overlap }
-      })
-      .sort((a, b) => b.overlap - a.overlap)
-      .map((item) => item.entry)
-      .slice(0, 3)
+    const seriesName = String(post.seriesTitle || '').trim().toLowerCase()
+    if (seriesName) {
+      seriesPosts = publishedPosts
+        .filter((entry) => String(entry.seriesTitle || '').trim().toLowerCase() === seriesName)
+        .sort((a, b) => {
+          const partA = Number(a.seriesOrder || 9999)
+          const partB = Number(b.seriesOrder || 9999)
+          if (partA !== partB) return partA - partB
+          const dateA = new Date(a.publishedDate || 0).getTime()
+          const dateB = new Date(b.publishedDate || 0).getTime()
+          return dateA - dateB
+        })
+
+      const idx = seriesPosts.findIndex((entry) => entry.slug === post.slug)
+      if (idx >= 0) {
+        seriesPart = idx + 1
+        prevInSeries = idx > 0 ? seriesPosts[idx - 1] : null
+        nextInSeries = idx < seriesPosts.length - 1 ? seriesPosts[idx + 1] : null
+      }
+    }
   } catch (error) {
     console.error(error)
   }
 
   const coverImage = getCoverImage(post)
+  const postUrl = `https://www.alexok.dev/blog/${post.slug}`
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title || 'Lab / Notes',
+    description: summaryText || 'Technical article by Alexander Okonkwo.',
+    author: {
+      '@type': 'Person',
+      name: 'Alexander Okonkwo',
+    },
+    datePublished: post.publishedDate || undefined,
+    dateModified: post.updatedAt || post.publishedDate || undefined,
+    mainEntityOfPage: postUrl,
+    image: [`https://www.alexok.dev/blog/${post.slug}/opengraph-image`],
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Portfolio',
+        item: 'https://www.alexok.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Lab / Notes',
+        item: 'https://www.alexok.dev/blog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title || 'Article',
+        item: postUrl,
+      },
+    ],
+  }
 
   return (
     <>
       <ReadingProgress />
+      <PostAnalyticsTracker slug={String(post.slug || '')} title={String(post.title || 'Article')} />
       <main className="container page-post">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(articleJsonLd),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbJsonLd),
+          }}
+        />
         <SectionContextNav
           items={[
             { label: 'Portfolio', href: '/' },
@@ -100,10 +187,40 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <p className="eyebrow">Engineering Article</p>
           <h1>{post.title}</h1>
           <p className="post-meta-line">By Alexander Okonkwo · {formatDate(post.publishedDate)} · {getReadTime(post)}</p>
+          <PostAnalyticsSummary slug={String(post.slug || '')} />
           <TagPills className="post-tag-row" tags={getTags(post)} />
+          <div className="post-actions-row">
+            <BookmarkButton slug={String(post.slug || '')} title={String(post.title || 'Untitled Article')} />
+          </div>
           {summaryText ? <p className="page-intro">{summaryText}</p> : null}
           {coverImage ? <img className="post-cover" src={coverImage} alt={post?.coverImage?.alt || post.title} /> : null}
         </header>
+
+        {seriesPosts.length > 1 ? (
+          <section className="card reveal series-nav-card">
+            <p className="eyebrow">Series</p>
+            <h2>{post.seriesTitle || 'Series'}</h2>
+            <p className="series-nav-meta">
+              Part {seriesPart || Number(post.seriesOrder || 1)} of {seriesPosts.length}
+            </p>
+            <div className="series-nav-links">
+              {prevInSeries?.slug ? (
+                <Link className="view-all-link" href={`/blog/${prevInSeries.slug}`}>
+                  ← Previous: {prevInSeries.title || 'Previous Post'}
+                </Link>
+              ) : (
+                <span className="series-nav-disabled">Start of series</span>
+              )}
+              {nextInSeries?.slug ? (
+                <Link className="view-all-link" href={`/blog/${nextInSeries.slug}`}>
+                  Next: {nextInSeries.title || 'Next Post'} →
+                </Link>
+              ) : (
+                <span className="series-nav-disabled">End of series</span>
+              )}
+            </div>
+          </section>
+        ) : null}
 
         <section className="post-layout">
           <div className="post-main card reveal">

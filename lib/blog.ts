@@ -10,6 +10,8 @@ export type BlogPost = {
   slug?: string
   summary?: unknown
   content?: unknown
+  seriesTitle?: string
+  seriesOrder?: number
   publishedDate?: string
   isComingSoon?: boolean
   createdAt?: string

@@ -29,6 +29,14 @@ export default function BlogCard({
       ) : (
         <BlogMetaRow date={formatDate(post.publishedDate)} readTime={getReadTime(post)} />
       )}
+      {post.seriesTitle ? (
+        <div className="blog-meta-row">
+          <span className="meta-chip">
+            {post.seriesTitle}
+            {post.seriesOrder ? ` · Part ${post.seriesOrder}` : ''}
+          </span>
+        </div>
+      ) : null}
       <TagPills tags={tags.slice(0, variant === 'preview' ? 4 : 8)} />
       <div className="blog-card-cta">
         {comingSoon ? 'Coming Soon' : 'Read Article'} {!comingSoon ? <span aria-hidden="true">→</span> : null}

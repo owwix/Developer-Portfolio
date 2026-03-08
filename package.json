@@ -7,7 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "next build && tsc -p tsconfig.json && PAYLOAD_CONFIG_PATH=dist/payload.config.js payload build",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.next.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.next.json",
+    "migrate:richtext": "tsx scripts/migrate-richtext.ts"
   },
   "dependencies": {
     "@payloadcms/bundler-webpack": "^1.0.9",

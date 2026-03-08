@@ -85,6 +85,26 @@ export const BlogPosts: CollectionConfig = {
       ],
     },
     {
+      name: 'seriesTitle',
+      label: 'Series',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Optional series name (for multi-part posts).',
+      },
+    },
+    {
+      name: 'seriesOrder',
+      label: 'Series Order',
+      type: 'number',
+      min: 1,
+      admin: {
+        position: 'sidebar',
+        description: 'Part number inside the series.',
+        condition: (_, siblingData) => Boolean(String(siblingData?.seriesTitle || '').trim()),
+      },
+    },
+    {
       name: 'publishedDate',
       type: 'date',
       required: true,

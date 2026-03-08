@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import ArchiveFilters from '../../components/blog/ArchiveFilters'
 import BlogCommandPalette from '../../components/blog/BlogCommandPalette'
+import ReadingListPanel from '../../components/blog/ReadingListPanel'
 import SectionContextNav from '../../components/blog/SectionContextNav'
 import type { BlogPost } from '../../lib/blog'
 import { getTags, isComingSoon, toDisplayText } from '../../lib/blog'
@@ -33,10 +34,36 @@ export default async function BlogArchivePage() {
       tags: getTags(post),
     }))
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Portfolio',
+        item: 'https://www.alexok.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Lab / Notes',
+        item: 'https://www.alexok.dev/blog',
+      },
+    ],
+  }
+
   return (
     <main className="container page-blog">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
       <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: 'Lab / Notes' }]} />
       {commandEntries.length ? <BlogCommandPalette entries={commandEntries} /> : null}
+      {commandEntries.length ? <ReadingListPanel posts={commandEntries.map((entry) => ({ slug: entry.slug, title: entry.title }))} /> : null}
       <header className="card page-hero reveal">
         <p className="eyebrow">Engineering Journal</p>
         <h1>Lab / Notes</h1>

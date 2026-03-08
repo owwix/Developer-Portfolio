@@ -46,11 +46,25 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const personJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Alexander Okonkwo',
+    jobTitle: 'Software Engineer',
+    url: 'https://www.alexok.dev',
+  }
+
   return (
     <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} lang="en">
       <body>
         <NetworkBackground />
         {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(personJsonLd),
+          }}
+        />
       </body>
     </html>
   )

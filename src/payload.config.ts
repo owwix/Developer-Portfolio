@@ -6,6 +6,7 @@ import { buildConfig } from 'payload/config'
 import AdminIcon from './admin/components/AdminIcon'
 import AdminLogo from './admin/components/AdminLogo'
 import EditorialDashboard from './admin/components/EditorialDashboard'
+import { BlogAnalytics } from './collections/BlogAnalytics'
 import { BlogPosts } from './collections/BlogPosts'
 import { Experiences } from './collections/Experiences'
 import { Media } from './collections/Media'
@@ -40,6 +41,7 @@ export default buildConfig({
   },
   collections: [
     BlogPosts,
+    BlogAnalytics,
     Media,
     Projects,
     Skills,
