@@ -45,8 +45,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} lang="en">
       <body>
         <NetworkBackground />
-        <div className="bg-glow bg-glow-1" aria-hidden="true" />
-        <div className="bg-glow bg-glow-2" aria-hidden="true" />
         {children}
       </body>
     </html>
