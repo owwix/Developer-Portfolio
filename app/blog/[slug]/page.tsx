@@ -3,12 +3,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ArticleBody from '../../../components/blog/ArticleBody'
 import BlogCard from '../../../components/blog/BlogCard'
-import BlogMetaRow from '../../../components/blog/BlogMetaRow'
 import ReadingProgress from '../../../components/blog/ReadingProgress'
 import TagPills from '../../../components/blog/TagPills'
 import Toc from '../../../components/blog/Toc'
 import type { BlogPost } from '../../../lib/blog'
-import { formatDate, getCoverImage, getReadTime, getTags, parseMarkdown } from '../../../lib/blog'
+import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown } from '../../../lib/blog'
 import { fetchBlogPostBySlug, fetchBlogPosts } from '../../../lib/cms'
 
 export const dynamic = 'force-dynamic'
@@ -47,6 +46,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params
   const post = await fetchBlogPostBySlug<BlogPost>(slug)
   if (!post) notFound()
+  if (isComingSoon(post)) notFound()
 
   const { html, toc } = parseMarkdown(post.content || post.summary || '')
 
@@ -77,8 +77,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         <header className="card post-hero reveal">
           <p className="eyebrow">Engineering Article</p>
           <h1>{post.title}</h1>
-          <BlogMetaRow date={formatDate(post.publishedDate)} readTime={getReadTime(post)} />
-          <TagPills tags={getTags(post)} />
+          <p className="post-meta-line">By Alexander Okonkwo · {formatDate(post.publishedDate)} · {getReadTime(post)}</p>
+          <TagPills className="post-tag-row" tags={getTags(post)} />
           {post.summary ? <p className="page-intro">{post.summary}</p> : null}
           {coverImage ? <img className="post-cover" src={coverImage} alt={post?.coverImage?.alt || post.title} /> : null}
         </header>

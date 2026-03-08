@@ -11,7 +11,7 @@ type PaginatedSkillCategoriesProps = {
   pageSize?: number
 }
 
-export default function PaginatedSkillCategories({ groupedSkills, pageSize = 3 }: PaginatedSkillCategoriesProps) {
+export default function PaginatedSkillCategories({ groupedSkills, pageSize = 1 }: PaginatedSkillCategoriesProps) {
   const [page, setPage] = useState(1)
 
   const categories = useMemo(() => Object.entries(groupedSkills), [groupedSkills])

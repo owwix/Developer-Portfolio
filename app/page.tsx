@@ -103,16 +103,17 @@ export default async function HomePage() {
           {home?.profilePhoto?.url ? (
             <img alt={home.profilePhoto?.alt || 'Profile photo'} className="avatar" src={home.profilePhoto.url} />
           ) : null}
-          <div>
-            <p className="eyebrow">Software Engineer</p>
+          <div className="hero-copy">
+            <p className="eyebrow">SOFTWARE ENGINEER</p>
             <h1>{home?.name || 'Alexander Okonkwo'}</h1>
-            <p className="headline">{home?.headline || 'Building scalable web products and developer tooling.'}</p>
+            <p className="headline">Full-Stack Software Engineer</p>
             <p className="bio">
               {home?.bio ||
                 'Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery.'}
             </p>
             <p className="hero-blog-note">
-              I document architecture decisions, build logs, and engineering lessons in my{' '}
+              I document architecture decisions, build logs, and engineering lessons learned while building production systems in
+              my{' '}
               <Link href="/blog" className="hero-blog-link">
                 blog
               </Link>

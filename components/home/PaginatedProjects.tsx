@@ -27,7 +27,7 @@ type PaginatedProjectsProps = {
   pageSize?: number
 }
 
-export default function PaginatedProjects({ projects, pageSize = 3 }: PaginatedProjectsProps) {
+export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedProjectsProps) {
   const [page, setPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(projects.length / pageSize))
   const currentPage = Math.min(page, totalPages)

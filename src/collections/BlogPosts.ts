@@ -79,5 +79,15 @@ export const BlogPosts: CollectionConfig = {
       required: true,
       defaultValue: () => new Date().toISOString(),
     },
+    {
+      name: 'isComingSoon',
+      label: 'Show as Coming Soon',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'If enabled, this post appears in blog lists as "Coming Soon" and is not publicly readable yet.',
+        position: 'sidebar',
+      },
+    },
   ],
 }

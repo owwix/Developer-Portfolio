@@ -11,6 +11,7 @@ export type BlogPost = {
   summary?: string
   content?: string
   publishedDate?: string
+  isComingSoon?: boolean
   createdAt?: string
   updatedAt?: string
   tags?: BlogTag[]
@@ -100,6 +101,14 @@ export function getReadTime(post: BlogPost): string {
   return `${Math.max(1, Math.round(words / 220))} min read`
 }
 
+export function isComingSoon(post: BlogPost): boolean {
+  if (post?.isComingSoon) return true
+  if (!post?.publishedDate) return false
+  const published = new Date(post.publishedDate).getTime()
+  if (Number.isNaN(published)) return false
+  return published > Date.now()
+}
+
 export function escapeHTML(value: string): string {
   return String(value || '')
     .replace(/&/g, '&amp;')
@@ -147,6 +156,53 @@ function highlightCode(code: string, language: string): string {
   }
 }
 
+type ParsedCalloutType = 'decision' | 'why' | 'tradeoff' | 'lesson' | 'improve' | 'note' | 'tip' | 'warning'
+
+const CALLOUT_MAP: Record<string, ParsedCalloutType> = {
+  decision: 'decision',
+  why: 'why',
+  whymattered: 'why',
+  whythismattered: 'why',
+  tradeoff: 'tradeoff',
+  tradeoffs: 'tradeoff',
+  lesson: 'lesson',
+  lessonlearned: 'lesson',
+  lessonslearned: 'lesson',
+  improve: 'improve',
+  improvements: 'improve',
+  whatidimprovenext: 'improve',
+  note: 'note',
+  tip: 'tip',
+  warning: 'warning',
+}
+
+const CALLOUT_META: Record<ParsedCalloutType, { label: string; icon: string }> = {
+  decision: { label: 'Decision', icon: '◆' },
+  why: { label: 'Why This Mattered', icon: '◉' },
+  tradeoff: { label: 'Tradeoff', icon: '◌' },
+  lesson: { label: 'Lesson Learned', icon: '▣' },
+  improve: { label: "What I'd Improve Next", icon: '→' },
+  note: { label: 'Note', icon: '●' },
+  tip: { label: 'Tip', icon: '✓' },
+  warning: { label: 'Warning', icon: '!' },
+}
+
+function normalizeCalloutToken(rawType: string): ParsedCalloutType | null {
+  const normalized = String(rawType || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+  return CALLOUT_MAP[normalized] || null
+}
+
+function renderCallout(type: ParsedCalloutType, title: string, bodyLines: string[]): string {
+  const meta = CALLOUT_META[type]
+  const parsedTitle = title.trim() || meta.label
+  const compact = bodyLines.map((line) => line.trim()).filter(Boolean).join(' ')
+  const content = compact ? `<p>${inlineMarkdown(compact)}</p>` : ''
+
+  return `<aside class="callout callout-${type}"><div class="callout-head"><span class="callout-icon" aria-hidden="true">${meta.icon}</span><span class="callout-title">${escapeHTML(parsedTitle)}</span></div><div class="callout-content">${content}</div></aside>`
+}
+
 export function parseMarkdown(source: string): { html: string; toc: TocItem[] } {
   const lines = String(source || '').replace(/\r\n/g, '\n').split('\n')
   const chunks: string[] = []
@@ -191,15 +247,23 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
       continue
     }
 
-    const calloutMatch = trimmed.match(/^>\s*\[!(NOTE|TIP|WARNING)\]\s*(.*)$/i)
+    const calloutMatch = trimmed.match(/^>\s*\[!([^\]]+)\]\s*(.*)$/i)
     if (calloutMatch) {
-      const type = calloutMatch[1].toLowerCase()
-      const text = calloutMatch[2]
-      chunks.push(
-        `<aside class="callout callout-${type}"><div class="callout-title">${type.toUpperCase()}</div><p>${inlineMarkdown(text)}</p></aside>`,
-      )
-      i += 1
-      continue
+      const parsedType = normalizeCalloutToken(calloutMatch[1])
+      if (parsedType) {
+        const body: string[] = []
+        const title = calloutMatch[2] || ''
+        i += 1
+        while (i < lines.length) {
+          const next = lines[i].trim()
+          if (!next.startsWith('>')) break
+          if (/^>\s*\[![^\]]+\]/.test(next)) break
+          body.push(next.replace(/^>\s?/, ''))
+          i += 1
+        }
+        chunks.push(renderCallout(parsedType, title, body))
+        continue
+      }
     }
 
     if (trimmed.startsWith('>')) {
