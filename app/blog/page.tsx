@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import ArchiveFilters from '../../components/blog/ArchiveFilters'
+import SectionContextNav from '../../components/blog/SectionContextNav'
 import type { BlogPost } from '../../lib/blog'
 import { fetchBlogPosts } from '../../lib/cms'
 
@@ -23,6 +24,7 @@ export default async function BlogArchivePage() {
 
   return (
     <main className="container page-blog">
+      <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: 'Lab / Notes' }]} />
       <header className="card page-hero reveal">
         <p className="eyebrow">Engineering Journal</p>
         <h1>Lab / Notes</h1>

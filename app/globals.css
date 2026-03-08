@@ -351,6 +351,55 @@ p {
   border-color: var(--accent);
 }
 
+.section-context {
+  margin-bottom: 0.72rem;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+}
+
+.section-context ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.section-context-item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.section-context-item + .section-context-item::before {
+  content: '/';
+  margin-right: 0.28rem;
+  color: #5e5e5e;
+}
+
+.section-context a {
+  color: #ababab;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.section-context a:hover {
+  color: #e2e2e2;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.section-context-current {
+  color: #f1f1f1;
+  max-width: min(60vw, 520px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .pagination-bar {
   margin-top: 0.72rem;
   padding-top: 0.68rem;
@@ -440,6 +489,7 @@ p {
 .article-body a:focus-visible,
 .toc a:focus-visible,
 .view-all-link:focus-visible,
+.section-context a:focus-visible,
 .pagination-btn:focus-visible,
 .links a:focus-visible {
   outline: 2px solid var(--accent);
@@ -985,6 +1035,15 @@ p {
 
   .hero-copy {
     max-width: 100%;
+  }
+
+  .section-context {
+    margin-bottom: 0.64rem;
+    font-size: 0.72rem;
+  }
+
+  .section-context-current {
+    max-width: min(54vw, 260px);
   }
 
   .grid {

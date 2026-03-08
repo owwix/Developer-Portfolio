@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import ArticleBody from '../../../components/blog/ArticleBody'
 import BlogCard from '../../../components/blog/BlogCard'
 import ReadingProgress from '../../../components/blog/ReadingProgress'
+import SectionContextNav from '../../../components/blog/SectionContextNav'
 import TagPills from '../../../components/blog/TagPills'
 import Toc from '../../../components/blog/Toc'
 import type { BlogPost } from '../../../lib/blog'
@@ -74,6 +75,13 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     <>
       <ReadingProgress />
       <main className="container page-post">
+        <SectionContextNav
+          items={[
+            { label: 'Portfolio', href: '/' },
+            { label: 'Lab / Notes', href: '/blog' },
+            { label: post.title || 'Article' },
+          ]}
+        />
         <header className="card post-hero reveal">
           <p className="eyebrow">Engineering Article</p>
           <h1>{post.title}</h1>
