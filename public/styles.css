@@ -141,6 +141,16 @@ body {
   transform: translateY(-1px);
 }
 
+.links .pill {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: #070a0f;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+}
+
 .grid {
   margin-top: 1rem;
   display: grid;

@@ -153,7 +153,7 @@ const normalizeLinkLabel = (label, url) => {
   if (value.startsWith("mailto:")) return "Email";
   if (value.includes("linkedin.com")) return "LinkedIn";
   if (value.includes("github.com")) return "GitHub";
-  if (value.includes("forms.gle") || value.includes("typeform.com") || value.includes("tally.so")) return "Contact Form";
+  if (value.includes("forms.gle") || value.includes("typeform.com") || value.includes("tally.so")) return "Contact Form (Phone)";
   return "Link";
 };
 
@@ -195,18 +195,30 @@ const renderHome = (home) => {
   if (!labelsSeen.has("github")) {
     defaultLinks.push({ label: "GitHub", url: "https://github.com/owwix" });
   }
-  if (!labelsSeen.has("contact form") && home?.email) {
+  const hasContactForm = labelsSeen.has("contact form") || labelsSeen.has("contact form (phone)");
+  if (!hasContactForm && home?.email) {
     defaultLinks.push({
-      label: "Contact Form",
+      label: "Contact Form (Phone)",
       url: `mailto:${home.email}?subject=Portfolio%20Inquiry`,
     });
   }
 
   const linksToRender = [...configuredLinks, ...defaultLinks];
   for (const link of linksToRender) {
+    const normalizedLabel = link.label.toLowerCase();
+
+    if (normalizedLabel.startsWith("email")) {
+      const span = document.createElement("span");
+      span.className = "pill";
+      const visibleEmail = String(link.url).replace(/^mailto:/i, "");
+      span.textContent = `Email: ${visibleEmail}`;
+      linksEl.appendChild(span);
+      continue;
+    }
+
     const a = document.createElement("a");
     a.href = link.url;
-    a.textContent = link.label;
+    a.textContent = normalizedLabel.startsWith("contact form") ? "-> Reach Me by Phone" : link.label;
     a.target = "_blank";
     a.rel = "noreferrer";
     linksEl.appendChild(a);
