@@ -40,6 +40,13 @@ This repository is set up as a **SWE portfolio CMS backend** using Payload.
    npm run dev
    ```
 
+Frontend script source lives in `src/client/app.ts`.
+When you change it, compile to browser JS with:
+
+```bash
+npm run build:frontend
+```
+
 5. Open admin panel:
 
    - <http://localhost:3000/admin>
