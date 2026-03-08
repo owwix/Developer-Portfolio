@@ -1,12 +1,13 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { toDisplayText } from '../../lib/blog'
 
 type ProjectRow = {
   id?: string
   slug?: string
   title?: string
-  summary?: string
+  summary?: unknown
   liveUrl?: string
   repoUrl?: string
   projectImage?:
@@ -64,7 +65,7 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
               <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
             ) : null}
             <h3>{project.title || 'Untitled Project'}</h3>
-            <p>{project.summary || 'No summary available.'}</p>
+            <p>{toDisplayText(project.summary) || 'No summary available.'}</p>
             <div className="meta">
               {project.liveUrl ? (
                 <a className="badge badge-link" href={project.liveUrl} rel="noreferrer" target="_blank">

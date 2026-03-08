@@ -12,6 +12,7 @@ import { Media } from './collections/Media'
 import { PhoneRequests } from './collections/PhoneRequests'
 import { Projects } from './collections/Projects'
 import { Skills } from './collections/Skills'
+import { AdminBranding } from './globals/AdminBranding'
 import { Home } from './globals/Home'
 
 export default buildConfig({
@@ -58,7 +59,7 @@ export default buildConfig({
       fields: [],
     },
   ],
-  globals: [Home],
+  globals: [Home, AdminBranding],
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },

@@ -51,8 +51,11 @@ export const Experiences: CollectionConfig = {
     },
     {
       name: 'summary',
-      type: 'textarea',
+      type: 'richText',
       required: true,
+      admin: {
+        description: 'Role summary / experience description. Supports rich text.',
+      },
     },
     {
       name: 'achievements',

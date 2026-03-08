@@ -8,7 +8,7 @@ import SectionContextNav from '../../../components/blog/SectionContextNav'
 import TagPills from '../../../components/blog/TagPills'
 import Toc from '../../../components/blog/Toc'
 import type { BlogPost } from '../../../lib/blog'
-import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown } from '../../../lib/blog'
+import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown, toDisplayText } from '../../../lib/blog'
 import { fetchBlogPostBySlug, fetchBlogPosts } from '../../../lib/cms'
 
 export const dynamic = 'force-dynamic'
@@ -33,10 +33,10 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
 
   return {
     title: `${post.title} | Lab / Notes`,
-    description: post.summary || 'Technical article by Alexander Okonkwo.',
+    description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
     openGraph: {
       title: post.title,
-      description: post.summary || 'Technical article by Alexander Okonkwo.',
+      description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
       type: 'article',
       url: `/blog/${post.slug}`,
     },
@@ -48,8 +48,10 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const post = await fetchBlogPostBySlug<BlogPost>(slug)
   if (!post) notFound()
   if (isComingSoon(post)) notFound()
+  const summaryText = toDisplayText(post.summary)
+  const bodySource = typeof post.content === 'string' ? post.content : toDisplayText(post.content) || summaryText
 
-  const { html, toc } = parseMarkdown(post.content || post.summary || '')
+  const { html, toc } = parseMarkdown(bodySource)
 
   let relatedPosts: BlogPost[] = []
   try {
@@ -87,7 +89,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <h1>{post.title}</h1>
           <p className="post-meta-line">By Alexander Okonkwo · {formatDate(post.publishedDate)} · {getReadTime(post)}</p>
           <TagPills className="post-tag-row" tags={getTags(post)} />
-          {post.summary ? <p className="page-intro">{post.summary}</p> : null}
+          {summaryText ? <p className="page-intro">{summaryText}</p> : null}
           {coverImage ? <img className="post-cover" src={coverImage} alt={post?.coverImage?.alt || post.title} /> : null}
         </header>
 

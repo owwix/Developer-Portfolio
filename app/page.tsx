@@ -2,7 +2,7 @@ import Link from 'next/link'
 import BlogCard from '../components/blog/BlogCard'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
-import type { BlogPost } from '../lib/blog'
+import { toDisplayText, type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 type HomeData = {
   name?: string
   headline?: string
-  bio?: string
+  bio?: unknown
   email?: string
   links?: Array<{ label?: string; url?: string }>
   profilePhoto?: {
@@ -29,7 +29,7 @@ type ExperienceRow = {
   id?: string
   role?: string
   company?: string
-  summary?: string
+  summary?: unknown
   location?: string
   current?: boolean
 }
@@ -38,7 +38,7 @@ type ProjectRow = {
   id?: string
   slug?: string
   title?: string
-  summary?: string
+  summary?: unknown
   liveUrl?: string
   repoUrl?: string
   projectImage?:
@@ -107,7 +107,7 @@ export default async function HomePage() {
             <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
             <h1>{home?.name || 'Alexander Okonkwo'}</h1>
             <p className="bio">
-              {home?.bio ||
+              {toDisplayText(home?.bio) ||
                 'Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery.'}
             </p>
             <p className="hero-blog-note">
@@ -155,7 +155,7 @@ export default async function HomePage() {
                   <h3>
                     {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
                   </h3>
-                  <p>{exp.summary || 'No summary yet.'}</p>
+                  <p>{toDisplayText(exp.summary) || 'No summary yet.'}</p>
                   <div className="meta">
                     {exp.location ? <span className="badge">{exp.location}</span> : null}
                     {exp.current ? <span className="badge featured">Current</span> : null}

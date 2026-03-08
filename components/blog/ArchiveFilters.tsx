@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { BlogPost } from '../../lib/blog'
-import { getTags } from '../../lib/blog'
+import { getTags, toDisplayText } from '../../lib/blog'
 import BlogCard from './BlogCard'
 
 export default function ArchiveFilters({ posts = [] }: { posts?: BlogPost[] }) {
@@ -24,7 +24,7 @@ export default function ArchiveFilters({ posts = [] }: { posts?: BlogPost[] }) {
       if (!tagMatch) return false
       if (!needle) return true
 
-      const haystack = [post.title, post.summary, post.content, ...getTags(post)].join(' ').toLowerCase()
+      const haystack = [post.title, toDisplayText(post.summary), toDisplayText(post.content), ...getTags(post)].join(' ').toLowerCase()
       return haystack.includes(needle)
     })
   }, [activeTag, posts, query])

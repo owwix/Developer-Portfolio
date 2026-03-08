@@ -59,8 +59,11 @@ export const BlogPosts: CollectionConfig = {
     },
     {
       name: 'summary',
-      type: 'textarea',
+      type: 'richText',
       required: true,
+      admin: {
+        description: 'Article summary / lead paragraph. Supports rich text.',
+      },
     },
     {
       name: 'content',

@@ -25,8 +25,11 @@ export const Projects: CollectionConfig = {
     },
     {
       name: 'summary',
-      type: 'textarea',
+      type: 'richText',
       required: true,
+      admin: {
+        description: 'Project summary / description. Supports rich text.',
+      },
     },
     {
       name: 'projectImage',

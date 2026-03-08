@@ -8,8 +8,8 @@ export type BlogPost = {
   id?: string
   title?: string
   slug?: string
-  summary?: string
-  content?: string
+  summary?: unknown
+  content?: unknown
   publishedDate?: string
   isComingSoon?: boolean
   createdAt?: string
@@ -86,8 +86,28 @@ export function getCoverImage(post: BlogPost): string {
   return post?.coverImage?.url || post?.coverImage?.sizes?.avatar?.url || ''
 }
 
-export function toPlainText(value: string): string {
-  return String(value || '')
+function richTextToText(value: unknown): string {
+  if (value == null) return ''
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) {
+    return value.map((entry) => richTextToText(entry)).filter(Boolean).join(' ')
+  }
+  if (typeof value === 'object') {
+    const node = value as { text?: unknown; children?: unknown; root?: unknown }
+    if (typeof node.text === 'string') return node.text
+    if (node.children) return richTextToText(node.children)
+    if (node.root) return richTextToText(node.root)
+  }
+  return ''
+}
+
+export function toDisplayText(value: unknown): string {
+  return richTextToText(value).replace(/\s+/g, ' ').trim()
+}
+
+export function toPlainText(value: unknown): string {
+  return toDisplayText(value)
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`]*`/g, ' ')
     .replace(/[>#*_\-[\]()]*/g, ' ')
@@ -96,7 +116,7 @@ export function toPlainText(value: string): string {
 }
 
 export function getReadTime(post: BlogPost): string {
-  const text = toPlainText([post?.summary || '', post?.content || ''].join(' ').trim())
+  const text = toPlainText([post?.summary || '', post?.content || ''])
   const words = text ? text.split(/\s+/).length : 0
   return `${Math.max(1, Math.round(words / 220))} min read`
 }
@@ -127,7 +147,7 @@ function slugify(value: string): string {
     .replace(/-+/g, '-')
 }
 
-function tokenize(value: string): string[] {
+function tokenize(value: unknown): string[] {
   return toPlainText(value)
     .toLowerCase()
     .split(/\s+/)
@@ -307,7 +327,7 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
 
 export function rankRelatedPosts(source: BlogPost, candidates: BlogPost[], limit = 3): BlogPost[] {
   const sourceTags = new Set(getTags(source).map((tag) => tag.toLowerCase()))
-  const sourceTerms = new Set(tokenize([source.title, source.summary, source.content].join(' ')))
+  const sourceTerms = new Set(tokenize([source.title, source.summary, source.content]))
   const now = Date.now()
 
   return candidates
@@ -316,7 +336,7 @@ export function rankRelatedPosts(source: BlogPost, candidates: BlogPost[], limit
       const candidateTags = getTags(candidate).map((tag) => tag.toLowerCase())
       const tagOverlap = candidateTags.filter((tag) => sourceTags.has(tag)).length
 
-      const candidateTerms = tokenize([candidate.title, candidate.summary, candidate.content].join(' '))
+      const candidateTerms = tokenize([candidate.title, candidate.summary, candidate.content])
       const keywordOverlap = candidateTerms.filter((term) => sourceTerms.has(term)).length
 
       const published = candidate.publishedDate ? new Date(candidate.publishedDate).getTime() : 0

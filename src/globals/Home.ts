@@ -30,8 +30,11 @@ export const Home: GlobalConfig = {
     },
     {
       name: 'bio',
-      type: 'textarea',
+      type: 'richText',
       required: true,
+      admin: {
+        description: 'Supports rich text for longer bio content.',
+      },
     },
     {
       name: 'email',

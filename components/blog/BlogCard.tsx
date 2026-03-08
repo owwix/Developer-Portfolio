@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { BlogPost } from '../../lib/blog'
-import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon } from '../../lib/blog'
+import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, toDisplayText } from '../../lib/blog'
 import BlogMetaRow from './BlogMetaRow'
 import TagPills from './TagPills'
 
@@ -14,13 +14,14 @@ export default function BlogCard({
   const href = `/blog/${post.slug}`
   const image = getCoverImage(post)
   const tags = getTags(post)
+  const summaryText = toDisplayText(post.summary)
   const comingSoon = isComingSoon(post)
   const cardClassName = `blog-card card-link blog-card-${variant}${comingSoon ? ' is-coming-soon' : ''}`
   const content = (
     <>
       {image ? <img className="blog-card-image" src={image} alt={post?.coverImage?.alt || post.title || 'Article cover'} /> : null}
       <h3>{post.title || 'Untitled Article'}</h3>
-      <p className="blog-card-excerpt">{post.summary || 'No summary provided yet.'}</p>
+      <p className="blog-card-excerpt">{summaryText || 'No summary provided yet.'}</p>
       {comingSoon ? (
         <div className="blog-meta-row">
           <span className="meta-chip">Coming Soon</span>
