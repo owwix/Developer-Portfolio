@@ -147,6 +147,16 @@ const renderStars = (level) => {
   return `${"★".repeat(safeLevel)}${"☆".repeat(5 - safeLevel)}`;
 };
 
+const normalizeLinkLabel = (label, url) => {
+  if (label && String(label).trim()) return String(label).trim();
+  const value = String(url || "").toLowerCase();
+  if (value.startsWith("mailto:")) return "Email";
+  if (value.includes("linkedin.com")) return "LinkedIn";
+  if (value.includes("github.com")) return "GitHub";
+  if (value.includes("forms.gle") || value.includes("typeform.com") || value.includes("tally.so")) return "Contact Form";
+  return "Link";
+};
+
 const renderHome = (home) => {
   byId("name").textContent = home?.name || "Your Name";
   byId("headline").textContent = home?.headline || "Add headline in Admin > Globals > home";
@@ -165,19 +175,40 @@ const renderHome = (home) => {
 
   const linksEl = byId("links");
   linksEl.innerHTML = "";
-  if (Array.isArray(home?.links) && home.links.length) {
-    for (const link of home.links) {
-      const a = document.createElement("a");
-      a.href = link.url || "#";
-      a.textContent = link.label || "Link";
-      a.target = "_blank";
-      a.rel = "noreferrer";
-      linksEl.appendChild(a);
-    }
-  } else if (home?.email) {
+  const configuredLinks = Array.isArray(home?.links)
+    ? home.links
+        .filter((link) => link && link.url)
+        .map((link) => ({
+          label: normalizeLinkLabel(link.label, link.url),
+          url: String(link.url),
+        }))
+    : [];
+
+  const labelsSeen = new Set(configuredLinks.map((link) => link.label.toLowerCase()));
+  const defaultLinks = [];
+  if (!labelsSeen.has("email") && home?.email) {
+    defaultLinks.push({ label: "Email", url: `mailto:${home.email}` });
+  }
+  if (!labelsSeen.has("linkedin")) {
+    defaultLinks.push({ label: "LinkedIn", url: "https://www.linkedin.com/in/alexander-okonkwo/" });
+  }
+  if (!labelsSeen.has("github")) {
+    defaultLinks.push({ label: "GitHub", url: "https://github.com/owwix" });
+  }
+  if (!labelsSeen.has("contact form") && home?.email) {
+    defaultLinks.push({
+      label: "Contact Form",
+      url: `mailto:${home.email}?subject=Portfolio%20Inquiry`,
+    });
+  }
+
+  const linksToRender = [...configuredLinks, ...defaultLinks];
+  for (const link of linksToRender) {
     const a = document.createElement("a");
-    a.href = `mailto:${home.email}`;
-    a.textContent = home.email;
+    a.href = link.url;
+    a.textContent = link.label;
+    a.target = "_blank";
+    a.rel = "noreferrer";
     linksEl.appendChild(a);
   }
 };
