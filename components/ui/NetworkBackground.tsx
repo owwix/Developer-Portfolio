@@ -9,6 +9,9 @@ export default function NetworkBackground() {
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const densityScale = isCoarsePointer ? 1.9 : 1
+    const alphaScale = isCoarsePointer ? 0.7 : 1
 
     let width = 0
     let height = 0
@@ -36,9 +39,30 @@ export default function NetworkBackground() {
     }> = []
 
     const layerSpecs = [
-      { depth: 0.35, speed: 0.18, radius: [0.6, 1.2] as [number, number], distance: 130, alpha: 0.12, density: 14000 },
-      { depth: 0.7, speed: 0.28, radius: [0.9, 1.8] as [number, number], distance: 160, alpha: 0.14, density: 10500 },
-      { depth: 1.15, speed: 0.42, radius: [1.2, 2.4] as [number, number], distance: 190, alpha: 0.16, density: 8200 },
+      {
+        depth: 0.35,
+        speed: 0.18,
+        radius: [0.6, 1.2] as [number, number],
+        distance: 130,
+        alpha: 0.12 * alphaScale,
+        density: 14000 * densityScale,
+      },
+      {
+        depth: 0.7,
+        speed: 0.28,
+        radius: [0.9, 1.8] as [number, number],
+        distance: 160,
+        alpha: 0.14 * alphaScale,
+        density: 10500 * densityScale,
+      },
+      {
+        depth: 1.15,
+        speed: 0.42,
+        radius: [1.2, 2.4] as [number, number],
+        distance: 190,
+        alpha: 0.16 * alphaScale,
+        density: 8200 * densityScale,
+      },
     ]
 
     const buildLayers = () => {
@@ -100,7 +124,7 @@ export default function NetworkBackground() {
             const dist = Math.hypot(dx, dy)
             if (dist > layer.distance) continue
             const alpha = (1 - dist / layer.distance) * layer.alpha
-            ctx.strokeStyle = `rgba(225, 232, 244, ${alpha.toFixed(3)})`
+            ctx.strokeStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`
             ctx.lineWidth = 0.8 + layer.depth * 0.25
             ctx.beginPath()
             ctx.moveTo(a.x + offsetX, a.y + offsetY)
@@ -111,7 +135,7 @@ export default function NetworkBackground() {
 
         for (const node of nodes) {
           const pulse = 0.32 + 0.22 * Math.sin((tick + node.x + node.y) * 0.018 * layer.depth)
-          ctx.fillStyle = `rgba(245, 248, 255, ${pulse.toFixed(3)})`
+          ctx.fillStyle = `rgba(246, 246, 246, ${pulse.toFixed(3)})`
           ctx.beginPath()
           ctx.arc(node.x + offsetX, node.y + offsetY, node.r, 0, Math.PI * 2)
           ctx.fill()
@@ -129,12 +153,16 @@ export default function NetworkBackground() {
     resize()
     step()
     window.addEventListener('resize', resize)
-    window.addEventListener('pointermove', onPointerMove)
+    if (!isCoarsePointer) {
+      window.addEventListener('pointermove', onPointerMove)
+    }
 
     return () => {
       window.cancelAnimationFrame(rafId)
       window.removeEventListener('resize', resize)
-      window.removeEventListener('pointermove', onPointerMove)
+      if (!isCoarsePointer) {
+        window.removeEventListener('pointermove', onPointerMove)
+      }
     }
   }, [])
 
