@@ -70,12 +70,29 @@ const STOP_WORDS = new Set([
 
 export function formatDate(value?: string): string {
   if (!value) return ''
-  const date = new Date(value)
+  const raw = String(value).trim()
+  const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+
+  if (dateOnlyMatch) {
+    const year = Number(dateOnlyMatch[1])
+    const monthIndex = Number(dateOnlyMatch[2]) - 1
+    const day = Number(dateOnlyMatch[3])
+    const dateOnly = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0))
+    return dateOnly.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  }
+
+  const date = new Date(raw)
   if (Number.isNaN(date.getTime())) return ''
   return date.toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+    timeZone: 'UTC',
   })
 }
 
