@@ -499,6 +499,10 @@ p {
   margin-top: 0.52rem;
 }
 
+.page-open-source .page-hero > .view-all-link {
+  margin-top: 0.9rem;
+}
+
 .reading-list-panel {
   margin-bottom: 0.9rem;
 }

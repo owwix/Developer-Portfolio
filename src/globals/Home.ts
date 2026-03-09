@@ -30,6 +30,15 @@ export const Home: GlobalConfig = {
       required: true,
     },
     {
+      name: 'openSourceSubtitle',
+      label: 'Open Source Subtitle',
+      type: 'textarea',
+      defaultValue: 'Reusable templates, starter kits, and developer tools built for real-world use.',
+      admin: {
+        description: 'Short description shown under the Open Source section title on the homepage.',
+      },
+    },
+    {
       name: 'bio',
       type: 'richText',
       required: true,

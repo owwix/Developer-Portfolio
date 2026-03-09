@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic'
 type HomeData = {
   name?: string
   headline?: string
+  openSourceSubtitle?: string
   bio?: unknown
   email?: string
   links?: HomeLink[]
@@ -292,7 +293,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <p className="open-source-subtitle">
-            Reusable templates, starter kits, and developer tools built for real-world use.
+            {home?.openSourceSubtitle || 'Reusable templates, starter kits, and developer tools built for real-world use.'}
           </p>
           <div className="open-source-grid">
             {openSourcePreview.map((resource) => (
