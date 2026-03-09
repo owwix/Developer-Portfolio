@@ -99,6 +99,29 @@ SKIP_PAYLOAD_ADMIN_BUILD=1
 
 This skips the admin prebuild step, which is the most common CI bottleneck.
 
+### Optional Railway post-deploy command
+
+If you want post-deploy hooks ready for future migrations/warmup, set Railway Post-deploy Command to:
+
+```bash
+npm run postdeploy
+```
+
+By default this is safe/no-op. Enable tasks only when needed via env vars:
+
+```bash
+POSTDEPLOY_RUN_RICHTEXT_MIGRATION=1
+POSTDEPLOY_RUN_WARMUP=1
+POSTDEPLOY_WARMUP_URLS=/blog,/open-source
+```
+
+Control failure behavior:
+
+```bash
+POSTDEPLOY_FAIL_ON_MIGRATION_ERROR=1
+POSTDEPLOY_FAIL_ON_WARMUP_ERROR=0
+```
+
 ## Production media persistence (Railway)
 
 To prevent uploaded images from disappearing or changing across deploys, use a persistent volume for media files:

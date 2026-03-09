@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Optional post-deploy workflow
+        run: npm run postdeploy
+        env:
+          POSTDEPLOY_RUN_RICHTEXT_MIGRATION: ${{ vars.POSTDEPLOY_RUN_RICHTEXT_MIGRATION || '0' }}
+          POSTDEPLOY_FAIL_ON_MIGRATION_ERROR: ${{ vars.POSTDEPLOY_FAIL_ON_MIGRATION_ERROR || '1' }}
+          POSTDEPLOY_RUN_WARMUP: ${{ vars.POSTDEPLOY_RUN_WARMUP || '0' }}
+          POSTDEPLOY_WARMUP_DEFAULT_ROUTES: ${{ vars.POSTDEPLOY_WARMUP_DEFAULT_ROUTES || '1' }}
+          POSTDEPLOY_WARMUP_URLS: ${{ vars.POSTDEPLOY_WARMUP_URLS || '' }}
+          POSTDEPLOY_WARMUP_TIMEOUT_MS: ${{ vars.POSTDEPLOY_WARMUP_TIMEOUT_MS || '10000' }}
+          POSTDEPLOY_FAIL_ON_WARMUP_ERROR: ${{ vars.POSTDEPLOY_FAIL_ON_WARMUP_ERROR || '0' }}
+          SITE_URL: ${{ vars.SITE_URL || '' }}
+          PAYLOAD_PUBLIC_SERVER_URL: ${{ vars.PAYLOAD_PUBLIC_SERVER_URL || '' }}
