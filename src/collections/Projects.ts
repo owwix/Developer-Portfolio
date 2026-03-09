@@ -93,6 +93,23 @@ export const Projects: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'caseStudyPost',
+      label: 'Case Study (Blog Post)',
+      type: 'relationship',
+      relationTo: 'blog-posts',
+      admin: {
+        description: 'Optional internal case study link to a blog post.',
+      },
+    },
+    {
+      name: 'caseStudyUrl',
+      label: 'Case Study URL (External)',
+      type: 'text',
+      admin: {
+        description: 'Optional external case study URL. Used when no internal case study post is selected.',
+      },
+    },
+    {
       name: 'liveUrl',
       type: 'text',
     },

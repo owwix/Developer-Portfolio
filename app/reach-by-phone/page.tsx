@@ -18,7 +18,7 @@ export default function ReachByPhonePage() {
           Use this form if you want to discuss a role, contract, or project call. I review requests and follow up directly by
           phone or email.
         </p>
-        <Link className="view-all-link" href="/">
+        <Link className="view-all-link back-to-portfolio-link" href="/">
           ← Back to Portfolio
         </Link>
       </header>

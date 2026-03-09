@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import BlogCard from '../components/blog/BlogCard'
+import GitHubSnapshot from '../components/home/GitHubSnapshot'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
+import TrustBlock from '../components/home/TrustBlock'
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
 import { type BlogPost } from '../lib/blog'
-import { fetchBlogPosts, fetchExperiences, fetchHome, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
+import { fetchBlogPosts, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
 import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
@@ -18,6 +20,19 @@ type HomeData = {
   openSourceSubtitle?: string
   bio?: unknown
   email?: string
+  githubSnapshot?: {
+    enabled?: boolean
+    title?: string
+    description?: string
+    username?: string
+    featuredRepos?: Array<{ repository?: string }>
+  }
+  trustBlock?: {
+    enabled?: boolean
+    title?: string
+    description?: string
+    items?: Array<{ label?: string; value?: string }>
+  }
   links?: HomeLink[]
   profilePhoto?: {
     url?: string
@@ -71,6 +86,13 @@ type ProjectRow = {
   summary?: unknown
   liveUrl?: string
   repoUrl?: string
+  caseStudyUrl?: string
+  caseStudyPost?:
+    | string
+    | {
+        slug?: string
+        title?: string
+      }
   projectImage?:
     | string
     | {
@@ -81,7 +103,13 @@ type ProjectRow = {
             url?: string
           }
         }
-      }
+    }
+}
+
+type NowData = {
+  title?: string
+  intro?: string
+  updatedAt?: string
 }
 
 function inferSocialIcon(link: HomeLink): SocialIconType | null {
@@ -103,6 +131,11 @@ function getCustomIconUrl(link: HomeLink): string {
   return link.customIcon.url || link.customIcon.sizes?.avatar?.url || ''
 }
 
+function extractGitHubUsername(url: string): string {
+  const match = String(url || '').trim().match(/github\.com\/([^/?#]+)/i)
+  return match?.[1] || ''
+}
+
 function formatExperienceDate(value?: string): string {
   if (!value) return ''
   const date = new Date(value)
@@ -120,6 +153,18 @@ function getExperienceDateRange(exp: ExperienceRow): string {
   if (exp.current) return `${start} - Present`
   const end = formatExperienceDate(exp.endDate)
   return end ? `${start} - ${end}` : start
+}
+
+function formatNowDate(value?: string): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
 }
 
 function SocialLinkIcon({ type }: { type: SocialIconType }) {
@@ -173,6 +218,7 @@ export default async function HomePage() {
   let experiences: ExperienceRow[] = []
   let blogs: BlogPost[] = []
   let openSource: OpenSourceResource[] = defaultOpenSourceResources
+  let nowData: NowData | null = null
 
   try {
     const [homeRes, projectsRes, skillsRes, expRes, blogRes, openSourceRes] = await Promise.all([
@@ -195,6 +241,12 @@ export default async function HomePage() {
     console.error(error)
   }
 
+  try {
+    nowData = await fetchNow<NowData>()
+  } catch {
+    nowData = null
+  }
+
   const skillRows = skills.flatMap((doc) => {
     if (Array.isArray(doc?.skills) && doc.skills.length) {
       return doc.skills
@@ -212,6 +264,14 @@ export default async function HomePage() {
     return acc
   }, {})
   const openSourcePreview = openSource.filter((item) => item.showOnHomepage !== false).slice(0, 3)
+  const githubFromLinks = (home?.links || [])
+    .map((link) => extractGitHubUsername(link?.url || ''))
+    .find(Boolean)
+  const githubUsername = String(home?.githubSnapshot?.username || githubFromLinks || '').trim()
+  const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
+  const showTrustBlock = home?.trustBlock?.enabled !== false
+  const showGitHubSnapshot = home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
+  const nowUpdated = formatNowDate(nowData?.updatedAt)
 
   return (
     <main className="container page-home">
@@ -301,6 +361,35 @@ export default async function HomePage() {
             ))}
           </div>
         </article>
+
+        {nowData?.title || nowData?.intro || nowUpdated ? (
+          <article className="card reveal full now-preview-card">
+            <div className="section-head">
+              <h2>{nowData?.title || 'Now'}</h2>
+              <Link className="view-all-link" href="/now">
+                View Now Page
+              </Link>
+            </div>
+            <p className="now-preview-intro">
+              {nowData?.intro ||
+                'A live snapshot of what I am building, improving, and shipping right now across product and engineering work.'}
+            </p>
+            {nowUpdated ? <p className="now-preview-updated">Updated {nowUpdated}</p> : null}
+          </article>
+        ) : null}
+
+        {showGitHubSnapshot ? (
+          <GitHubSnapshot
+            description={home?.githubSnapshot?.description}
+            featuredRepos={githubFeaturedRepos}
+            title={home?.githubSnapshot?.title}
+            username={githubUsername}
+          />
+        ) : null}
+
+        {showTrustBlock ? (
+          <TrustBlock description={home?.trustBlock?.description} items={home?.trustBlock?.items} title={home?.trustBlock?.title} />
+        ) : null}
 
         <article className="card reveal full">
           <h2>Experience</h2>

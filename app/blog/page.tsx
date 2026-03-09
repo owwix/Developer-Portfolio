@@ -2,11 +2,12 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import ArchiveFilters from '../../components/blog/ArchiveFilters'
 import BlogCommandPalette from '../../components/blog/BlogCommandPalette'
+import BlogSubscribeCard from '../../components/blog/BlogSubscribeCard'
 import ReadingListPanel from '../../components/blog/ReadingListPanel'
 import SectionContextNav from '../../components/blog/SectionContextNav'
 import type { BlogPost } from '../../lib/blog'
 import { getTags, isComingSoon, toDisplayText } from '../../lib/blog'
-import { fetchBlogPosts } from '../../lib/cms'
+import { fetchBlogPosts, fetchHome } from '../../lib/cms'
 import { sortByDisplayOrder } from '../../src/utils/order'
 import { siteConfig } from '../../src/utils/siteConfig'
 
@@ -17,12 +18,24 @@ export const metadata: Metadata = {
   description: `Engineering notes, technical writeups, deployment lessons, and project breakdowns from ${siteConfig.ownerName}.`,
 }
 
+type HomeSettings = {
+  blogCta?: {
+    enabled?: boolean
+    title?: string
+    description?: string
+    digestUrl?: string
+    digestLabel?: string
+  }
+}
+
 export default async function BlogArchivePage() {
   let posts: BlogPost[] = []
+  let home: HomeSettings | null = null
 
   try {
-    const res = await fetchBlogPosts<{ docs?: BlogPost[] }>(200)
+    const [res, homeRes] = await Promise.all([fetchBlogPosts<{ docs?: BlogPost[] }>(200), fetchHome<HomeSettings>()])
     posts = sortByDisplayOrder(res?.docs || [])
+    home = homeRes
   } catch (error) {
     console.error(error)
   }
@@ -73,10 +86,18 @@ export default async function BlogArchivePage() {
           Technical writeups covering engineering decisions, architecture tradeoffs, deployment lessons, and build logs from
           real projects.
         </p>
-        <Link className="view-all-link" href="/">
+        <Link className="view-all-link back-to-portfolio-link" href="/">
           ← Back to Portfolio
         </Link>
       </header>
+      {home?.blogCta?.enabled !== false ? (
+        <BlogSubscribeCard
+          description={home?.blogCta?.description}
+          digestLabel={home?.blogCta?.digestLabel}
+          digestUrl={home?.blogCta?.digestUrl}
+          title={home?.blogCta?.title}
+        />
+      ) : null}
 
       {posts.length ? (
         <ArchiveFilters posts={posts} />

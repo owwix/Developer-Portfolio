@@ -5,6 +5,7 @@ import ArticleBody from '../../../components/blog/ArticleBody'
 import BookmarkButton from '../../../components/blog/BookmarkButton'
 import BlogCard from '../../../components/blog/BlogCard'
 import BlogCommandPalette from '../../../components/blog/BlogCommandPalette'
+import BlogSubscribeCard from '../../../components/blog/BlogSubscribeCard'
 import MobileToc from '../../../components/blog/MobileToc'
 import PostAnalyticsSummary from '../../../components/blog/PostAnalyticsSummary'
 import PostAnalyticsTracker from '../../../components/blog/PostAnalyticsTracker'
@@ -13,8 +14,19 @@ import SectionContextNav from '../../../components/blog/SectionContextNav'
 import TagPills from '../../../components/blog/TagPills'
 import Toc from '../../../components/blog/Toc'
 import type { BlogPost } from '../../../lib/blog'
-import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown, rankRelatedPosts, toDisplayText } from '../../../lib/blog'
-import { fetchBlogPostBySlug, fetchBlogPosts } from '../../../lib/cms'
+import {
+  formatDate,
+  getCoverImage,
+  getDifficulty,
+  getPrerequisites,
+  getReadTime,
+  getTags,
+  isComingSoon,
+  parseMarkdown,
+  rankRelatedPosts,
+  toDisplayText,
+} from '../../../lib/blog'
+import { fetchBlogPostBySlug, fetchBlogPosts, fetchHome } from '../../../lib/cms'
 import { sortByDisplayOrder } from '../../../src/utils/order'
 import { siteConfig } from '../../../src/utils/siteConfig'
 
@@ -26,6 +38,16 @@ type Params = {
 
 type BlogDetailPageProps = {
   params: Promise<Params>
+}
+
+type HomeSettings = {
+  blogCta?: {
+    enabled?: boolean
+    title?: string
+    description?: string
+    digestUrl?: string
+    digestLabel?: string
+  }
 }
 
 export async function generateMetadata({ params }: BlogDetailPageProps): Promise<Metadata> {
@@ -84,9 +106,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   let prevInSeries: BlogPost | null = null
   let nextInSeries: BlogPost | null = null
   let seriesPart = 0
+  let home: HomeSettings | null = null
   try {
-    const allPosts = (await fetchBlogPosts<{ docs?: BlogPost[] }>(200))?.docs || []
+    const [allPostsRes, homeRes] = await Promise.all([fetchBlogPosts<{ docs?: BlogPost[] }>(200), fetchHome<HomeSettings>()])
+    const allPosts = allPostsRes?.docs || []
     const publishedPosts = sortByDisplayOrder(allPosts.filter((entry) => Boolean(entry?.slug) && !isComingSoon(entry)))
+    home = homeRes
 
     commandEntries = publishedPosts.map((entry) => ({
       title: String(entry.title || 'Untitled Article'),
@@ -124,6 +149,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const coverImage = getCoverImage(post)
   const postNoun = siteConfig.blogLabel.toLowerCase().includes('note') ? 'notes' : 'posts'
   const postNounTitle = postNoun.charAt(0).toUpperCase() + postNoun.slice(1)
+  const difficulty = getDifficulty(post)
+  const prerequisites = getPrerequisites(post)
+  const postTags = getTags(post)
   const postUrl = `${siteConfig.siteUrl}/blog/${post.slug}`
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -137,6 +165,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     datePublished: post.publishedDate || undefined,
     dateModified: post.updatedAt || post.publishedDate || undefined,
     mainEntityOfPage: postUrl,
+    keywords: postTags,
+    articleSection: postTags[0] || undefined,
+    educationalLevel: difficulty,
     image: [`${siteConfig.siteUrl}/blog/${post.slug}/opengraph-image`],
   }
   const breadcrumbJsonLd = {
@@ -195,8 +226,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <p className="post-meta-line">
             By {siteConfig.ownerName} · {formatDate(post.publishedDate)} · {getReadTime(post)}
           </p>
+          <div className="post-learning-row">
+            <span className="meta-chip">{difficulty}</span>
+            {prerequisites.length ? <span className="meta-chip">{prerequisites.length} prerequisites</span> : null}
+          </div>
           <PostAnalyticsSummary slug={String(post.slug || '')} />
-          <TagPills className="post-tag-row" tags={getTags(post)} />
+          <TagPills className="post-tag-row" tags={postTags} />
           <div className="post-actions-row">
             <BookmarkButton slug={String(post.slug || '')} title={String(post.title || 'Untitled Article')} />
           </div>
@@ -204,6 +239,18 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           {summaryText ? <p className="page-intro">{summaryText}</p> : null}
           {coverImage ? <img className="post-cover" src={coverImage} alt={post?.coverImage?.alt || post.title} /> : null}
         </header>
+
+        {prerequisites.length ? (
+          <section className="card reveal post-prerequisites-card">
+            <p className="eyebrow">Before You Start</p>
+            <h2>Prerequisites</h2>
+            <ul>
+              {prerequisites.map((item) => (
+                <li key={`${post.slug}-prereq-${item}`}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {seriesPosts.length > 1 ? (
           <section className="card reveal series-nav-card">
@@ -243,6 +290,15 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
           <Toc items={toc} />
         </section>
+
+        {home?.blogCta?.enabled !== false ? (
+          <BlogSubscribeCard
+            description={home?.blogCta?.description}
+            digestLabel={home?.blogCta?.digestLabel}
+            digestUrl={home?.blogCta?.digestUrl}
+            title={home?.blogCta?.title}
+          />
+        ) : null}
 
         <section className="card reveal post-more-notes">
           <div className="section-head">

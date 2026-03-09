@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { BlogPost } from '../../lib/blog'
-import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, toDisplayText } from '../../lib/blog'
+import { formatDate, getCoverImage, getDifficulty, getReadTime, getTags, isComingSoon, toDisplayText } from '../../lib/blog'
 import BlogMetaRow from './BlogMetaRow'
 import TagPills from './TagPills'
 
@@ -27,7 +27,7 @@ export default function BlogCard({
           <span className="meta-chip">Coming Soon</span>
         </div>
       ) : (
-        <BlogMetaRow date={formatDate(post.publishedDate)} readTime={getReadTime(post)} />
+        <BlogMetaRow date={formatDate(post.publishedDate)} difficulty={getDifficulty(post)} readTime={getReadTime(post)} />
       )}
       {post.seriesTitle ? (
         <div className="blog-meta-row">

@@ -516,11 +516,7 @@ p {
   margin-top: 0.52rem;
 }
 
-.page-open-source .page-hero > .view-all-link {
-  margin-top: 1.3rem;
-}
-
-.page-blog .page-hero > .view-all-link {
+.back-to-portfolio-link {
   margin-top: 1.3rem;
 }
 
@@ -853,6 +849,107 @@ p {
   color: var(--ink-soft);
 }
 
+.now-preview-card,
+.github-snapshot-card,
+.trust-block-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.now-preview-intro,
+.trust-block-description,
+.github-snapshot-description {
+  color: var(--ink-soft);
+  max-width: 74ch;
+}
+
+.now-preview-updated,
+.now-updated-meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+}
+
+.github-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.github-metric {
+  border: 1px solid var(--line-soft);
+  border-radius: 9px;
+  background: rgba(9, 9, 9, 0.84);
+  padding: 0.58rem 0.62rem;
+}
+
+.github-metric-value {
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.github-metric-label {
+  margin-top: 0.2rem;
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.github-repo-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.github-repo-item {
+  border: 1px solid var(--line-soft);
+  border-radius: 9px;
+  background: rgba(10, 10, 10, 0.82);
+  padding: 0.62rem;
+  display: grid;
+  gap: 0.48rem;
+}
+
+.github-repo-meta {
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.73rem;
+}
+
+.github-repo-item .view-all-link {
+  justify-self: start;
+}
+
+.trust-block-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.trust-block-item {
+  border: 1px solid var(--line-soft);
+  border-radius: 9px;
+  background: rgba(10, 10, 10, 0.82);
+  padding: 0.64rem;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.trust-block-item-label {
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.trust-block-item-value {
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
 .card-link {
   text-decoration: none;
 }
@@ -955,7 +1052,8 @@ p {
 
 .page-blog .card,
 .page-open-source .card,
-.page-post .card {
+.page-post .card,
+.page-now .card {
   background: linear-gradient(150deg, rgba(10, 10, 10, 0.9), rgba(6, 6, 6, 0.84));
   border-color: #2f2f2f;
   backdrop-filter: blur(10px);
@@ -981,6 +1079,13 @@ p {
 
 .post-tag-row {
   margin-top: 0.6rem;
+}
+
+.post-learning-row {
+  margin-top: 0.54rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
 }
 
 .post-analytics-row {
@@ -1051,6 +1156,23 @@ p {
 
 .archive-panel {
   margin-top: 1rem;
+}
+
+.blog-subscribe-card {
+  margin-bottom: 1rem;
+}
+
+.blog-subscribe-description {
+  margin-top: 0.4rem;
+  color: var(--ink-soft);
+  max-width: 68ch;
+}
+
+.blog-subscribe-actions {
+  margin-top: 0.48rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .archive-controls {
@@ -1253,6 +1375,30 @@ p {
   margin-top: 1.1rem;
 }
 
+.now-list {
+  margin: 0.72rem 0 0;
+  padding-left: 1.14rem;
+  color: var(--ink-soft);
+}
+
+.now-list li {
+  margin: 0.36rem 0;
+}
+
+.post-prerequisites-card {
+  margin-bottom: 1rem;
+}
+
+.post-prerequisites-card ul {
+  margin: 0.72rem 0 0;
+  padding-left: 1.16rem;
+  color: var(--ink-soft);
+}
+
+.post-prerequisites-card li {
+  margin: 0.34rem 0;
+}
+
 .post-cover {
   margin-top: 0.9rem;
   max-height: 400px;
@@ -1434,6 +1580,80 @@ p {
   width: 100%;
   border-radius: 10px;
   border: 1px solid var(--line);
+}
+
+.article-body .demo-embed {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(9, 9, 9, 0.84);
+  padding: 0.62rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.article-body .demo-embed iframe {
+  width: 100%;
+  min-height: 360px;
+  border: 0;
+  border-radius: 8px;
+  background: #060606;
+}
+
+.article-body .demo-embed figcaption {
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.article-body .changelog-block {
+  border: 1px solid #333333;
+  border-radius: 10px;
+  background: rgba(14, 14, 14, 0.78);
+  padding: 0.72rem 0.82rem;
+}
+
+.article-body .changelog-head {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.58rem;
+}
+
+.article-body .changelog-kicker {
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: #d4d4d4;
+}
+
+.article-body .changelog-head h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.article-body .changelog-block ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.48rem;
+}
+
+.article-body .changelog-block li {
+  margin: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.article-body .changelog-label {
+  color: #d8d8d8;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.71rem;
+}
+
+.article-body .changelog-text {
+  color: #c6c6c6;
 }
 
 .callout {
@@ -1903,6 +2123,21 @@ html[data-theme='light'] .open-source-card:hover {
   box-shadow: 0 12px 28px rgba(44, 60, 80, 0.14);
 }
 
+html[data-theme='light'] .github-metric,
+html[data-theme='light'] .github-repo-item,
+html[data-theme='light'] .trust-block-item {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #d3dde8;
+}
+
+html[data-theme='light'] .github-metric-label,
+html[data-theme='light'] .github-repo-meta,
+html[data-theme='light'] .trust-block-item-label,
+html[data-theme='light'] .now-preview-updated,
+html[data-theme='light'] .now-updated-meta {
+  color: #556478;
+}
+
 html[data-theme='light'] .open-source-marker,
 html[data-theme='light'] .open-source-status,
 html[data-theme='light'] .open-source-action {
@@ -1923,7 +2158,8 @@ html[data-theme='light'] .open-source-group-count {
 
 html[data-theme='light'] .page-blog .card,
 html[data-theme='light'] .page-open-source .card,
-html[data-theme='light'] .page-post .card {
+html[data-theme='light'] .page-post .card,
+html[data-theme='light'] .page-now .card {
   background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(247, 250, 253, 0.92));
   border-color: #cfd9e4;
 }
@@ -1989,6 +2225,29 @@ html[data-theme='light'] .article-body blockquote {
 html[data-theme='light'] .article-body pre {
   border-color: #c9d5e3;
   background: #f5f8fc;
+}
+
+html[data-theme='light'] .article-body .demo-embed {
+  border-color: #c8d5e3;
+  background: rgba(244, 248, 252, 0.92);
+}
+
+html[data-theme='light'] .article-body .demo-embed figcaption {
+  color: #5a697d;
+}
+
+html[data-theme='light'] .article-body .changelog-block {
+  border-color: #c7d4e2;
+  background: rgba(241, 246, 251, 0.9);
+}
+
+html[data-theme='light'] .article-body .changelog-kicker,
+html[data-theme='light'] .article-body .changelog-label {
+  color: #2a3b4f;
+}
+
+html[data-theme='light'] .article-body .changelog-text {
+  color: #36475b;
 }
 
 html[data-theme='light'] .article-body pre code,
@@ -2079,6 +2338,15 @@ html[data-theme='light'] .form-error {
   }
 
   .open-source-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .github-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .github-repo-list,
+  .trust-block-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -2183,8 +2451,14 @@ html[data-theme='light'] .form-error {
 
   .blog-grid,
   .archive-grid,
-  .open-source-grid {
+  .open-source-grid,
+  .github-repo-list,
+  .trust-block-grid {
     grid-template-columns: 1fr;
+  }
+
+  .github-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .section-head {
@@ -2212,7 +2486,8 @@ html[data-theme='light'] .form-error {
 
   .container.page-blog,
   .container.page-open-source,
-  .container.page-post {
+  .container.page-post,
+  .container.page-now {
     width: min(1080px, 94vw);
     margin: 1.1rem auto 2.5rem;
   }
@@ -2223,13 +2498,15 @@ html[data-theme='light'] .form-error {
 
   .page-blog .card,
   .page-open-source .card,
-  .page-post .card {
+  .page-post .card,
+  .page-now .card {
     padding: 0.92rem;
   }
 
   .page-blog .page-hero h1,
   .page-open-source .page-hero h1,
-  .page-post .post-hero h1 {
+  .page-post .post-hero h1,
+  .page-now .page-hero h1 {
     font-size: clamp(1.42rem, 6.8vw, 1.82rem);
     line-height: 1.1;
     overflow-wrap: anywhere;
@@ -2302,6 +2579,10 @@ html[data-theme='light'] .form-error {
     max-width: 100%;
   }
 
+  .article-body .demo-embed iframe {
+    min-height: 240px;
+  }
+
   .article-body pre code,
   .article-body pre code.hljs {
     font-size: 0.77rem;
@@ -2338,7 +2619,8 @@ html[data-theme='light'] .form-error {
 
 @media (max-width: 560px) {
   .page-blog .page-hero .page-intro,
-  .page-post .post-hero .page-intro {
+  .page-post .post-hero .page-intro,
+  .page-now .page-hero .page-intro {
     margin-top: 1.02rem;
     line-height: 1.62;
   }
@@ -2358,6 +2640,10 @@ html[data-theme='light'] .form-error {
 
   .section-head {
     gap: 0.55rem;
+  }
+
+  .github-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }
 

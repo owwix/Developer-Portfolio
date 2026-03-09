@@ -123,6 +123,7 @@ export default function EditorialDashboard() {
             <a href="/admin/collections/media">Upload Asset</a>
             <a href="/admin/collections/phone-requests">Review Inquiries</a>
             <a href="/admin/globals/home">Edit Homepage Content</a>
+            <a href="/admin/globals/now">Update Now Page</a>
           </div>
         </section>
       </div>

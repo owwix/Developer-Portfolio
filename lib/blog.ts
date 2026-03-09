@@ -4,6 +4,12 @@ export type BlogTag = {
   tag?: string
 }
 
+export type BlogPrerequisite = {
+  item?: string
+}
+
+export type BlogDifficulty = 'Beginner' | 'Intermediate' | 'Advanced'
+
 export type BlogPost = {
   id?: string
   displayOrder?: number
@@ -13,6 +19,8 @@ export type BlogPost = {
   content?: unknown
   seriesTitle?: string
   seriesOrder?: number
+  difficulty?: BlogDifficulty
+  prerequisites?: BlogPrerequisite[]
   publishedDate?: string
   isComingSoon?: boolean
   createdAt?: string
@@ -99,6 +107,18 @@ export function formatDate(value?: string): string {
 export function getTags(post: BlogPost): string[] {
   return (post?.tags || [])
     .map((entry) => String(entry?.tag || '').trim())
+    .filter(Boolean)
+}
+
+export function getDifficulty(post: BlogPost): BlogDifficulty {
+  const value = String(post?.difficulty || '').trim() as BlogDifficulty
+  if (value === 'Beginner' || value === 'Intermediate' || value === 'Advanced') return value
+  return 'Intermediate'
+}
+
+export function getPrerequisites(post: BlogPost): string[] {
+  return (post?.prerequisites || [])
+    .map((entry) => String(entry?.item || '').trim())
     .filter(Boolean)
 }
 
@@ -243,6 +263,70 @@ function renderCallout(type: ParsedCalloutType, title: string, bodyLines: string
   return `<aside class="callout callout-${type}"><div class="callout-head"><span class="callout-icon" aria-hidden="true">${meta.icon}</span><span class="callout-title">${escapeHTML(parsedTitle)}</span></div><div class="callout-content">${content}</div></aside>`
 }
 
+function sanitizeEmbedUrl(value: string): string {
+  const raw = String(value || '').trim()
+  if (!/^https?:\/\//i.test(raw)) return ''
+
+  try {
+    const url = new URL(raw)
+    const host = url.hostname.toLowerCase().replace(/^www\./, '')
+
+    if (host === 'youtu.be') {
+      const videoId = url.pathname.split('/').filter(Boolean)[0] || ''
+      if (!videoId) return ''
+      return `https://www.youtube.com/embed/${videoId}`
+    }
+
+    if (host === 'youtube.com') {
+      if (url.pathname.startsWith('/watch')) {
+        const videoId = url.searchParams.get('v') || ''
+        if (!videoId) return ''
+        return `https://www.youtube.com/embed/${videoId}`
+      }
+      if (url.pathname.startsWith('/embed/')) return url.toString()
+      return ''
+    }
+
+    const allowedHosts = new Set(['codesandbox.io', 'stackblitz.com', 'codepen.io', 'loom.com', 'figma.com'])
+    if (allowedHosts.has(host)) return url.toString()
+  } catch {
+    return ''
+  }
+
+  return ''
+}
+
+function renderDemoEmbed(url: string, title: string): string {
+  const safeUrl = sanitizeEmbedUrl(url)
+  if (!safeUrl) return `<p>${inlineMarkdown(`Demo embed blocked: ${url}`)}</p>`
+
+  const safeTitle = escapeHTML(title || 'Embedded demo')
+  return `<figure class="demo-embed"><iframe src="${escapeHTML(safeUrl)}" title="${safeTitle}" loading="lazy" allowfullscreen></iframe>${title ? `<figcaption>${escapeHTML(title)}</figcaption>` : ''}</figure>`
+}
+
+function renderChangelog(title: string, rawEntries: string[]): string {
+  const rows = rawEntries
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.replace(/^\s*[-*]\s+/, '').trim())
+    .filter(Boolean)
+
+  if (!rows.length) return ''
+
+  const list = rows
+    .map((row) => {
+      const match = row.match(/^(.+?)\s*(?::|-)\s+(.+)$/)
+      if (match) {
+        return `<li><span class="changelog-label">${escapeHTML(match[1])}</span><span class="changelog-text">${inlineMarkdown(match[2])}</span></li>`
+      }
+      return `<li><span class="changelog-text">${inlineMarkdown(row)}</span></li>`
+    })
+    .join('')
+
+  const heading = title.trim() || 'Release Notes'
+  return `<section class="changelog-block"><div class="changelog-head"><span class="changelog-kicker">Changelog</span><h4>${escapeHTML(heading)}</h4></div><ul>${list}</ul></section>`
+}
+
 export function parseMarkdown(source: string): { html: string; toc: TocItem[] } {
   const lines = String(source || '').replace(/\r\n/g, '\n').split('\n')
   const chunks: string[] = []
@@ -276,6 +360,28 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
         const highlighted = highlightCode(rawCode, lang)
         chunks.push(`<pre><code class="hljs language-${escapeHTML(lang)}">${highlighted}</code></pre>`)
       }
+      continue
+    }
+
+    const changelogMatch = trimmed.match(/^:::\s*changelog(?:\s+(.*))?$/i)
+    if (changelogMatch) {
+      const title = (changelogMatch[1] || '').trim()
+      const entries: string[] = []
+      i += 1
+      while (i < lines.length && !lines[i].trim().match(/^:::\s*$/)) {
+        entries.push(lines[i])
+        i += 1
+      }
+      if (i < lines.length) i += 1
+      const block = renderChangelog(title, entries)
+      if (block) chunks.push(block)
+      continue
+    }
+
+    const demoMatch = trimmed.match(/^@\[demo\]\((https?:\/\/[^\s)]+)(?:\s+"([^"]+)")?\)$/i)
+    if (demoMatch) {
+      chunks.push(renderDemoEmbed(demoMatch[1], demoMatch[2] || ''))
+      i += 1
       continue
     }
 
@@ -337,7 +443,11 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
 
     const paragraph: string[] = [trimmed]
     i += 1
-    while (i < lines.length && lines[i].trim() && !/^(#{1,3}\s+|```|>\s*\[!|>\s|[-*]\s+)/.test(lines[i].trim())) {
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !/^(#{1,3}\s+|```|:::\s*changelog|:::\s*$|@\[demo\]\(|>\s*\[!|>\s|[-*]\s+)/.test(lines[i].trim())
+    ) {
       paragraph.push(lines[i].trim())
       i += 1
     }
@@ -353,6 +463,9 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
 export function rankRelatedPosts(source: BlogPost, candidates: BlogPost[], limit = 3): BlogPost[] {
   const sourceTags = new Set(getTags(source).map((tag) => tag.toLowerCase()))
   const sourceTerms = new Set(tokenize([source.title, source.summary, source.content]))
+  const sourceDifficulty = getDifficulty(source)
+  const sourcePrereqs = new Set(getPrerequisites(source).map((item) => item.toLowerCase()))
+  const sourceSeries = String(source.seriesTitle || '').trim().toLowerCase()
   const now = Date.now()
 
   return candidates
@@ -364,11 +477,17 @@ export function rankRelatedPosts(source: BlogPost, candidates: BlogPost[], limit
       const candidateTerms = tokenize([candidate.title, candidate.summary, candidate.content])
       const keywordOverlap = candidateTerms.filter((term) => sourceTerms.has(term)).length
 
+      const difficultyScore = getDifficulty(candidate) === sourceDifficulty ? 3 : 0
+      const candidatePrereqs = getPrerequisites(candidate).map((item) => item.toLowerCase())
+      const prereqOverlap = candidatePrereqs.filter((item) => sourcePrereqs.has(item)).length
+      const candidateSeries = String(candidate.seriesTitle || '').trim().toLowerCase()
+      const seriesScore = sourceSeries && candidateSeries === sourceSeries ? 4 : 0
+
       const published = candidate.publishedDate ? new Date(candidate.publishedDate).getTime() : 0
       const ageDays = published ? Math.max(0, (now - published) / (1000 * 60 * 60 * 24)) : 9999
       const recencyScore = Math.max(0, 1 - ageDays / 365)
 
-      const score = tagOverlap * 8 + keywordOverlap * 2 + recencyScore
+      const score = tagOverlap * 8 + keywordOverlap * 2 + difficultyScore + prereqOverlap * 1.5 + seriesScore + recencyScore
       return { candidate, score }
     })
     .sort((a, b) => b.score - a.score)

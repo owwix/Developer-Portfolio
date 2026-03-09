@@ -42,6 +42,10 @@ export async function fetchHome<T = unknown>(): Promise<T> {
   return fetchCMS<T>('/api/globals/home?depth=2')
 }
 
+export async function fetchNow<T = unknown>(): Promise<T> {
+  return fetchCMS<T>('/api/globals/now?depth=2')
+}
+
 export async function fetchProjects<T = unknown>(limit = 6): Promise<T> {
   return fetchCMS<T>(`/api/projects?depth=2&limit=${limit}&sort=-startDate`)
 }

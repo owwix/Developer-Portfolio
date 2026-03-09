@@ -105,6 +105,33 @@ export const BlogPosts: CollectionConfig = {
       ],
     },
     {
+      name: 'difficulty',
+      type: 'select',
+      defaultValue: 'Intermediate',
+      options: [
+        { label: 'Beginner', value: 'Beginner' },
+        { label: 'Intermediate', value: 'Intermediate' },
+        { label: 'Advanced', value: 'Advanced' },
+      ],
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'prerequisites',
+      type: 'array',
+      fields: [
+        {
+          name: 'item',
+          type: 'text',
+          required: true,
+        },
+      ],
+      admin: {
+        description: 'Optional checklist shown before the article body.',
+      },
+    },
+    {
       name: 'seriesTitle',
       label: 'Series',
       type: 'text',

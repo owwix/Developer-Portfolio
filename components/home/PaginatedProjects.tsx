@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import RichTextContent from '../ui/RichTextContent'
 
@@ -10,6 +11,13 @@ type ProjectRow = {
   summary?: unknown
   liveUrl?: string
   repoUrl?: string
+  caseStudyUrl?: string
+  caseStudyPost?:
+    | string
+    | {
+        slug?: string
+        title?: string
+      }
   projectImage?:
     | string
     | {
@@ -56,13 +64,44 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
     return project.projectImage.alt || `${project.title || 'Project'} cover image`
   }
 
+  const getCaseStudy = (project: ProjectRow): { href: string; external: boolean } | null => {
+    if (project.caseStudyPost && typeof project.caseStudyPost === 'object' && project.caseStudyPost.slug) {
+      return { href: `/blog/${project.caseStudyPost.slug}`, external: false }
+    }
+
+    const externalUrl = String(project.caseStudyUrl || '').trim()
+    if (/^https?:\/\//i.test(externalUrl)) {
+      return { href: externalUrl, external: true }
+    }
+
+    return null
+  }
+
   return (
     <>
       <div className="stack">
         {paginatedProjects.map((project) => (
           <article className="item" key={project.id || project.slug || project.title}>
+            {(() => {
+              const caseStudy = getCaseStudy(project)
+              if (!caseStudy || !getProjectImage(project)) return null
+
+              if (caseStudy.external) {
+                return (
+                  <a href={caseStudy.href} rel="noreferrer" target="_blank">
+                    <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
+                  </a>
+                )
+              }
+
+              return (
+                <Link href={caseStudy.href}>
+                  <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
+                </Link>
+              )
+            })()}
             {getProjectImage(project) ? (
-              <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
+              getCaseStudy(project) ? null : <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
             ) : null}
             <h3>{project.title || 'Untitled Project'}</h3>
             <RichTextContent className="rich-text-content summary-richtext" fallback="No summary available." value={project.summary} />
@@ -77,6 +116,24 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
                   Repo
                 </a>
               ) : null}
+              {(() => {
+                const caseStudy = getCaseStudy(project)
+                if (!caseStudy) return null
+
+                if (caseStudy.external) {
+                  return (
+                    <a className="badge badge-link" href={caseStudy.href} rel="noreferrer" target="_blank">
+                      Case Study
+                    </a>
+                  )
+                }
+
+                return (
+                  <Link className="badge badge-link" href={caseStudy.href}>
+                    Case Study
+                  </Link>
+                )
+              })()}
             </div>
           </article>
         ))}

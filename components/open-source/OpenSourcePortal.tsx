@@ -25,7 +25,7 @@ export default function OpenSourcePortal({ resources }: OpenSourcePortalProps) {
           Reusable templates, starter kits, and developer tools built for real-world use. This is where I package patterns from
           production work into resources other developers can ship with.
         </p>
-        <Link className="view-all-link" href="/">
+        <Link className="view-all-link back-to-portfolio-link" href="/">
           ← Back to Portfolio
         </Link>
       </header>

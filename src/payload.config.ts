@@ -16,6 +16,7 @@ import { Projects } from './collections/Projects'
 import { Skills } from './collections/Skills'
 import { AdminBranding } from './globals/AdminBranding'
 import { Home } from './globals/Home'
+import { Now } from './globals/Now'
 import { siteConfig } from './utils/siteConfig'
 
 export default buildConfig({
@@ -71,7 +72,7 @@ export default buildConfig({
       fields: [],
     },
   ],
-  globals: [Home, AdminBranding],
+  globals: [Home, Now, AdminBranding],
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },

@@ -21,6 +21,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
   title: siteMetadata.title,
   description: siteMetadata.description,
+  alternates: {
+    canonical: '/',
+    types: {
+      'application/rss+xml': '/rss.xml',
+    },
+  },
   icons: {
     icon: [{ url: '/ao-icon.svg', type: 'image/svg+xml' }],
     shortcut: '/ao-icon.svg',
