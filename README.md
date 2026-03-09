@@ -114,3 +114,10 @@ To prevent uploaded images from disappearing or changing across deploys, use a p
 3. Redeploy.
 
 This project now sanitizes upload filenames to URL-safe ASCII by default, which helps avoid filename encoding issues between environments.
+
+## Cloudflare Access hardening
+
+This repo includes an app-layer protection guard for `/admin` and sensitive `/api` routes.
+
+- setup + route matrix: `SECURITY_CLOUDFLARE_ACCESS.md`
+- implementation: `src/security/accessControl.ts` + `src/server.ts`

@@ -4,6 +4,7 @@ import fs from 'fs'
 import next from 'next'
 import path from 'path'
 import payload from 'payload'
+import { evaluateCloudflareAccess, shouldProtectRequest } from './security/accessControl'
 
 dotenv.config()
 
@@ -22,6 +23,28 @@ const start = async () => {
   const dev = process.env.NODE_ENV !== 'production'
   const nextApp = next({ dev, dir: path.resolve(__dirname, '..') })
   const nextHandler = nextApp.getRequestHandler()
+
+  // Defense-in-depth: enforce Cloudflare Access identity checks at the app layer,
+  // even if network policies are misconfigured upstream.
+  app.use((req, res, nextMiddleware) => {
+    if (!shouldProtectRequest(req.path, req.method)) {
+      return nextMiddleware()
+    }
+
+    const decision = evaluateCloudflareAccess(req)
+    if (decision.allowed) {
+      return nextMiddleware()
+    }
+
+    if (req.path.startsWith('/api/')) {
+      return res.status(decision.status).json({
+        error: 'Access denied',
+        reason: decision.reason,
+      })
+    }
+
+    return res.status(decision.status).type('text/plain').send('Access denied')
+  })
 
   await payload.init({
     secret: process.env.PAYLOAD_SECRET ?? '',
