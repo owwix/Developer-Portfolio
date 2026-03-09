@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
 import NetworkBackground from '../components/ui/NetworkBackground'
+import ThemeToggle from '../components/ui/ThemeToggle'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -46,6 +47,19 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const themeInitScript = `
+    (function () {
+      try {
+        var stored = localStorage.getItem('theme');
+        var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        var nextTheme = stored === 'light' || stored === 'dark' ? stored : (prefersLight ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', nextTheme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  `
+
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -55,9 +69,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} lang="en">
+    <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} data-theme="dark" lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         <NetworkBackground />
+        <ThemeToggle />
         {children}
         <script
           type="application/ld+json"

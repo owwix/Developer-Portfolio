@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
+import { setDefaultDisplayOrder } from '../utils/order'
 import { convertLegacyStringToRichText, sanitizeRichTextContent } from '../utils/richText'
 
 const toSlug = (value: string): string =>
@@ -17,8 +18,12 @@ export const BlogPosts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', '_status', 'isComingSoon', 'publishedDate', 'updatedAt'],
+    defaultColumns: ['title', 'displayOrder', '_status', 'isComingSoon', 'publishedDate', 'updatedAt'],
     group: 'Publishing',
+  },
+  defaultSort: 'displayOrder',
+  hooks: {
+    beforeValidate: [setDefaultDisplayOrder('blog-posts')],
   },
   versions: {
     drafts: true,
@@ -31,6 +36,16 @@ export const BlogPosts: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'displayOrder',
+      label: 'Display Order',
+      type: 'number',
+      min: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Lower numbers appear first in blog lists.',
+      },
     },
     {
       name: 'slug',

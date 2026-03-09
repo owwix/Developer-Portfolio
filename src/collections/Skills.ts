@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
+import { setDefaultDisplayOrder } from '../utils/order'
 
 export const Skills: CollectionConfig = {
   slug: 'skills',
@@ -8,10 +9,12 @@ export const Skills: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'updatedAt'],
+    defaultColumns: ['title', 'displayOrder', 'updatedAt'],
     group: 'Portfolio',
   },
+  defaultSort: 'displayOrder',
   hooks: {
+    beforeValidate: [setDefaultDisplayOrder('skills')],
     beforeChange: [
       ({ data }) => {
         if (!data) return data
@@ -35,6 +38,16 @@ export const Skills: CollectionConfig = {
       type: 'text',
       required: true,
       defaultValue: 'Technical Skills',
+    },
+    {
+      name: 'displayOrder',
+      label: 'Display Order',
+      type: 'number',
+      min: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Lower numbers appear first on the frontend.',
+      },
     },
     {
       name: 'skills',

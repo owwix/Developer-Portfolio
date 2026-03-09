@@ -5,6 +5,7 @@ import PaginatedSkillCategories from '../components/home/PaginatedSkillCategorie
 import RichTextContent from '../components/ui/RichTextContent'
 import { type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
+import { sortByDisplayOrder } from '../src/utils/order'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +41,7 @@ type HomeLink = {
 type SocialIconType = 'linkedin' | 'github' | 'email' | 'phone'
 
 type SkillRow = {
+  displayOrder?: number
   name?: string
   category?: string
   skills?: SkillRow[]
@@ -47,6 +49,7 @@ type SkillRow = {
 
 type ExperienceRow = {
   id?: string
+  displayOrder?: number
   role?: string
   company?: string
   summary?: unknown
@@ -56,6 +59,7 @@ type ExperienceRow = {
 
 type ProjectRow = {
   id?: string
+  displayOrder?: number
   slug?: string
   title?: string
   summary?: unknown
@@ -154,10 +158,10 @@ export default async function HomePage() {
     ])
 
     home = homeRes
-    projects = projectsRes?.docs || []
-    skills = skillsRes?.docs || []
-    experiences = expRes?.docs || []
-    blogs = (blogRes?.docs || []).slice(0, 3)
+    projects = sortByDisplayOrder(projectsRes?.docs || [])
+    skills = sortByDisplayOrder(skillsRes?.docs || [])
+    experiences = sortByDisplayOrder(expRes?.docs || [])
+    blogs = sortByDisplayOrder(blogRes?.docs || []).slice(0, 3)
   } catch (error) {
     console.error(error)
   }

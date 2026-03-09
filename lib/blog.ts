@@ -6,6 +6,7 @@ export type BlogTag = {
 
 export type BlogPost = {
   id?: string
+  displayOrder?: number
   title?: string
   slug?: string
   summary?: unknown

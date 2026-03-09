@@ -7,6 +7,7 @@ import SectionContextNav from '../../components/blog/SectionContextNav'
 import type { BlogPost } from '../../lib/blog'
 import { getTags, isComingSoon, toDisplayText } from '../../lib/blog'
 import { fetchBlogPosts } from '../../lib/cms'
+import { sortByDisplayOrder } from '../../src/utils/order'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,7 @@ export default async function BlogArchivePage() {
 
   try {
     const res = await fetchBlogPosts<{ docs?: BlogPost[] }>(200)
-    posts = res?.docs || []
+    posts = sortByDisplayOrder(res?.docs || [])
   } catch (error) {
     console.error(error)
   }

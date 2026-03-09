@@ -14,6 +14,7 @@ import Toc from '../../../components/blog/Toc'
 import type { BlogPost } from '../../../lib/blog'
 import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown, rankRelatedPosts, toDisplayText } from '../../../lib/blog'
 import { fetchBlogPostBySlug, fetchBlogPosts } from '../../../lib/cms'
+import { sortByDisplayOrder } from '../../../src/utils/order'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,7 +83,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   let seriesPart = 0
   try {
     const allPosts = (await fetchBlogPosts<{ docs?: BlogPost[] }>(200))?.docs || []
-    const publishedPosts = allPosts.filter((entry) => Boolean(entry?.slug) && !isComingSoon(entry))
+    const publishedPosts = sortByDisplayOrder(allPosts.filter((entry) => Boolean(entry?.slug) && !isComingSoon(entry)))
 
     commandEntries = publishedPosts.map((entry) => ({
       title: String(entry.title || 'Untitled Article'),

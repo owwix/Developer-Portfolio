@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
+import { setDefaultDisplayOrder } from '../utils/order'
 import { convertLegacyStringToRichText, sanitizeRichTextContent } from '../utils/richText'
 
 export const Experiences: CollectionConfig = {
@@ -9,8 +10,12 @@ export const Experiences: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'role',
-    defaultColumns: ['role', 'company', 'startDate', 'current'],
+    defaultColumns: ['role', 'company', 'displayOrder', 'startDate', 'current'],
     group: 'Portfolio',
+  },
+  defaultSort: 'displayOrder',
+  hooks: {
+    beforeValidate: [setDefaultDisplayOrder('experiences')],
   },
   versions: {
     drafts: true,
@@ -28,6 +33,16 @@ export const Experiences: CollectionConfig = {
       name: 'company',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'displayOrder',
+      label: 'Display Order',
+      type: 'number',
+      min: 0,
+      admin: {
+        position: 'sidebar',
+        description: 'Lower numbers appear first on the frontend.',
+      },
     },
     {
       name: 'location',
