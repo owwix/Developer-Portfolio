@@ -647,6 +647,187 @@ p {
   align-items: stretch;
 }
 
+.open-source-subtitle {
+  margin: 0 0 0.8rem;
+  color: var(--ink-soft);
+  max-width: 74ch;
+}
+
+.open-source-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.open-source-grid.is-detailed {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.open-source-card {
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: linear-gradient(155deg, rgba(9, 9, 9, 0.9), rgba(6, 6, 6, 0.84));
+  padding: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.open-source-card:hover {
+  transform: translateY(-2px);
+  border-color: #646464;
+  box-shadow: 0 12px 28px rgba(255, 255, 255, 0.08);
+}
+
+.open-source-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.open-source-title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.58rem;
+  min-width: 0;
+}
+
+.open-source-marker {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #090909;
+  color: var(--accent);
+  width: 1.9rem;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.open-source-card h3 {
+  font-size: 1.03rem;
+  line-height: 1.26;
+}
+
+.open-source-status {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.18rem 0.46rem;
+  background: #070707;
+  color: var(--ink);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  line-height: 1.24;
+  white-space: nowrap;
+}
+
+.open-source-status.is-released {
+  border-color: #5f5f5f;
+}
+
+.open-source-status.is-in-progress {
+  border-color: #515151;
+  color: #f2f2f2;
+}
+
+.open-source-status.is-planned {
+  border-style: dashed;
+  color: #cfcfcf;
+}
+
+.open-source-description {
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.open-source-card.is-preview .open-source-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.open-source-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+}
+
+.open-source-repo-meta {
+  margin: -0.1rem 0 0;
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.open-source-actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.44rem;
+}
+
+.open-source-action {
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #080808;
+  color: var(--ink);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  padding: 0.28rem 0.56rem;
+}
+
+.open-source-action:hover {
+  border-color: var(--accent);
+}
+
+.open-source-archive {
+  margin-top: 1rem;
+}
+
+.open-source-archive-head {
+  margin-bottom: 0.56rem;
+}
+
+.open-source-archive-count,
+.open-source-group-count {
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+}
+
+.open-source-category-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.36rem;
+  margin-bottom: 0.86rem;
+}
+
+.open-source-groups {
+  display: grid;
+  gap: 1rem;
+}
+
+.open-source-group h3 {
+  font-size: 1.08rem;
+}
+
+.open-source-archive-footer {
+  margin-top: 1rem;
+  padding-top: 0.76rem;
+  border-top: 1px solid var(--line-soft);
+  color: var(--ink-soft);
+}
+
 .card-link {
   text-decoration: none;
 }
@@ -683,6 +864,7 @@ p {
 .article-body a:focus-visible,
 .toc a:focus-visible,
 .view-all-link:focus-visible,
+.open-source-action:focus-visible,
 .bookmark-btn:focus-visible,
 .reading-list-remove:focus-visible,
 .section-context a:focus-visible,
@@ -747,6 +929,7 @@ p {
 }
 
 .page-blog .card,
+.page-open-source .card,
 .page-post .card {
   background: linear-gradient(150deg, rgba(10, 10, 10, 0.9), rgba(6, 6, 6, 0.84));
   border-color: #2f2f2f;
@@ -1685,7 +1868,36 @@ html[data-theme='light'] .blog-card:hover {
   box-shadow: 0 12px 28px rgba(44, 60, 80, 0.14);
 }
 
+html[data-theme='light'] .open-source-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: #d3dde8;
+}
+
+html[data-theme='light'] .open-source-card:hover {
+  border-color: #95a8be;
+  box-shadow: 0 12px 28px rgba(44, 60, 80, 0.14);
+}
+
+html[data-theme='light'] .open-source-marker,
+html[data-theme='light'] .open-source-status,
+html[data-theme='light'] .open-source-action {
+  background: #f8fafc;
+  color: #162334;
+}
+
+html[data-theme='light'] .open-source-status.is-planned {
+  color: #3f4f63;
+}
+
+html[data-theme='light'] .open-source-archive-footer,
+html[data-theme='light'] .open-source-repo-meta,
+html[data-theme='light'] .open-source-archive-count,
+html[data-theme='light'] .open-source-group-count {
+  color: #556478;
+}
+
 html[data-theme='light'] .page-blog .card,
+html[data-theme='light'] .page-open-source .card,
 html[data-theme='light'] .page-post .card {
   background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(247, 250, 253, 0.92));
   border-color: #cfd9e4;
@@ -1841,6 +2053,10 @@ html[data-theme='light'] .form-error {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .open-source-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .post-layout {
     grid-template-columns: 1fr;
   }
@@ -1941,7 +2157,8 @@ html[data-theme='light'] .form-error {
   }
 
   .blog-grid,
-  .archive-grid {
+  .archive-grid,
+  .open-source-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1969,17 +2186,20 @@ html[data-theme='light'] .form-error {
   }
 
   .container.page-blog,
+  .container.page-open-source,
   .container.page-post {
     width: min(1080px, 94vw);
     margin: 1.1rem auto 2.5rem;
   }
 
   .page-blog .card,
+  .page-open-source .card,
   .page-post .card {
     padding: 0.92rem;
   }
 
   .page-blog .page-hero h1,
+  .page-open-source .page-hero h1,
   .page-post .post-hero h1 {
     font-size: clamp(1.42rem, 6.8vw, 1.82rem);
     line-height: 1.1;

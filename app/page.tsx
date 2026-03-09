@@ -2,9 +2,11 @@ import Link from 'next/link'
 import BlogCard from '../components/blog/BlogCard'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
+import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
 import { type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
+import { openSourceResources } from '../lib/openSource'
 import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
 
@@ -183,6 +185,7 @@ export default async function HomePage() {
     acc[key].push(row)
     return acc
   }, {})
+  const openSourcePreview = openSourceResources.slice(0, 3)
 
   return (
     <main className="container page-home">
@@ -254,6 +257,23 @@ export default async function HomePage() {
         <article className="card reveal">
           <h2>Skills</h2>
           <PaginatedSkillCategories groupedSkills={groupedSkills} />
+        </article>
+
+        <article className="card reveal full">
+          <div className="section-head">
+            <h2>Open Source</h2>
+            <Link className="view-all-link" href="/open-source">
+              View All Resources
+            </Link>
+          </div>
+          <p className="open-source-subtitle">
+            Reusable templates, starter kits, and developer tools built for real-world use.
+          </p>
+          <div className="open-source-grid">
+            {openSourcePreview.map((resource) => (
+              <OpenSourceCard key={resource.id} resource={resource} />
+            ))}
+          </div>
         </article>
 
         <article className="card reveal full">
