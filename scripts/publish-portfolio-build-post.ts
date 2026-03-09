@@ -12,12 +12,12 @@ if (!process.env.PAYLOAD_CONFIG_PATH) {
 const title = 'How I Built My Portfolio with Next.js, TypeScript, and Payload CMS'
 const slug = 'how-i-built-my-portfolio-with-nextjs-typescript-and-payload-cms'
 const summary =
-  'A detailed engineering walkthrough of building and deploying a CMS-backed portfolio with Next.js, TypeScript, and Payload, including architecture decisions, production setup, and lessons learned.'
+  'A production-focused walkthrough of how I rebuilt and deployed my portfolio as a real CMS-backed engineering system with Next.js, TypeScript, Payload, and hardened admin/API access.'
 const FENCE = '```'
 
 const content = `# How I Built My Portfolio with Next.js, TypeScript, and Payload CMS
 
-I rebuilt my portfolio because I wanted it to behave like a real engineering product, not a static page that I had to edit manually every time I wanted to ship new content.
+I rebuilt my portfolio because I wanted it to behave like a real engineering product, not a static page that I had to edit manually every time I wanted to ship content.
 
 My goals were simple:
 
@@ -26,7 +26,7 @@ My goals were simple:
 - manage projects, skills, and experience from a CMS
 - keep the codebase maintainable as the site grows
 
-This guide is the exact approach I used so someone else can build and deploy a similar system.
+This guide is the exact approach I used so someone else can build, secure, and deploy a similar system.
 
 ## Problem Statement
 
@@ -53,7 +53,7 @@ It gave me a clear structure for:
 
 ### TypeScript
 
-TypeScript is critical in a CMS-backed frontend.
+TypeScript is critical in a CMS-backed frontend where content models evolve.
 
 As soon as your content model changes, weak typing becomes a regression risk. TypeScript helped me lock down model shapes for posts, projects, experience entries, and global homepage content.
 
@@ -144,6 +144,7 @@ For markdown parsing, I added support for:
 - blockquotes
 - code fences
 - engineering callouts
+- copy-ready code blocks
 
 ${FENCE}typescript
 export async function getArchive() {
@@ -152,11 +153,13 @@ export async function getArchive() {
 }
 ${FENCE}
 
-### Important rendering bug I fixed
+### Important rendering bugs I fixed
 
 I initially had code fences rendering incorrectly because escaped fence characters were stored literally in content. The fix was to write actual fence markers in post content and ensure the parser sees real triple-backtick blocks.
 
-I also fixed paragraph fidelity between Payload rich text and frontend rendering so Enter-based paragraph breaks map exactly to separate paragraphs in the UI.
+I also fixed paragraph fidelity between Payload rich text and frontend rendering so Enter-based paragraph breaks map to separate paragraphs in the UI.
+
+And I fixed list-node cleanup to remove stray empty bullets created by inconsistent legacy editor state.
 
 ## Homepage + Blog UX
 
@@ -168,6 +171,8 @@ I designed the blog experience as a docs/engineering hybrid:
 - reading progress bar
 - code copy button
 - engineering annotation callouts
+- related-post suggestions
+- reading list/bookmark flow
 
 This made the writing feel like technical documentation instead of generic portfolio text.
 
@@ -216,7 +221,7 @@ PAYLOAD_MEDIA_DIR=/data/media
 PAYLOAD_MEDIA_URL=/media
 ${FENCE}
 
-Mount a persistent volume at /data so uploaded images survive redeploys.
+Mount a persistent volume at \`/data\` so uploaded images survive redeploys.
 
 ### Step 4: Build + run
 
@@ -232,7 +237,7 @@ ${FENCE}
 - blog archive and post detail render correctly
 - media URLs load after redeploy
 
-## Production Issues I Hit (and fixes)
+## Production Issues I Hit (and Fixes)
 
 ### 1. Frontend data did not match admin
 
@@ -252,17 +257,61 @@ Cause: renderer flattening or sanitization issues.
 
 Fix: explicit rich text renderer for paragraph/list nodes and cleanup hooks for empty list artifacts.
 
+### 4. Analytics route failures in production
+
+Cause: route-level conflict around blog analytics endpoint plus missing collection registration in one deployment path.
+
+Fix:
+
+- register \`blog-analytics\` collection in Payload config
+- move analytics API handling into the Express server layer for this stack
+- remove conflicting duplicate route implementation
+
+## Security Hardening (Cloudflare Access)
+
+I also added a protection layer so sensitive surfaces are not publicly reachable without Cloudflare Access.
+
+Protected routes:
+
+- \`/admin\`
+- non-public internal \`/api\` routes
+
+Public routes (intentionally open):
+
+- public content read endpoints used by frontend rendering
+- specific webhook/public routes required for integrations
+
+This gave me an extra perimeter beyond app-level auth and reduced direct exposure of admin and internal APIs.
+
+> [!DECISION] Put admin and internal APIs behind Cloudflare Access
+> Payload auth is necessary, but perimeter enforcement reduces attack surface and noisy bot traffic before it reaches the app.
+
+## Minimal Route Guard Pattern
+
+${FENCE}typescript
+const protectedPrefixes = ['/admin', '/api']
+const publicApiPrefixes = ['/api/blog', '/api/public', '/api/webhooks']
+
+function isProtected(pathname: string) {
+  if (pathname.startsWith('/admin')) return true
+  if (!pathname.startsWith('/api')) return false
+  return !publicApiPrefixes.some((prefix) => pathname.startsWith(prefix))
+}
+${FENCE}
+
+In production, protected routes require trusted Cloudflare Access identity headers before the request is accepted.
+
 > [!LESSON] Reliability is mostly about operational discipline
 > Most real failures came from environment and deployment mismatches, not component styling.
 
 ## What I Would Improve Next
 
 > [!IMPROVE] Next iteration priorities
-> Add stronger draft preview flow, richer related-post ranking, post-level analytics, expanded RSS/sitemap coverage, and better taxonomy/series navigation.
+> Add stronger draft preview workflows, richer related-post ranking, deeper read-depth analytics, expanded RSS/sitemap behavior, and cleaner template packaging for public reuse.
 
 ## Final Thoughts
 
-This rebuild turned my portfolio into a maintainable publishing platform.
+This rebuild turned my portfolio into a maintainable publishing platform I can keep evolving.
 
 The biggest win is workflow quality: I can now write, ship, and iterate like I would on any serious product system.
 
@@ -287,6 +336,11 @@ async function run() {
     overrideAccess: true,
   })
 
+  const publishedDate =
+    existing.docs.length > 0 && existing.docs[0].publishedDate
+      ? existing.docs[0].publishedDate
+      : new Date().toISOString()
+
   const data = {
     title,
     slug,
@@ -300,7 +354,7 @@ async function run() {
       { tag: 'Deployment' },
       { tag: 'Portfolio' },
     ],
-    publishedDate: new Date().toISOString(),
+    publishedDate,
     isComingSoon: false,
     _status: 'published' as const,
   }

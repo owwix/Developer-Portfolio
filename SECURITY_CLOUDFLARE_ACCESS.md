@@ -29,6 +29,8 @@ These endpoints are intentionally public so the frontend keeps working:
 - `POST|OPTIONS /api/phone-requests*`
 - `GET|POST|OPTIONS /api/blog/analytics*`
 
+`/api/blog/analytics` is implemented as an Express route in `src/server/registerBlogAnalyticsRoute.ts`.
+
 ## Optional hardening
 
 Use identity allowlists:

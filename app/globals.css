@@ -1159,6 +1159,7 @@ p {
 }
 
 .blog-subscribe-card {
+  margin-top: 1.1rem;
   margin-bottom: 1rem;
 }
 
@@ -2602,6 +2603,10 @@ html[data-theme='light'] .form-error {
   }
 
   .post-more-notes {
+    margin-top: 0.85rem;
+  }
+
+  .blog-subscribe-card {
     margin-top: 0.85rem;
   }
 

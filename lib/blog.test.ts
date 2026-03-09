@@ -40,6 +40,14 @@ describe('parseMarkdown', () => {
     expect(html).toContain('Walkthrough')
   })
 
+  it('renders fenced engineering callouts', () => {
+    const input = [':::decision Explicit allowlist over implicit openness', 'Protect new routes by default.', ':::'].join('\n')
+    const { html } = parseMarkdown(input)
+    expect(html).toContain('class="callout callout-decision"')
+    expect(html).toContain('Explicit allowlist over implicit openness')
+    expect(html).toContain('Protect new routes by default.')
+  })
+
   it('blocks unsupported demo URLs', () => {
     const { html } = parseMarkdown('@[demo](https://example.com/private "Demo")')
     expect(html).toContain('Demo embed blocked')

@@ -4,6 +4,7 @@ import fs from 'fs'
 import next from 'next'
 import path from 'path'
 import payload from 'payload'
+import { registerBlogAnalyticsRoute } from './server/registerBlogAnalyticsRoute'
 import { evaluateCloudflareAccess, shouldProtectRequest } from './security/accessControl'
 
 dotenv.config()
@@ -53,6 +54,10 @@ const start = async () => {
       payload.logger.info(`Payload admin URL: ${payload.getAdminURL()}`)
     },
   })
+
+  // Keep analytics on the same URL but handled by Express directly to avoid
+  // request-stream conflicts between Next App Route handlers and Payload's /api stack.
+  registerBlogAnalyticsRoute(app)
 
   app.get('/health', (_, res) => {
     res.status(200).json({ ok: true })

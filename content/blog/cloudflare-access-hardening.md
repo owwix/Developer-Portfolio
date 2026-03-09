@@ -22,6 +22,107 @@ If upstream policy gets loosened by mistake, the application should still enforc
 2. route classification
 3. method-based public/private boundaries
 
+## My Cloudflare.com Setup Process
+
+This is the exact setup flow I used in Cloudflare Zero Trust to gate my Payload admin route before traffic reaches Railway.
+
+### Architecture
+
+My portfolio stack:
+
+- Frontend: Next.js
+- CMS: Payload CMS
+- Hosting: Railway
+- DNS/Security Layer: Cloudflare
+
+Traffic flow:
+
+```text
+User -> Cloudflare -> Access Policy Check -> Railway App -> Payload CMS
+```
+
+If a user does not meet the Access policy requirements, Cloudflare blocks the request before it reaches the server.
+
+### Step 1: Create a Zero Trust Application
+
+In the Cloudflare Zero Trust dashboard:
+
+```text
+Access -> Applications -> Add application
+```
+
+Choose:
+
+```text
+Self-hosted
+```
+
+### Step 2: Configure the Protected Route
+
+I configured an application to protect the Payload admin path.
+
+Application name:
+
+```text
+Portfolio Payload Admin
+```
+
+Public hostname:
+
+```text
+Domain: alexok.dev
+Path: /admin*
+```
+
+This protects:
+
+```text
+alexok.dev/admin
+alexok.dev/admin/*
+www.alexok.dev/admin
+www.alexok.dev/admin/*
+```
+
+while leaving public pages open, like:
+
+```text
+alexok.dev
+alexok.dev/blog
+alexok.dev/projects
+```
+
+### Step 3: Create an Access Policy
+
+Next I added an Allow policy restricted to my email identity.
+
+Example:
+
+```text
+Allow -> Emails -> alex@alexok.dev
+```
+
+Only identities matching this policy can access `/admin`.
+
+### Result
+
+Before:
+
+```text
+Internet -> /admin -> Payload login page
+```
+
+After:
+
+```text
+Internet -> Cloudflare login -> Access check -> Payload admin
+```
+
+Unauthorized visitors cannot even reach the CMS login page.
+
+:::why Network-level gate before app auth
+Payload auth is still important, but Cloudflare Access blocks scanners and brute-force traffic upstream, reducing exposure and load.
+:::
+
 ## Security Model
 
 I implemented three pieces:

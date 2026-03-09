@@ -121,3 +121,4 @@ This repo includes an app-layer protection guard for `/admin` and sensitive `/ap
 
 - setup + route matrix: `SECURITY_CLOUDFLARE_ACCESS.md`
 - implementation: `src/security/accessControl.ts` + `src/server.ts`
+- analytics tracking endpoint is served by Express at `/api/blog/analytics` (`src/server/registerBlogAnalyticsRoute.ts`)

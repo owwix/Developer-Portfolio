@@ -378,6 +378,23 @@ export function parseMarkdown(source: string): { html: string; toc: TocItem[] } 
       continue
     }
 
+    const fencedCalloutMatch = trimmed.match(/^:::\s*([a-z][a-z0-9-]*)(?:\s+(.*))?$/i)
+    if (fencedCalloutMatch) {
+      const parsedType = normalizeCalloutToken(fencedCalloutMatch[1])
+      if (parsedType) {
+        const title = (fencedCalloutMatch[2] || '').trim()
+        const body: string[] = []
+        i += 1
+        while (i < lines.length && !lines[i].trim().match(/^:::\s*$/)) {
+          body.push(lines[i])
+          i += 1
+        }
+        if (i < lines.length) i += 1
+        chunks.push(renderCallout(parsedType, title, body))
+        continue
+      }
+    }
+
     const demoMatch = trimmed.match(/^@\[demo\]\((https?:\/\/[^\s)]+)(?:\s+"([^"]+)")?\)$/i)
     if (demoMatch) {
       chunks.push(renderDemoEmbed(demoMatch[1], demoMatch[2] || ''))
