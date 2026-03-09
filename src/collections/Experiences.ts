@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
+import { convertLegacyStringToRichText } from '../utils/richText'
 
 export const Experiences: CollectionConfig = {
   slug: 'experiences',
@@ -53,6 +54,10 @@ export const Experiences: CollectionConfig = {
       name: 'summary',
       type: 'richText',
       required: true,
+      hooks: {
+        afterRead: [convertLegacyStringToRichText],
+        beforeValidate: [convertLegacyStringToRichText],
+      },
       admin: {
         description: 'Role summary / experience description. Supports rich text.',
       },

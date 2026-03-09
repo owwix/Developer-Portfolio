@@ -1,10 +1,12 @@
-const BASE_URL = process.env.PAYLOAD_PUBLIC_SERVER_URL || `http://localhost:${process.env.PORT || 3000}`
+const LOCAL_BASE_URL = `http://127.0.0.1:${process.env.PORT || 3000}`
+const BASE_URL = process.env.PAYLOAD_INTERNAL_SERVER_URL || LOCAL_BASE_URL
 
 const normalizeBase = (url: string): string => String(url || '').replace(/\/$/, '')
 
 type FetchOptions = {
   authToken?: string
   disableCache?: boolean
+  timeoutMs?: number
 } & RequestInit
 
 type BlogFetchOptions = {
@@ -13,15 +15,20 @@ type BlogFetchOptions = {
 }
 
 export async function fetchCMS<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
-  const { authToken, disableCache, headers, ...rest } = options
+  const { authToken, disableCache, headers, timeoutMs = 8000, ...rest } = options
   const url = `${normalizeBase(BASE_URL)}${path}`
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   const res = await fetch(url, {
     cache: disableCache ? 'no-store' : 'no-store',
     headers: {
       ...(headers || {}),
       ...(authToken ? { Authorization: `JWT ${authToken}` } : {}),
     },
+    signal: controller.signal,
     ...rest,
+  }).finally(() => {
+    clearTimeout(timer)
   })
 
   if (!res.ok) {

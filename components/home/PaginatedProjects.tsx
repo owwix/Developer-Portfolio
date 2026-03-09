@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { toDisplayText } from '../../lib/blog'
+import RichTextContent from '../ui/RichTextContent'
 
 type ProjectRow = {
   id?: string
@@ -65,7 +65,7 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
               <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
             ) : null}
             <h3>{project.title || 'Untitled Project'}</h3>
-            <p>{toDisplayText(project.summary) || 'No summary available.'}</p>
+            <RichTextContent className="rich-text-content summary-richtext" fallback="No summary available." value={project.summary} />
             <div className="meta">
               {project.liveUrl ? (
                 <a className="badge badge-link" href={project.liveUrl} rel="noreferrer" target="_blank">

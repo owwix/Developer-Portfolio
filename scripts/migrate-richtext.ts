@@ -1,37 +1,12 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import payload from 'payload'
+import { toSlateRichText } from '../src/utils/richText'
 
 dotenv.config()
 
 if (!process.env.PAYLOAD_CONFIG_PATH) {
   process.env.PAYLOAD_CONFIG_PATH = path.resolve(process.cwd(), 'src/payload.config.ts')
-}
-
-type SlateNode = {
-  type?: string
-  children: Array<{ text: string }>
-}
-
-function toSlateRichText(value: string): SlateNode[] {
-  const normalized = String(value || '').replace(/\r\n/g, '\n').trim()
-  if (!normalized) {
-    return [{ type: 'p', children: [{ text: '' }] }]
-  }
-
-  const paragraphs = normalized
-    .split(/\n{2,}/)
-    .map((entry) => entry.replace(/\n/g, ' ').trim())
-    .filter(Boolean)
-
-  if (!paragraphs.length) {
-    return [{ type: 'p', children: [{ text: normalized }] }]
-  }
-
-  return paragraphs.map((entry) => ({
-    type: 'p',
-    children: [{ text: entry }],
-  }))
 }
 
 function isLegacyString(value: unknown): value is string {

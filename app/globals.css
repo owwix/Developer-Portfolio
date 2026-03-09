@@ -308,6 +308,49 @@ p {
   color: var(--ink-soft);
 }
 
+.item .rich-text-content {
+  margin-top: 0.48rem;
+  color: var(--ink-soft);
+}
+
+.rich-text-content > * + * {
+  margin-top: 0.62rem;
+}
+
+.rich-text-content p {
+  margin: 0;
+}
+
+.rich-text-content ul,
+.rich-text-content ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.rich-text-content ul {
+  list-style: disc;
+}
+
+.rich-text-content ol {
+  list-style: decimal;
+}
+
+.rich-text-content li {
+  margin: 0.34rem 0;
+}
+
+.rich-text-content a {
+  color: var(--accent-strong);
+}
+
+.rich-text-content strong {
+  color: var(--ink);
+}
+
+.summary-richtext {
+  line-height: 1.6;
+}
+
 .meta {
   margin-top: 0.55rem;
   display: flex;

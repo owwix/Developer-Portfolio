@@ -2,7 +2,8 @@ import Link from 'next/link'
 import BlogCard from '../components/blog/BlogCard'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
-import { toDisplayText, type BlogPost } from '../lib/blog'
+import RichTextContent from '../components/ui/RichTextContent'
+import { type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
 
 export const dynamic = 'force-dynamic'
@@ -188,10 +189,11 @@ export default async function HomePage() {
           <div className="hero-copy">
             <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
             <h1>{home?.name || 'Alexander Okonkwo'}</h1>
-            <p className="bio">
-              {toDisplayText(home?.bio) ||
-                'Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery.'}
-            </p>
+            <RichTextContent
+              className="bio rich-text-content"
+              fallback="Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery."
+              value={home?.bio}
+            />
             <p className="hero-blog-note">
               I document architecture decisions, build logs, and engineering lessons learned while building production systems in
               my{' '}
@@ -258,7 +260,7 @@ export default async function HomePage() {
                   <h3>
                     {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
                   </h3>
-                  <p>{toDisplayText(exp.summary) || 'No summary yet.'}</p>
+                  <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
                   <div className="meta">
                     {exp.location ? <span className="badge">{exp.location}</span> : null}
                     {exp.current ? <span className="badge featured">Current</span> : null}
