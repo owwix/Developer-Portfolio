@@ -20,7 +20,7 @@ export const Projects: CollectionConfig = {
     },
     {
       name: 'summary',
-      type: 'textarea',
+      type: 'richText',
       required: true,
     },
     {

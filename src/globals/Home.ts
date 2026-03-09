@@ -18,7 +18,7 @@ export const Home: GlobalConfig = {
     },
     {
       name: 'bio',
-      type: 'textarea',
+      type: 'richText',
       required: true,
     },
     {

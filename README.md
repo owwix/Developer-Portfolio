@@ -54,3 +54,24 @@ This repository is set up as a **SWE portfolio CMS backend** using Payload.
 ## Next step (frontend)
 
 You can now consume Payload's REST or GraphQL APIs from a frontend (Next.js, Astro, etc.) to render your portfolio UI.
+
+## Rendering rich text on your frontend
+
+`projects.summary`, `experiences.summary`, and `home.bio` are now Payload `richText` fields.
+Their API values are Lexical JSON, not plain strings, so render them with the Lexical renderer in your frontend app.
+
+Example (React/Next.js):
+
+```tsx
+import { RichText } from '@payloadcms/richtext-lexical/react'
+
+export function ProjectSummary({ summary }: { summary: unknown }) {
+  return <RichText data={summary} />
+}
+```
+
+Install frontend renderer package in your frontend repo:
+
+```bash
+npm install @payloadcms/richtext-lexical
+```

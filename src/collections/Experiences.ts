@@ -46,7 +46,7 @@ export const Experiences: CollectionConfig = {
     },
     {
       name: 'summary',
-      type: 'textarea',
+      type: 'richText',
       required: true,
     },
     {
