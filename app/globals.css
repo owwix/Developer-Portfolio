@@ -1105,6 +1105,60 @@ p {
   overflow: auto;
 }
 
+.article-body pre code,
+.article-body pre code.hljs {
+  display: block;
+  color: #d9e2f0;
+}
+
+.article-body pre .hljs-comment,
+.article-body pre .hljs-quote {
+  color: #96a1b4;
+}
+
+.article-body pre .hljs-keyword,
+.article-body pre .hljs-selector-tag,
+.article-body pre .hljs-type,
+.article-body pre .hljs-literal {
+  color: #f2c089;
+}
+
+.article-body pre .hljs-title,
+.article-body pre .hljs-title.function_,
+.article-body pre .hljs-function .hljs-title,
+.article-body pre .hljs-variable.language_ {
+  color: #9ed3ff;
+}
+
+.article-body pre .hljs-string,
+.article-body pre .hljs-attr,
+.article-body pre .hljs-template-variable {
+  color: #98d6ae;
+}
+
+.article-body pre .hljs-number,
+.article-body pre .hljs-symbol,
+.article-body pre .hljs-bullet {
+  color: #e5c5ff;
+}
+
+.article-body pre .hljs-built_in,
+.article-body pre .hljs-class .hljs-title {
+  color: #9fe0e6;
+}
+
+.article-body pre .hljs-meta {
+  color: #eab9ff;
+}
+
+.article-body pre .hljs-emphasis {
+  font-style: italic;
+}
+
+.article-body pre .hljs-strong {
+  font-weight: 700;
+}
+
 .article-body pre.mermaid {
   padding: 0.72rem;
 }
@@ -1577,8 +1631,53 @@ html[data-theme='light'] .article-body blockquote {
 }
 
 html[data-theme='light'] .article-body pre {
-  border-color: #222b36;
-  background: #0f1318;
+  border-color: #c9d5e3;
+  background: #f5f8fc;
+}
+
+html[data-theme='light'] .article-body pre code,
+html[data-theme='light'] .article-body pre code.hljs {
+  color: #1e2b3a;
+}
+
+html[data-theme='light'] .article-body pre .hljs-comment,
+html[data-theme='light'] .article-body pre .hljs-quote {
+  color: #6d7f94;
+}
+
+html[data-theme='light'] .article-body pre .hljs-keyword,
+html[data-theme='light'] .article-body pre .hljs-selector-tag,
+html[data-theme='light'] .article-body pre .hljs-type,
+html[data-theme='light'] .article-body pre .hljs-literal {
+  color: #8f2f88;
+}
+
+html[data-theme='light'] .article-body pre .hljs-title,
+html[data-theme='light'] .article-body pre .hljs-title.function_,
+html[data-theme='light'] .article-body pre .hljs-function .hljs-title,
+html[data-theme='light'] .article-body pre .hljs-variable.language_ {
+  color: #0f66b5;
+}
+
+html[data-theme='light'] .article-body pre .hljs-string,
+html[data-theme='light'] .article-body pre .hljs-attr,
+html[data-theme='light'] .article-body pre .hljs-template-variable {
+  color: #1f7a41;
+}
+
+html[data-theme='light'] .article-body pre .hljs-number,
+html[data-theme='light'] .article-body pre .hljs-symbol,
+html[data-theme='light'] .article-body pre .hljs-bullet {
+  color: #a25e18;
+}
+
+html[data-theme='light'] .article-body pre .hljs-built_in,
+html[data-theme='light'] .article-body pre .hljs-class .hljs-title {
+  color: #0e5f8a;
+}
+
+html[data-theme='light'] .article-body pre .hljs-meta {
+  color: #b2467c;
 }
 
 html[data-theme='light'] .article-body p code,
@@ -1589,9 +1688,9 @@ html[data-theme='light'] .article-body li code {
 }
 
 html[data-theme='light'] .code-copy-btn {
-  border-color: #5b6b7c;
-  background: #141b23;
-  color: #e8edf2;
+  border-color: #b8c8da;
+  background: #ffffff;
+  color: #1a2938;
 }
 
 html[data-theme='light'] .callout {

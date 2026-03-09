@@ -12,99 +12,261 @@ if (!process.env.PAYLOAD_CONFIG_PATH) {
 const title = 'How I Built My Portfolio with Next.js, TypeScript, and Payload CMS'
 const slug = 'how-i-built-my-portfolio-with-nextjs-typescript-and-payload-cms'
 const summary =
-  'I rebuilt my portfolio as a real engineering system using Next.js, TypeScript, and Payload CMS so content publishing, UI delivery, and long-term maintenance are all first-class workflows.'
+  'A detailed engineering walkthrough of building and deploying a CMS-backed portfolio with Next.js, TypeScript, and Payload, including architecture decisions, production setup, and lessons learned.'
+const FENCE = '```'
 
-const content = String.raw`# How I Built My Portfolio with Next.js, TypeScript, and Payload CMS
+const content = `# How I Built My Portfolio with Next.js, TypeScript, and Payload CMS
 
-I rebuilt my portfolio because I wanted it to function like a product, not just a static page. I needed a setup where I could ship frontend improvements, publish technical writing, and evolve content without hardcoding every update.
+I rebuilt my portfolio because I wanted it to behave like a real engineering product, not a static page that I had to edit manually every time I wanted to ship new content.
 
-## Why I Rebuilt It
+My goals were simple:
 
-> [!DECISION] Move from static-only content to a CMS-backed architecture
-> I chose Next.js + TypeScript + Payload CMS so I could decouple content from presentation and keep the portfolio maintainable as it grows.
+- ship UI changes safely
+- publish technical writing quickly
+- manage projects, skills, and experience from a CMS
+- keep the codebase maintainable as the site grows
+
+This guide is the exact approach I used so someone else can build and deploy a similar system.
+
+## Problem Statement
+
+My previous setup looked fine but had a workflow problem: content was tightly coupled to frontend code. Every update meant editing source files and redeploying.
+
+> [!DECISION] Use a CMS-backed architecture
+> I chose Next.js + TypeScript + Payload CMS to separate content operations from presentation and create a long-term publishing workflow.
 
 > [!WHY] Why this mattered
-> This gave me a repeatable publishing workflow for blog posts, projects, and homepage content while keeping strong typing in the frontend.
+> It let me update content independently from UI implementation while keeping strict typing and predictable rendering.
 
-The old version looked fine, but adding new projects or notes still felt manual. I wanted cleaner developer ergonomics and better long-term maintainability.
-
-## Stack and Architecture
+## Stack Selection
 
 ### Next.js
 
-I used Next.js for routing, rendering, and production deployment flow. It gave me a clean structure for:
+I used Next.js for routing, rendering, metadata control, and deployment ergonomics.
 
-- Homepage sections (hero, projects, skills, notes)
-- Blog archive and blog detail routes
-- Per-page SEO metadata and social cards
-- Server-side content fetching from the CMS
+It gave me a clear structure for:
+
+- homepage sections
+- blog archive and detail routes
+- social metadata and canonical URLs
+- server-side fetching from CMS APIs
 
 ### TypeScript
 
-TypeScript was non-negotiable for this rebuild. It helps catch schema drift early, keeps content mapping safe, and makes refactors much less risky.
+TypeScript is critical in a CMS-backed frontend.
+
+As soon as your content model changes, weak typing becomes a regression risk. TypeScript helped me lock down model shapes for posts, projects, experience entries, and global homepage content.
 
 ### Payload CMS
 
-Payload became the editorial control center for site content:
+Payload became my editorial control center for:
 
-- Homepage global content
-- Projects
-- Skills
-- Blog notes/articles
-- Contact inquiries
+- homepage global content
+- projects
+- skills and categories
+- experiences
+- blog posts
+- inquiries
 
-## Content Model Decisions
+## Project Setup
 
-> [!TRADEOFF] CMS flexibility vs setup complexity
-> Payload adds backend complexity compared with a plain MDX-only blog, but it gave me structured content management and a better long-term workflow.
+### Prerequisites
 
-I modeled content around reusable entities rather than page-specific hardcoded blocks. That made it easy to reuse content across homepage previews, archive cards, and detail pages.
+${FENCE}bash
+node -v   # use >= 18.20
+npm -v
+${FENCE}
 
-For long-form writing, I moved toward rich text and markdown-based rendering patterns so I can publish technical notes with headings, lists, code blocks, and callouts.
+You also need a MongoDB database URL and environment variables.
 
-## Example: Markdown + Code Block Support
+### App bootstrap
 
-\`\`\`typescript
-import { fetchBlogPosts } from '../lib/cms'
+${FENCE}bash
+npx create-next-app@latest developer-portfolio --ts
+cd developer-portfolio
+npm install payload @payloadcms/db-mongodb @payloadcms/richtext-slate @payloadcms/bundler-webpack express dotenv tsx
+${FENCE}
 
-export async function getArchive() {
-  const result = await fetchBlogPosts<{ docs?: Array<{ title?: string; slug?: string }> }>(200)
-  return result?.docs ?? []
+### Core scripts
+
+${FENCE}json
+{
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "next build && tsc -p tsconfig.json && PAYLOAD_CONFIG_PATH=dist/payload.config.js payload build",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.next.json"
+  }
 }
-\`\`\`
+${FENCE}
 
-That same approach keeps route rendering and metadata generation straightforward across the site.
+## Payload Configuration
 
-## Design Direction
+The core config wires Mongo, rich text, admin, and collections.
 
-I kept the visual language dark, minimal, and technical to match the rest of my portfolio. The goal was to feel like a real engineering brand, not a generic template.
+${FENCE}typescript
+export default buildConfig({
+  db: mongooseAdapter({
+    url: process.env.MONGODB_URI || '',
+  }),
+  editor: slateEditor({}),
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  collections: [BlogPosts, Projects, Skills, Experiences, Media, PhoneRequests, Users],
+  globals: [Home],
+})
+${FENCE}
 
-I focused on:
+## Content Model Design
 
-- Clear typography hierarchy
-- Consistent spacing and card patterns
-- Better readability for long-form posts
-- Responsive behavior across desktop, tablet, and mobile
-- Subtle interaction states instead of noisy animations
+I kept content model boundaries clear:
 
-## Deployment Lessons
+- Home global: hero content and key links
+- Projects: summary, image, links, ordering
+- Skills: grouped categories and badges
+- Experience: role history with rich text summaries
+- BlogPosts: title, slug, summary, content, tags, publish date
 
-One major challenge was operational consistency across environments:
+> [!TRADEOFF] Structured CMS model vs speed of hardcoded JSON
+> A structured model takes more setup at the start, but it pays off quickly when you need to scale writing and maintain consistency.
 
-- Environment variable alignment
-- Database alignment between admin and frontend
-- Build dependency stability
-- Schema evolution without content loss
+## Rich Text + Markdown Rendering
 
-> [!LESSON] The frontend can look healthy while CMS data is wrong
-> If environments drift, the site can still render cached or alternate content while the admin appears missing data. Ops discipline matters as much as UI quality.
+I support two flows:
 
-## What I'd Improve Next
+1. Payload rich text for short/structured fields (bio, summaries)
+2. Markdown-style body rendering for blog post content
+
+For markdown parsing, I added support for:
+
+- headings
+- paragraphs
+- unordered lists
+- blockquotes
+- code fences
+- engineering callouts
+
+${FENCE}typescript
+export async function getArchive() {
+  const result = await fetchBlogPosts<{ docs?: Array<{ title?: string; slug?: string; displayOrder?: number }> }>(200)
+  return sortByDisplayOrder(result?.docs || [])
+}
+${FENCE}
+
+### Important rendering bug I fixed
+
+I initially had code fences rendering incorrectly because escaped fence characters were stored literally in content. The fix was to write actual fence markers in post content and ensure the parser sees real triple-backtick blocks.
+
+I also fixed paragraph fidelity between Payload rich text and frontend rendering so Enter-based paragraph breaks map exactly to separate paragraphs in the UI.
+
+## Homepage + Blog UX
+
+I designed the blog experience as a docs/engineering hybrid:
+
+- archive page with filters and tags
+- detail page with metadata row
+- sticky table of contents
+- reading progress bar
+- code copy button
+- engineering annotation callouts
+
+This made the writing feel like technical documentation instead of generic portfolio text.
+
+## SEO + Social
+
+For SEO and sharing, I added:
+
+- canonical URLs
+- OpenGraph metadata
+- Twitter card metadata
+- JSON-LD for Article/Breadcrumb/Person where relevant
+- generated social image route for posts
+
+That improved share quality and consistency across platforms.
+
+## Environment Variables
+
+A stable environment setup matters as much as UI quality.
+
+${FENCE}bash
+PAYLOAD_SECRET=your-secret
+MONGODB_URI=your-mongodb-uri
+PAYLOAD_PUBLIC_SERVER_URL=https://www.alexok.dev
+PAYLOAD_INTERNAL_SERVER_URL=http://127.0.0.1:3000
+PORT=3000
+${FENCE}
+
+## Deploying to Railway (or similar)
+
+### Step 1: Provision services
+
+- Web service for Next.js + Payload
+- MongoDB service
+- Optional persistent volume for media
+
+### Step 2: Set production variables
+
+Set all required env vars in the deployment environment.
+
+### Step 3: Configure media persistence
+
+Do not rely on container-local storage for uploads.
+
+${FENCE}bash
+PAYLOAD_MEDIA_DIR=/data/media
+PAYLOAD_MEDIA_URL=/media
+${FENCE}
+
+Mount a persistent volume at /data so uploaded images survive redeploys.
+
+### Step 4: Build + run
+
+${FENCE}bash
+npm run build
+npm start
+${FENCE}
+
+### Step 5: Verify critical paths
+
+- admin login works
+- homepage content loads from CMS
+- blog archive and post detail render correctly
+- media URLs load after redeploy
+
+## Production Issues I Hit (and fixes)
+
+### 1. Frontend data did not match admin
+
+Cause: environment drift between services.
+
+Fix: standardize env vars and ensure both frontend and admin point at the same data source.
+
+### 2. Missing media after deploy
+
+Cause: non-persistent container storage.
+
+Fix: use persistent volume/object storage and normalize filenames.
+
+### 3. Rich text formatting mismatch
+
+Cause: renderer flattening or sanitization issues.
+
+Fix: explicit rich text renderer for paragraph/list nodes and cleanup hooks for empty list artifacts.
+
+> [!LESSON] Reliability is mostly about operational discipline
+> Most real failures came from environment and deployment mismatches, not component styling.
+
+## What I Would Improve Next
 
 > [!IMPROVE] Next iteration priorities
-> I would add stronger draft preview workflows, richer related-post ranking, deeper read-depth analytics, and expanded RSS/sitemap behavior for content distribution.
+> Add stronger draft preview flow, richer related-post ranking, post-level analytics, expanded RSS/sitemap coverage, and better taxonomy/series navigation.
 
-This rebuild gave me more than a visual refresh. It gave me a maintainable publishing system I can iterate on like a real product.
+## Final Thoughts
+
+This rebuild turned my portfolio into a maintainable publishing platform.
+
+The biggest win is workflow quality: I can now write, ship, and iterate like I would on any serious product system.
+
+If you are building your own developer portfolio and want it to scale beyond a static landing page, this stack is a strong foundation.
 `
 
 async function run() {
@@ -135,6 +297,7 @@ async function run() {
       { tag: 'TypeScript' },
       { tag: 'Payload CMS' },
       { tag: 'Engineering Notes' },
+      { tag: 'Deployment' },
       { tag: 'Portfolio' },
     ],
     publishedDate: new Date().toISOString(),
