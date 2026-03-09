@@ -5,8 +5,8 @@ import PaginatedSkillCategories from '../components/home/PaginatedSkillCategorie
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
 import { type BlogPost } from '../lib/blog'
-import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
-import { openSourceResources } from '../lib/openSource'
+import { fetchBlogPosts, fetchExperiences, fetchHome, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
+import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
 import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
 
@@ -58,6 +58,8 @@ type ExperienceRow = {
   summary?: unknown
   location?: string
   current?: boolean
+  startDate?: string
+  endDate?: string
 }
 
 type ProjectRow = {
@@ -98,6 +100,25 @@ function inferSocialIcon(link: HomeLink): SocialIconType | null {
 function getCustomIconUrl(link: HomeLink): string {
   if (!link?.customIcon || typeof link.customIcon === 'string') return ''
   return link.customIcon.url || link.customIcon.sizes?.avatar?.url || ''
+}
+
+function formatExperienceDate(value?: string): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+function getExperienceDateRange(exp: ExperienceRow): string {
+  const start = formatExperienceDate(exp.startDate)
+  if (!start) return ''
+  if (exp.current) return `${start} - Present`
+  const end = formatExperienceDate(exp.endDate)
+  return end ? `${start} - ${end}` : start
 }
 
 function SocialLinkIcon({ type }: { type: SocialIconType }) {
@@ -150,14 +171,16 @@ export default async function HomePage() {
   let skills: SkillRow[] = []
   let experiences: ExperienceRow[] = []
   let blogs: BlogPost[] = []
+  let openSource: OpenSourceResource[] = defaultOpenSourceResources
 
   try {
-    const [homeRes, projectsRes, skillsRes, expRes, blogRes] = await Promise.all([
+    const [homeRes, projectsRes, skillsRes, expRes, blogRes, openSourceRes] = await Promise.all([
       fetchHome<HomeData>(),
       fetchProjects<{ docs?: ProjectRow[] }>(100),
       fetchSkills<{ docs?: SkillRow[] }>(100),
       fetchExperiences<{ docs?: ExperienceRow[] }>(6),
       fetchBlogPosts<{ docs?: BlogPost[] }>(40),
+      fetchOpenSourceResources<{ docs?: OpenSourceResourceRow[] }>(200),
     ])
 
     home = homeRes
@@ -165,6 +188,8 @@ export default async function HomePage() {
     skills = sortByDisplayOrder(skillsRes?.docs || [])
     experiences = sortByDisplayOrder(expRes?.docs || [])
     blogs = sortByDisplayOrder(blogRes?.docs || []).slice(0, 3)
+    const fromCMS = normalizeOpenSourceResources(openSourceRes?.docs || [])
+    if (fromCMS.length) openSource = fromCMS
   } catch (error) {
     console.error(error)
   }
@@ -185,7 +210,7 @@ export default async function HomePage() {
     acc[key].push(row)
     return acc
   }, {})
-  const openSourcePreview = openSourceResources.slice(0, 3)
+  const openSourcePreview = openSource.filter((item) => item.showOnHomepage !== false).slice(0, 3)
 
   return (
     <main className="container page-home">
@@ -280,18 +305,23 @@ export default async function HomePage() {
           <h2>Experience</h2>
           {experiences.length ? (
             <div className="stack">
-              {experiences.map((exp) => (
-                <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
-                  <h3>
-                    {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
-                  </h3>
-                  <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
-                  <div className="meta">
-                    {exp.location ? <span className="badge">{exp.location}</span> : null}
-                    {exp.current ? <span className="badge featured">Current</span> : null}
-                  </div>
-                </article>
-              ))}
+              {experiences.map((exp) => {
+                const dateRange = getExperienceDateRange(exp)
+
+                return (
+                  <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
+                    <h3>
+                      {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
+                    </h3>
+                    <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
+                    <div className="meta">
+                      {dateRange ? <span className="badge">{dateRange}</span> : null}
+                      {exp.location ? <span className="badge">{exp.location}</span> : null}
+                      {exp.current ? <span className="badge featured">Current</span> : null}
+                    </div>
+                  </article>
+                )
+              })}
             </div>
           ) : (
             <p className="empty-state">No experience entries yet.</p>

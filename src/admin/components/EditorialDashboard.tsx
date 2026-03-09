@@ -119,6 +119,7 @@ export default function EditorialDashboard() {
           </header>
           <div className="ao-dashboard-actions">
             <a href="/admin/collections/blog-posts/create">Write Note</a>
+            <a href="/admin/collections/open-source-resources/create">New Open Source Resource</a>
             <a href="/admin/collections/media">Upload Asset</a>
             <a href="/admin/collections/phone-requests">Review Inquiries</a>
             <a href="/admin/globals/home">Edit Homepage Content</a>

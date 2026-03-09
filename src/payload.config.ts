@@ -11,6 +11,7 @@ import { BlogPosts } from './collections/BlogPosts'
 import { Experiences } from './collections/Experiences'
 import { Media } from './collections/Media'
 import { PhoneRequests } from './collections/PhoneRequests'
+import { OpenSourceResources } from './collections/OpenSourceResources'
 import { Projects } from './collections/Projects'
 import { Skills } from './collections/Skills'
 import { AdminBranding } from './globals/AdminBranding'
@@ -52,6 +53,7 @@ export default buildConfig({
     BlogAnalytics,
     Media,
     Projects,
+    OpenSourceResources,
     Skills,
     Experiences,
     PhoneRequests,

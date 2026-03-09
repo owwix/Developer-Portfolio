@@ -46,6 +46,10 @@ export async function fetchProjects<T = unknown>(limit = 6): Promise<T> {
   return fetchCMS<T>(`/api/projects?depth=2&limit=${limit}&sort=-startDate`)
 }
 
+export async function fetchOpenSourceResources<T = unknown>(limit = 100): Promise<T> {
+  return fetchCMS<T>(`/api/open-source-resources?depth=1&limit=${limit}`)
+}
+
 export async function fetchSkills<T = unknown>(limit = 100): Promise<T> {
   return fetchCMS<T>(`/api/skills?limit=${limit}`)
 }

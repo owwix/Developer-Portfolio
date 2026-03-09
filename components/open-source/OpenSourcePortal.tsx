@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getOpenSourceByCategory, openSourceResources } from '../../lib/openSource'
+import { getOpenSourceByCategory, type OpenSourceResource } from '../../lib/openSource'
 import { siteConfig } from '../../src/utils/siteConfig'
 import SectionContextNav from '../blog/SectionContextNav'
 import OpenSourceCard from './OpenSourceCard'
@@ -8,8 +8,12 @@ function toAnchorId(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 }
 
-export default function OpenSourcePortal() {
-  const grouped = getOpenSourceByCategory(openSourceResources)
+type OpenSourcePortalProps = {
+  resources: OpenSourceResource[]
+}
+
+export default function OpenSourcePortal({ resources }: OpenSourcePortalProps) {
+  const grouped = getOpenSourceByCategory(resources)
 
   return (
     <main className="container page-open-source">
@@ -29,7 +33,7 @@ export default function OpenSourcePortal() {
       <section className="card reveal open-source-archive">
         <div className="section-head open-source-archive-head">
           <h2>All Resources</h2>
-          <span className="open-source-archive-count">{openSourceResources.length} total</span>
+          <span className="open-source-archive-count">{resources.length} total</span>
         </div>
 
         <div className="open-source-category-nav" role="list" aria-label="Open source categories">
