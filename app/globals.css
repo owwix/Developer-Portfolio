@@ -1345,6 +1345,89 @@ p {
   padding-left: 0.6rem;
 }
 
+.mobile-toc {
+  display: none;
+}
+
+.mobile-toc-trigger {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #080808;
+  color: var(--ink);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
+  line-height: 1.2;
+  padding: 0.34rem 0.66rem;
+  cursor: pointer;
+}
+
+.mobile-toc-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0, 0, 0, 0.5);
+  border: 0;
+  padding: 0;
+}
+
+.mobile-toc-panel {
+  position: fixed;
+  left: 0.8rem;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  z-index: 50;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(9, 9, 9, 0.96);
+  padding: 0.8rem;
+  max-height: min(62vh, 460px);
+  overflow: auto;
+}
+
+.mobile-toc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+}
+
+.mobile-toc-head h2 {
+  font-size: 0.96rem;
+}
+
+.mobile-toc-close {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #080808;
+  color: var(--ink);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  padding: 0.22rem 0.52rem;
+  cursor: pointer;
+}
+
+.mobile-toc-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.mobile-toc-panel a {
+  display: block;
+  text-decoration: none;
+  color: #d4d4d4;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.mobile-toc-panel a:hover {
+  color: #f0f0f0;
+}
+
 .reading-progress-wrap {
   position: fixed;
   top: 0;
@@ -1551,6 +1634,25 @@ html[data-theme='light'] .toc {
   background: rgba(255, 255, 255, 0.86);
 }
 
+html[data-theme='light'] .mobile-toc-trigger,
+html[data-theme='light'] .mobile-toc-close {
+  background: #f8fafc;
+  color: #132030;
+}
+
+html[data-theme='light'] .mobile-toc-panel {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: #c7d3e0;
+}
+
+html[data-theme='light'] .mobile-toc-panel a {
+  color: #3a495d;
+}
+
+html[data-theme='light'] .mobile-toc-panel a:hover {
+  color: #152233;
+}
+
 html[data-theme='light'] .toc a.is-active {
   border-left-color: #405368;
   background: rgba(44, 66, 89, 0.1);
@@ -1729,6 +1831,16 @@ html[data-theme='light'] .form-error {
   .toc {
     display: none;
   }
+
+  .mobile-toc {
+    display: block;
+    margin: 0 0 0.7rem;
+  }
+
+  .post-hero .mobile-toc {
+    margin-top: 0.58rem;
+    margin-bottom: 0.2rem;
+  }
 }
 
 @media (pointer: coarse) {
@@ -1768,8 +1880,12 @@ html[data-theme='light'] .form-error {
     top: max(0.65rem, env(safe-area-inset-top));
     right: 0.65rem;
     min-height: 1.88rem;
-    padding: 0.24rem 0.5rem;
+    padding: 0.24rem 0.36rem;
     font-size: 0.69rem;
+  }
+
+  .theme-toggle-label {
+    display: none;
   }
 
   #network-bg {
@@ -1843,8 +1959,8 @@ html[data-theme='light'] .form-error {
 
   .page-blog .page-hero h1,
   .page-post .post-hero h1 {
-    font-size: clamp(1.62rem, 8vw, 2.18rem);
-    line-height: 1.12;
+    font-size: clamp(1.5rem, 7.3vw, 1.95rem);
+    line-height: 1.08;
     word-break: break-word;
   }
 
@@ -1854,16 +1970,31 @@ html[data-theme='light'] .form-error {
   }
 
   .section-context ol {
-    row-gap: 0.24rem;
-    column-gap: 0.3rem;
+    flex-wrap: nowrap;
+    gap: 0.34rem;
+    overflow-x: auto;
+    padding-bottom: 0.12rem;
+    scrollbar-width: none;
+  }
+
+  .section-context ol::-webkit-scrollbar {
+    display: none;
+  }
+
+  .section-context-item {
+    flex: 0 0 auto;
+  }
+
+  .section-context-item + .section-context-item::before {
+    margin-right: 0.22rem;
   }
 
   .section-context-current {
-    max-width: 86vw;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    line-height: 1.35;
+    max-width: 64vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
   }
 
   .search-wrap input {
@@ -1922,6 +2053,10 @@ html[data-theme='light'] .form-error {
 
   .post-more-notes {
     margin-top: 0.85rem;
+  }
+
+  .page-post .command-palette-trigger {
+    display: none;
   }
 }
 

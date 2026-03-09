@@ -5,6 +5,7 @@ import ArticleBody from '../../../components/blog/ArticleBody'
 import BookmarkButton from '../../../components/blog/BookmarkButton'
 import BlogCard from '../../../components/blog/BlogCard'
 import BlogCommandPalette from '../../../components/blog/BlogCommandPalette'
+import MobileToc from '../../../components/blog/MobileToc'
 import PostAnalyticsSummary from '../../../components/blog/PostAnalyticsSummary'
 import PostAnalyticsTracker from '../../../components/blog/PostAnalyticsTracker'
 import ReadingProgress from '../../../components/blog/ReadingProgress'
@@ -74,6 +75,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const bodySource = typeof post.content === 'string' ? post.content : toDisplayText(post.content) || summaryText
 
   const { html, toc } = parseMarkdown(bodySource)
+  const articleHtml = html.replace(/^<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
 
   let relatedPosts: BlogPost[] = []
   let commandEntries: Array<{ title: string; slug: string; summary?: string; tags?: string[] }> = []
@@ -193,6 +195,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <div className="post-actions-row">
             <BookmarkButton slug={String(post.slug || '')} title={String(post.title || 'Untitled Article')} />
           </div>
+          <MobileToc items={toc} />
           {summaryText ? <p className="page-intro">{summaryText}</p> : null}
           {coverImage ? <img className="post-cover" src={coverImage} alt={post?.coverImage?.alt || post.title} /> : null}
         </header>
@@ -225,7 +228,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
         <section className="post-layout">
           <div className="post-main card reveal">
-            <ArticleBody html={html} />
+            <ArticleBody html={articleHtml} />
             <footer className="post-footer">
               <Link className="view-all-link" href="/blog">
                 ← Back to all notes
