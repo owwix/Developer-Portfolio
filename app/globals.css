@@ -1829,6 +1829,125 @@ html[data-theme='light'] .form-error {
   .form-grid {
     grid-template-columns: 1fr;
   }
+
+  .container.page-blog,
+  .container.page-post {
+    width: min(1080px, 94vw);
+    margin: 1.1rem auto 2.5rem;
+  }
+
+  .page-blog .card,
+  .page-post .card {
+    padding: 0.92rem;
+  }
+
+  .page-blog .page-hero h1,
+  .page-post .post-hero h1 {
+    font-size: clamp(1.62rem, 8vw, 2.18rem);
+    line-height: 1.12;
+    word-break: break-word;
+  }
+
+  .post-meta-line {
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  .section-context ol {
+    row-gap: 0.24rem;
+    column-gap: 0.3rem;
+  }
+
+  .section-context-current {
+    max-width: 86vw;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.35;
+  }
+
+  .search-wrap input {
+    font-size: 16px;
+  }
+
+  .tag-filter-group {
+    gap: 0.32rem;
+  }
+
+  .filter-pill {
+    font-size: 0.73rem;
+    padding: 0.3rem 0.56rem;
+  }
+
+  .article-body {
+    font-size: 0.98rem;
+  }
+
+  .article-body > * + * {
+    margin-top: 0.92rem;
+  }
+
+  .article-body h2 {
+    margin-top: 1.42rem;
+    font-size: clamp(1.24rem, 5.4vw, 1.54rem);
+  }
+
+  .article-body h3 {
+    margin-top: 1.05rem;
+    font-size: 1.02rem;
+  }
+
+  .article-body pre {
+    border-radius: 10px;
+    padding: 0.82rem 0.7rem 0.72rem;
+  }
+
+  .article-body pre code,
+  .article-body pre code.hljs {
+    font-size: 0.77rem;
+    line-height: 1.56;
+  }
+
+  .code-copy-btn {
+    top: 0.35rem;
+    right: 0.35rem;
+    font-size: 0.62rem;
+    padding: 0.2rem 0.38rem;
+  }
+
+  .post-footer {
+    margin-top: 1.05rem;
+    padding-top: 0.82rem;
+  }
+
+  .post-more-notes {
+    margin-top: 0.85rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .page-blog .page-hero .page-intro,
+  .page-post .post-hero .page-intro {
+    margin-top: 1.02rem;
+    line-height: 1.62;
+  }
+
+  .view-all-link {
+    font-size: 0.74rem;
+    padding: 0.3rem 0.56rem;
+  }
+
+  .blog-card {
+    padding: 0.72rem;
+  }
+
+  .blog-card-image {
+    height: 154px;
+  }
+
+  .section-head {
+    gap: 0.55rem;
+  }
 }
 
 @supports (-webkit-touch-callout: none) {
