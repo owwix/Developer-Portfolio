@@ -11,6 +11,15 @@ export const Now: GlobalConfig = {
   },
   fields: [
     {
+      name: 'enabled',
+      label: 'Show Now Page',
+      type: 'checkbox',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'eyebrow',
       type: 'text',
       defaultValue: 'Current Focus',

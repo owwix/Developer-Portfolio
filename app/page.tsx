@@ -117,6 +117,7 @@ type ProjectRow = {
 }
 
 type NowData = {
+  enabled?: boolean
   title?: string
   intro?: string
   updatedAt?: string
@@ -385,7 +386,7 @@ export default async function HomePage() {
           </article>
         ) : null}
 
-        {showNowPreview && (nowData?.title || nowData?.intro || nowUpdated) ? (
+        {showNowPreview && nowData?.enabled !== false && (nowData?.title || nowData?.intro || nowUpdated) ? (
           <article className="card reveal full now-preview-card">
             <div className="section-head">
               <h2>{nowData?.title || 'Now'}</h2>

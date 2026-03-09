@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import SectionContextNav from '../../components/blog/SectionContextNav'
 import { fetchNow } from '../../lib/cms'
 import { siteConfig } from '../../src/utils/siteConfig'
@@ -17,6 +18,7 @@ type BuildingNowItem = {
 }
 
 type NowData = {
+  enabled?: boolean
   eyebrow?: string
   title?: string
   intro?: string
@@ -50,6 +52,10 @@ export default async function NowPage() {
     data = await fetchNow<NowData>()
   } catch (error) {
     console.error(error)
+  }
+
+  if (data?.enabled === false) {
+    notFound()
   }
 
   const focusAreas = (data?.focusAreas || []).map((entry) => String(entry?.item || '').trim()).filter(Boolean)
