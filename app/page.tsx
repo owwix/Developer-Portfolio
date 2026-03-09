@@ -18,6 +18,16 @@ type HomeData = {
   name?: string
   headline?: string
   openSourceSubtitle?: string
+  sectionVisibility?: {
+    projects?: boolean
+    skills?: boolean
+    openSource?: boolean
+    nowPreview?: boolean
+    githubSnapshot?: boolean
+    trustBlock?: boolean
+    experience?: boolean
+    blog?: boolean
+  }
   bio?: unknown
   email?: string
   githubSnapshot?: {
@@ -269,8 +279,15 @@ export default async function HomePage() {
     .find(Boolean)
   const githubUsername = String(home?.githubSnapshot?.username || githubFromLinks || '').trim()
   const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
-  const showTrustBlock = home?.trustBlock?.enabled !== false
-  const showGitHubSnapshot = home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
+  const sectionVisibility = home?.sectionVisibility || {}
+  const showProjects = sectionVisibility.projects !== false
+  const showSkills = sectionVisibility.skills !== false
+  const showOpenSource = sectionVisibility.openSource !== false
+  const showNowPreview = sectionVisibility.nowPreview !== false
+  const showTrustBlock = sectionVisibility.trustBlock !== false && home?.trustBlock?.enabled !== false
+  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
+  const showExperience = sectionVisibility.experience !== false
+  const showBlog = sectionVisibility.blog !== false
   const nowUpdated = formatNowDate(nowData?.updatedAt)
 
   return (
@@ -335,34 +352,40 @@ export default async function HomePage() {
       </header>
 
       <section className="grid">
-        <article className="card reveal">
-          <h2>Projects</h2>
-          <PaginatedProjects projects={projects} />
-        </article>
+        {showProjects ? (
+          <article className="card reveal">
+            <h2>Projects</h2>
+            <PaginatedProjects projects={projects} />
+          </article>
+        ) : null}
 
-        <article className="card reveal">
-          <h2>Skills</h2>
-          <PaginatedSkillCategories groupedSkills={groupedSkills} />
-        </article>
+        {showSkills ? (
+          <article className="card reveal">
+            <h2>Skills</h2>
+            <PaginatedSkillCategories groupedSkills={groupedSkills} />
+          </article>
+        ) : null}
 
-        <article className="card reveal full">
-          <div className="section-head">
-            <h2>Open Source</h2>
-            <Link className="view-all-link" href="/open-source">
-              View All Resources
-            </Link>
-          </div>
-          <p className="open-source-subtitle">
-            {home?.openSourceSubtitle || 'Reusable templates, starter kits, and developer tools built for real-world use.'}
-          </p>
-          <div className="open-source-grid">
-            {openSourcePreview.map((resource) => (
-              <OpenSourceCard key={resource.id} resource={resource} />
-            ))}
-          </div>
-        </article>
+        {showOpenSource ? (
+          <article className="card reveal full">
+            <div className="section-head">
+              <h2>Open Source</h2>
+              <Link className="view-all-link" href="/open-source">
+                View All Resources
+              </Link>
+            </div>
+            <p className="open-source-subtitle">
+              {home?.openSourceSubtitle || 'Reusable templates, starter kits, and developer tools built for real-world use.'}
+            </p>
+            <div className="open-source-grid">
+              {openSourcePreview.map((resource) => (
+                <OpenSourceCard key={resource.id} resource={resource} />
+              ))}
+            </div>
+          </article>
+        ) : null}
 
-        {nowData?.title || nowData?.intro || nowUpdated ? (
+        {showNowPreview && (nowData?.title || nowData?.intro || nowUpdated) ? (
           <article className="card reveal full now-preview-card">
             <div className="section-head">
               <h2>{nowData?.title || 'Now'}</h2>
@@ -391,51 +414,55 @@ export default async function HomePage() {
           <TrustBlock description={home?.trustBlock?.description} items={home?.trustBlock?.items} title={home?.trustBlock?.title} />
         ) : null}
 
-        <article className="card reveal full">
-          <h2>Experience</h2>
-          {experiences.length ? (
-            <div className="stack">
-              {experiences.map((exp) => {
-                const dateRange = getExperienceDateRange(exp)
+        {showExperience ? (
+          <article className="card reveal full">
+            <h2>Experience</h2>
+            {experiences.length ? (
+              <div className="stack">
+                {experiences.map((exp) => {
+                  const dateRange = getExperienceDateRange(exp)
 
-                return (
-                  <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
-                    <h3>
-                      {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
-                    </h3>
-                    <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
-                    <div className="meta">
-                      {dateRange ? <span className="badge">{dateRange}</span> : null}
-                      {exp.location ? <span className="badge">{exp.location}</span> : null}
-                      {exp.current ? <span className="badge featured">Current</span> : null}
-                    </div>
-                  </article>
-                )
-              })}
+                  return (
+                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
+                      <h3>
+                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
+                      </h3>
+                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
+                      <div className="meta">
+                        {dateRange ? <span className="badge">{dateRange}</span> : null}
+                        {exp.location ? <span className="badge">{exp.location}</span> : null}
+                        {exp.current ? <span className="badge featured">Current</span> : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="empty-state">No experience entries yet.</p>
+            )}
+          </article>
+        ) : null}
+
+        {showBlog ? (
+          <article className="card reveal full">
+            <div className="section-head">
+              <h2>{siteConfig.blogLabel}</h2>
+              <Link className="view-all-link" href="/blog">
+                View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
+              </Link>
             </div>
-          ) : (
-            <p className="empty-state">No experience entries yet.</p>
-          )}
-        </article>
 
-        <article className="card reveal full">
-          <div className="section-head">
-            <h2>{siteConfig.blogLabel}</h2>
-            <Link className="view-all-link" href="/blog">
-              View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
-            </Link>
-          </div>
-
-          {blogs.length ? (
-            <div className="blog-grid home-blog-grid">
-              {blogs.map((post) => (
-                <BlogCard key={post.id || post.slug} post={post} variant="preview" />
-              ))}
-            </div>
-          ) : (
-            <p className="empty-state">No notes published yet.</p>
-          )}
-        </article>
+            {blogs.length ? (
+              <div className="blog-grid home-blog-grid">
+                {blogs.map((post) => (
+                  <BlogCard key={post.id || post.slug} post={post} variant="preview" />
+                ))}
+              </div>
+            ) : (
+              <p className="empty-state">No notes published yet.</p>
+            )}
+          </article>
+        ) : null}
       </section>
     </main>
   )

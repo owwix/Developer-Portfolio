@@ -39,6 +39,64 @@ export const Home: GlobalConfig = {
       },
     },
     {
+      name: 'sectionVisibility',
+      label: 'Section Visibility',
+      type: 'group',
+      fields: [
+        {
+          name: 'projects',
+          label: 'Show Projects',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'skills',
+          label: 'Show Skills',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'openSource',
+          label: 'Show Open Source',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'nowPreview',
+          label: 'Show Now Preview',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'githubSnapshot',
+          label: 'Show GitHub Snapshot',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'trustBlock',
+          label: 'Show Trust Block',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'experience',
+          label: 'Show Experience',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'blog',
+          label: 'Show Blog',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+      ],
+      admin: {
+        description: 'Turn homepage sections on/off without code changes.',
+      },
+    },
+    {
       name: 'githubSnapshot',
       label: 'GitHub Snapshot',
       type: 'group',
