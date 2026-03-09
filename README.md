@@ -83,6 +83,22 @@ npm run build
 npm start
 ```
 
+### Railway build command (recommended)
+
+If Railway deploys stall before post-deploy, use:
+
+```bash
+npm run build:railway
+```
+
+and set:
+
+```bash
+SKIP_PAYLOAD_ADMIN_BUILD=1
+```
+
+This skips the admin prebuild step, which is the most common CI bottleneck.
+
 ## Production media persistence (Railway)
 
 To prevent uploaded images from disappearing or changing across deploys, use a persistent volume for media files:

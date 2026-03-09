@@ -5,9 +5,14 @@
   "description": "SWE portfolio CMS powered by Payload",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "next build && tsc -p tsconfig.json && PAYLOAD_CONFIG_PATH=dist/payload.config.js payload build",
+    "build:core": "next build && tsc -p tsconfig.json",
+    "build:payload-admin": "PAYLOAD_CONFIG_PATH=dist/payload.config.js payload build",
+    "build": "npm run build:core && npm run build:payload-admin",
+    "build:railway": "npm run build:core && if [ \"${SKIP_PAYLOAD_ADMIN_BUILD:-0}\" = \"1\" ]; then echo \"Skipping Payload admin build\"; else npm run build:payload-admin; fi",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.next.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "migrate:richtext": "tsx scripts/migrate-richtext.ts"
   },
   "dependencies": {
@@ -29,7 +34,8 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.8"
   },
   "engines": {
     "node": ">=18.20.0"
