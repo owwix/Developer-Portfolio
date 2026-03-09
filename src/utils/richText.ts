@@ -13,7 +13,7 @@ export function toSlateRichText(value: string): SlateNode[] {
 
   const paragraphs = normalized
     .split(/\n{2,}/)
-    .map((entry) => entry.replace(/\n/g, ' ').trim())
+    .map((entry) => entry.trim())
     .filter(Boolean)
 
   if (!paragraphs.length) {

@@ -35,7 +35,7 @@ function sanitizeURL(value: unknown): string {
 }
 
 function renderText(node: RichTextNode): string {
-  let html = escapeHTML(node.text || '')
+  let html = escapeHTML(node.text || '').replace(/\n/g, '<br />')
 
   if (node.code) html = `<code>${html}</code>`
   if (node.bold) html = `<strong>${html}</strong>`
@@ -94,12 +94,13 @@ export function renderRichText(value: unknown): string {
   if (value == null) return ''
 
   if (typeof value === 'string') {
-    const lines = value
-      .split('\n')
-      .map((line) => line.trim())
+    const paragraphs = value
+      .replace(/\r\n/g, '\n')
+      .split(/\n{2,}/)
+      .map((entry) => entry.trim())
       .filter(Boolean)
-    if (!lines.length) return ''
-    return lines.map((line) => `<p>${escapeHTML(line)}</p>`).join('')
+    if (!paragraphs.length) return ''
+    return paragraphs.map((entry) => `<p>${escapeHTML(entry).replace(/\n/g, '<br />')}</p>`).join('')
   }
 
   if (Array.isArray(value)) {
