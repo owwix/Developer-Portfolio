@@ -66,6 +66,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     url: siteConfig.siteUrl,
   }
 
+  const currentYear = new Date().getFullYear()
+
   return (
     <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} data-theme="dark" lang="en" suppressHydrationWarning>
       <head>
@@ -75,6 +77,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <NetworkBackground />
         <ThemeToggle />
         {children}
+        <footer className="site-footer">
+          <p>
+            &copy; {currentYear} {siteConfig.ownerName}. All rights reserved.
+          </p>
+        </footer>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

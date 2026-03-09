@@ -152,6 +152,23 @@ a {
   z-index: 3;
 }
 
+.site-footer {
+  width: min(1080px, 90vw);
+  margin: 0 auto 1.6rem;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+}
+
+.site-footer p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  opacity: 0.82;
+}
+
 .card {
   border: 1px solid var(--line);
   background: transparent;
@@ -500,7 +517,11 @@ p {
 }
 
 .page-open-source .page-hero > .view-all-link {
-  margin-top: 0.9rem;
+  margin-top: 1.3rem;
+}
+
+.page-blog .page-hero > .view-all-link {
+  margin-top: 1.3rem;
 }
 
 .reading-list-panel {
@@ -2194,6 +2215,10 @@ html[data-theme='light'] .form-error {
   .container.page-post {
     width: min(1080px, 94vw);
     margin: 1.1rem auto 2.5rem;
+  }
+
+  .site-footer {
+    width: min(1080px, 94vw);
   }
 
   .page-blog .card,

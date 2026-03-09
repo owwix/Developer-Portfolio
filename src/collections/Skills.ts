@@ -68,6 +68,7 @@ export const Skills: CollectionConfig = {
             { label: 'Backend Development', value: 'backend-development' },
             { label: 'Programming Languages', value: 'programming-languages' },
             { label: 'Databases', value: 'databases' },
+            { label: 'Networking & Systems', value: 'networking-systems' },
             { label: 'Cloud & Deployment', value: 'cloud-deployment' },
             { label: 'Developer Tools', value: 'developer-tools' },
           ],
