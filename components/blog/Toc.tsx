@@ -24,28 +24,34 @@ export default function Toc({ items = [] }: { items?: TocItem[] }) {
 
     if (!headingElements.length) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => (a.target as HTMLElement).offsetTop - (b.target as HTMLElement).offsetTop)
+    const updateActiveFromScroll = () => {
+      const viewportBottom = window.scrollY + window.innerHeight
+      const pageBottom = document.documentElement.scrollHeight
+      const isAtPageBottom = viewportBottom >= pageBottom - 2
 
-        if (visible.length) {
-          setActiveId(visible[0].target.id)
-        }
-      },
-      {
-        rootMargin: '0px 0px -70% 0px',
-        threshold: [0, 1],
-      },
-    )
+      if (isAtPageBottom) {
+        setActiveId(headingElements[headingElements.length - 1].id)
+        return
+      }
 
-    headingElements.forEach((heading) => observer.observe(heading))
+      const cursor = window.scrollY + 150
+      let currentId = headingElements[0].id
+      for (const heading of headingElements) {
+        if (heading.offsetTop <= cursor) currentId = heading.id
+        else break
+      }
+      setActiveId(currentId)
+    }
+
     updateActiveFromHash()
+    updateActiveFromScroll()
+    window.addEventListener('scroll', updateActiveFromScroll, { passive: true })
+    window.addEventListener('resize', updateActiveFromScroll)
     window.addEventListener('hashchange', updateActiveFromHash)
 
     return () => {
-      observer.disconnect()
+      window.removeEventListener('scroll', updateActiveFromScroll)
+      window.removeEventListener('resize', updateActiveFromScroll)
       window.removeEventListener('hashchange', updateActiveFromHash)
     }
   }, [ids])

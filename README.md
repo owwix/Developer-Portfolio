@@ -64,3 +64,19 @@ This repository runs a full portfolio experience with:
 npm run build
 npm start
 ```
+
+## Production media persistence (Railway)
+
+To prevent uploaded images from disappearing or changing across deploys, use a persistent volume for media files:
+
+1. Create and mount a Railway volume (for example at `/data`).
+2. Set:
+
+   ```bash
+   PAYLOAD_MEDIA_DIR=/data/media
+   PAYLOAD_MEDIA_URL=/media
+   ```
+
+3. Redeploy.
+
+This project now sanitizes upload filenames to URL-safe ASCII by default, which helps avoid filename encoding issues between environments.

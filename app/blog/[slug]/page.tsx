@@ -235,7 +235,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <Toc items={toc} />
         </section>
 
-        <section className="card reveal">
+        <section className="card reveal post-more-notes">
           <div className="section-head">
             <h2>More Notes</h2>
             <Link className="view-all-link" href="/blog">

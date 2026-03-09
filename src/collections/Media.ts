@@ -1,6 +1,12 @@
 import path from 'path'
 import type { CollectionConfig } from 'payload/types'
 
+const MEDIA_STATIC_DIR = process.env.PAYLOAD_MEDIA_DIR
+  ? path.resolve(process.env.PAYLOAD_MEDIA_DIR)
+  : path.resolve(process.cwd(), 'src/media')
+
+const MEDIA_STATIC_URL = process.env.PAYLOAD_MEDIA_URL || '/media'
+
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: {
@@ -14,8 +20,8 @@ export const Media: CollectionConfig = {
     read: () => true,
   },
   upload: {
-    staticDir: path.resolve(process.cwd(), 'src/media'),
-    staticURL: '/media',
+    staticDir: MEDIA_STATIC_DIR,
+    staticURL: MEDIA_STATIC_URL,
     mimeTypes: ['image/*'],
     imageSizes: [
       {

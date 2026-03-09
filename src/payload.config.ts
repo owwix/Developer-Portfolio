@@ -17,6 +17,13 @@ import { AdminBranding } from './globals/AdminBranding'
 import { Home } from './globals/Home'
 
 export default buildConfig({
+  upload: {
+    // Keep filenames stable and URL-safe across environments and deploys.
+    safeFileNames: /[^a-zA-Z0-9._-]/g,
+    preserveExtension: true,
+    uriDecodeFileNames: true,
+    createParentPath: true,
+  },
   db: mongooseAdapter({
     url: process.env.MONGODB_URI ?? '',
   }),

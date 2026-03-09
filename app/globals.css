@@ -963,6 +963,10 @@ p {
   max-width: var(--content-width);
 }
 
+.post-more-notes {
+  margin-top: 1.1rem;
+}
+
 .post-cover {
   margin-top: 0.9rem;
   max-height: 400px;

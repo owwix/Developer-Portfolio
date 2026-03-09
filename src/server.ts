@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import express from 'express'
+import fs from 'fs'
 import next from 'next'
 import path from 'path'
 import payload from 'payload'
@@ -12,6 +13,11 @@ if (!process.env.PAYLOAD_CONFIG_PATH) {
 }
 
 const start = async () => {
+  const mediaDir = process.env.PAYLOAD_MEDIA_DIR
+    ? path.resolve(process.env.PAYLOAD_MEDIA_DIR)
+    : path.resolve(process.cwd(), 'src/media')
+  fs.mkdirSync(mediaDir, { recursive: true })
+
   const app = express()
   const dev = process.env.NODE_ENV !== 'production'
   const nextApp = next({ dev, dir: path.resolve(__dirname, '..') })
