@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
-import { convertLegacyStringToRichText } from '../utils/richText'
+import { convertLegacyStringToRichText, sanitizeRichTextContent } from '../utils/richText'
 
 const toSlug = (value: string): string =>
   value
@@ -63,8 +63,8 @@ export const BlogPosts: CollectionConfig = {
       type: 'richText',
       required: true,
       hooks: {
-        afterRead: [convertLegacyStringToRichText],
-        beforeValidate: [convertLegacyStringToRichText],
+        afterRead: [convertLegacyStringToRichText, sanitizeRichTextContent],
+        beforeValidate: [convertLegacyStringToRichText, sanitizeRichTextContent],
       },
       admin: {
         description: 'Article summary / lead paragraph. Supports rich text.',

@@ -86,7 +86,8 @@ function renderNode(node: RichTextNode): string {
     case 'br':
       return '<br />'
     default:
-      return childrenHTML
+      // Payload Slate often represents paragraphs as nodes without explicit type.
+      return childrenHTML ? `<p>${childrenHTML}</p>` : ''
   }
 }
 

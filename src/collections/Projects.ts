@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
-import { convertLegacyStringToRichText } from '../utils/richText'
+import { convertLegacyStringToRichText, sanitizeRichTextContent } from '../utils/richText'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -29,8 +29,8 @@ export const Projects: CollectionConfig = {
       type: 'richText',
       required: true,
       hooks: {
-        afterRead: [convertLegacyStringToRichText],
-        beforeValidate: [convertLegacyStringToRichText],
+        afterRead: [convertLegacyStringToRichText, sanitizeRichTextContent],
+        beforeValidate: [convertLegacyStringToRichText, sanitizeRichTextContent],
       },
       admin: {
         description: 'Project summary / description. Supports rich text.',

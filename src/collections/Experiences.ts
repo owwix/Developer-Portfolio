@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload/types'
-import { convertLegacyStringToRichText } from '../utils/richText'
+import { convertLegacyStringToRichText, sanitizeRichTextContent } from '../utils/richText'
 
 export const Experiences: CollectionConfig = {
   slug: 'experiences',
@@ -55,8 +55,8 @@ export const Experiences: CollectionConfig = {
       type: 'richText',
       required: true,
       hooks: {
-        afterRead: [convertLegacyStringToRichText],
-        beforeValidate: [convertLegacyStringToRichText],
+        afterRead: [convertLegacyStringToRichText, sanitizeRichTextContent],
+        beforeValidate: [convertLegacyStringToRichText, sanitizeRichTextContent],
       },
       admin: {
         description: 'Role summary / experience description. Supports rich text.',

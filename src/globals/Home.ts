@@ -1,5 +1,5 @@
 import type { GlobalConfig } from 'payload/types'
-import { convertLegacyStringToRichText } from '../utils/richText'
+import { convertLegacyStringToRichText, sanitizeRichTextContent } from '../utils/richText'
 
 export const Home: GlobalConfig = {
   slug: 'home',
@@ -34,8 +34,8 @@ export const Home: GlobalConfig = {
       type: 'richText',
       required: true,
       hooks: {
-        afterRead: [convertLegacyStringToRichText],
-        beforeValidate: [convertLegacyStringToRichText],
+        afterRead: [convertLegacyStringToRichText, sanitizeRichTextContent],
+        beforeValidate: [convertLegacyStringToRichText, sanitizeRichTextContent],
       },
       admin: {
         description: 'Supports rich text for longer bio content.',
