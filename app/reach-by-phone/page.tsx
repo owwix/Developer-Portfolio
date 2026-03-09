@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import PhoneRequestForm from '../../components/forms/PhoneRequestForm'
+import { siteConfig } from '../../src/utils/siteConfig'
 
 export const metadata: Metadata = {
-  title: 'Reach Me by Phone | Alexander Okonkwo',
+  title: `Reach Me by Phone | ${siteConfig.ownerName}`,
   description: 'Submit a phone request for collaboration, interview opportunities, or technical discussions.',
 }
 

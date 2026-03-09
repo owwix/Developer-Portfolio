@@ -8,12 +8,13 @@ import type { BlogPost } from '../../lib/blog'
 import { getTags, isComingSoon, toDisplayText } from '../../lib/blog'
 import { fetchBlogPosts } from '../../lib/cms'
 import { sortByDisplayOrder } from '../../src/utils/order'
+import { siteConfig } from '../../src/utils/siteConfig'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Lab / Notes | Alexander Okonkwo',
-  description: 'Engineering notes, technical writeups, deployment lessons, and project breakdowns from Alexander Okonkwo.',
+  title: `${siteConfig.blogLabel} | ${siteConfig.ownerName}`,
+  description: `Engineering notes, technical writeups, deployment lessons, and project breakdowns from ${siteConfig.ownerName}.`,
 }
 
 export default async function BlogArchivePage() {
@@ -43,13 +44,13 @@ export default async function BlogArchivePage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Portfolio',
-        item: 'https://www.alexok.dev',
+        item: siteConfig.siteUrl,
       },
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Lab / Notes',
-        item: 'https://www.alexok.dev/blog',
+        name: siteConfig.blogLabel,
+        item: `${siteConfig.siteUrl}/blog`,
       },
     ],
   }
@@ -62,12 +63,12 @@ export default async function BlogArchivePage() {
           __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
-      <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: 'Lab / Notes' }]} />
+      <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: siteConfig.blogLabel }]} />
       {commandEntries.length ? <BlogCommandPalette entries={commandEntries} /> : null}
       {commandEntries.length ? <ReadingListPanel posts={commandEntries.map((entry) => ({ slug: entry.slug, title: entry.title }))} /> : null}
       <header className="card page-hero reveal">
         <p className="eyebrow">Engineering Journal</p>
-        <h1>Lab / Notes</h1>
+        <h1>{siteConfig.blogLabel}</h1>
         <p className="page-intro">
           Technical writeups covering engineering decisions, architecture tradeoffs, deployment lessons, and build logs from
           real projects.

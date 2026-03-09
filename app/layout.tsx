@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
 import NetworkBackground from '../components/ui/NetworkBackground'
 import ThemeToggle from '../components/ui/ThemeToggle'
+import { siteConfig, siteMetadata } from '../src/utils/siteConfig'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -17,28 +18,25 @@ const plexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.alexok.dev'),
-  title: 'Alexander Okonkwo | Software Engineer',
-  description:
-    'Portfolio of Alexander Okonkwo, a full-stack software engineer building scalable web applications with React, Next.js, TypeScript, and cloud technologies.',
+  metadataBase: new URL(siteConfig.siteUrl),
+  title: siteMetadata.title,
+  description: siteMetadata.description,
   icons: {
     icon: [{ url: '/ao-icon.svg', type: 'image/svg+xml' }],
     shortcut: '/ao-icon.svg',
     apple: '/ao-icon.svg',
   },
   openGraph: {
-    title: 'Alexander Okonkwo | Software Engineer',
-    description:
-      'Portfolio of Alexander Okonkwo, featuring engineering notes, project breakdowns, and technical build logs.',
-    url: 'https://www.alexok.dev',
-    siteName: 'Alexander Okonkwo Portfolio',
+    title: siteMetadata.title,
+    description: siteMetadata.description,
+    url: siteConfig.siteUrl,
+    siteName: `${siteConfig.ownerName} Portfolio`,
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Alexander Okonkwo | Software Engineer',
-    description:
-      'Portfolio of Alexander Okonkwo, featuring engineering notes, project breakdowns, and technical build logs.',
+    title: siteMetadata.title,
+    description: siteMetadata.description,
   },
   robots: {
     index: true,
@@ -63,9 +61,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: 'Alexander Okonkwo',
-    jobTitle: 'Software Engineer',
-    url: 'https://www.alexok.dev',
+    name: siteConfig.ownerName,
+    jobTitle: siteConfig.ownerRole,
+    url: siteConfig.siteUrl,
   }
 
   return (

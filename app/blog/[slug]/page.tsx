@@ -16,6 +16,7 @@ import type { BlogPost } from '../../../lib/blog'
 import { formatDate, getCoverImage, getReadTime, getTags, isComingSoon, parseMarkdown, rankRelatedPosts, toDisplayText } from '../../../lib/blog'
 import { fetchBlogPostBySlug, fetchBlogPosts } from '../../../lib/cms'
 import { sortByDisplayOrder } from '../../../src/utils/order'
+import { siteConfig } from '../../../src/utils/siteConfig'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,19 +34,19 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
 
   if (!post) {
     return {
-      title: 'Post Not Found | Alexander Okonkwo',
+      title: `Post Not Found | ${siteConfig.ownerName}`,
     }
   }
 
   return {
-    title: `${post.title} | Lab / Notes`,
-    description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
+    title: `${post.title} | ${siteConfig.blogLabel}`,
+    description: toDisplayText(post.summary) || `Technical article by ${siteConfig.ownerName}.`,
     alternates: {
       canonical: `/blog/${post.slug}`,
     },
     openGraph: {
       title: post.title,
-      description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
+      description: toDisplayText(post.summary) || `Technical article by ${siteConfig.ownerName}.`,
       type: 'article',
       url: `/blog/${post.slug}`,
       images: [
@@ -59,8 +60,8 @@ export async function generateMetadata({ params }: BlogDetailPageProps): Promise
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title || 'Lab / Notes',
-      description: toDisplayText(post.summary) || 'Technical article by Alexander Okonkwo.',
+      title: post.title || siteConfig.blogLabel,
+      description: toDisplayText(post.summary) || `Technical article by ${siteConfig.ownerName}.`,
       images: [`/blog/${post.slug}/opengraph-image`],
     },
   }
@@ -121,20 +122,22 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   }
 
   const coverImage = getCoverImage(post)
-  const postUrl = `https://www.alexok.dev/blog/${post.slug}`
+  const postNoun = siteConfig.blogLabel.toLowerCase().includes('note') ? 'notes' : 'posts'
+  const postNounTitle = postNoun.charAt(0).toUpperCase() + postNoun.slice(1)
+  const postUrl = `${siteConfig.siteUrl}/blog/${post.slug}`
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: post.title || 'Lab / Notes',
-    description: summaryText || 'Technical article by Alexander Okonkwo.',
+    headline: post.title || siteConfig.blogLabel,
+    description: summaryText || `Technical article by ${siteConfig.ownerName}.`,
     author: {
       '@type': 'Person',
-      name: 'Alexander Okonkwo',
+      name: siteConfig.ownerName,
     },
     datePublished: post.publishedDate || undefined,
     dateModified: post.updatedAt || post.publishedDate || undefined,
     mainEntityOfPage: postUrl,
-    image: [`https://www.alexok.dev/blog/${post.slug}/opengraph-image`],
+    image: [`${siteConfig.siteUrl}/blog/${post.slug}/opengraph-image`],
   }
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -144,13 +147,13 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Portfolio',
-        item: 'https://www.alexok.dev',
+        item: siteConfig.siteUrl,
       },
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Lab / Notes',
-        item: 'https://www.alexok.dev/blog',
+        name: siteConfig.blogLabel,
+        item: `${siteConfig.siteUrl}/blog`,
       },
       {
         '@type': 'ListItem',
@@ -181,7 +184,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         <SectionContextNav
           items={[
             { label: 'Portfolio', href: '/' },
-            { label: 'Lab / Notes', href: '/blog' },
+            { label: siteConfig.blogLabel, href: '/blog' },
             { label: post.title || 'Article' },
           ]}
         />
@@ -189,7 +192,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         <header className="card post-hero reveal">
           <p className="eyebrow">Engineering Article</p>
           <h1>{post.title}</h1>
-          <p className="post-meta-line">By Alexander Okonkwo · {formatDate(post.publishedDate)} · {getReadTime(post)}</p>
+          <p className="post-meta-line">
+            By {siteConfig.ownerName} · {formatDate(post.publishedDate)} · {getReadTime(post)}
+          </p>
           <PostAnalyticsSummary slug={String(post.slug || '')} />
           <TagPills className="post-tag-row" tags={getTags(post)} />
           <div className="post-actions-row">
@@ -231,7 +236,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             <ArticleBody html={articleHtml} />
             <footer className="post-footer">
               <Link className="view-all-link" href="/blog">
-                ← Back to all notes
+                ← Back to all {postNoun}
               </Link>
             </footer>
           </div>
@@ -241,7 +246,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
         <section className="card reveal post-more-notes">
           <div className="section-head">
-            <h2>More Notes</h2>
+            <h2>More {postNounTitle}</h2>
             <Link className="view-all-link" href="/blog">
               Browse Archive
             </Link>

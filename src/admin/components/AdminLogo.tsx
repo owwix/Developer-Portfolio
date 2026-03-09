@@ -1,4 +1,5 @@
 import { usePayloadAPI } from 'payload/components/hooks'
+import { siteConfig } from '../../utils/siteConfig'
 
 type AdminLogoProps = {
   className?: string
@@ -23,9 +24,9 @@ export default function AdminLogo({ className = '' }: AdminLogoProps) {
   const [brandingResult] = usePayloadAPI('/api/globals/admin-branding?depth=1')
   const branding = (brandingResult?.data || {}) as AdminBrandingData
   const iconImage = branding?.brandImage?.url || branding?.brandImage?.sizes?.avatar?.url || ''
-  const monogram = String(branding?.brandMonogram || 'AO').trim() || 'AO'
-  const title = String(branding?.loginTitle || 'Alexander Okonkwo CMS').trim() || 'Alexander Okonkwo CMS'
-  const subtitle = String(branding?.loginSubtitle || 'Engineering Journal Control Center').trim()
+  const monogram = String(branding?.brandMonogram || siteConfig.cmsMonogram).trim() || siteConfig.cmsMonogram
+  const title = String(branding?.loginTitle || siteConfig.cmsTitle).trim() || siteConfig.cmsTitle
+  const subtitle = String(branding?.loginSubtitle || siteConfig.cmsSubtitle).trim()
 
   return (
     <div className={`ao-admin-logo ${className}`.trim()}>

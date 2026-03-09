@@ -1,9 +1,27 @@
-# Developer Portfolio (Payload + Next.js)
+# Developer Portfolio Blog Starter (Payload + Next.js)
 
 This repository runs a full portfolio experience with:
 - Payload CMS for admin/content APIs
 - Next.js App Router for the public frontend
 - TypeScript across backend (`src/*.ts`) and frontend (`app/**/*.tsx`, `components/**/*.tsx`, `lib/**/*.ts`)
+
+## Template-ready setup
+
+This project is now template-friendly. You can reuse it as a starter by setting these values in `.env`:
+- `SITE_URL`
+- `SITE_OWNER_NAME`
+- `SITE_OWNER_ROLE`
+- `SITE_BLOG_LABEL`
+- `CMS_TITLE`
+- `CMS_SUBTITLE`
+- `CMS_MONOGRAM`
+
+Then open Payload admin and update:
+- `Globals -> Homepage Content`
+- `Globals -> Admin Branding`
+
+This gives you a working white-label portfolio/blog CMS without editing code.
+For a release checklist, see `TEMPLATE_CHECKLIST.md`.
 
 ## What is included
 

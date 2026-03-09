@@ -5,6 +5,7 @@ import PaginatedSkillCategories from '../components/home/PaginatedSkillCategorie
 import RichTextContent from '../components/ui/RichTextContent'
 import { type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchExperiences, fetchHome, fetchProjects, fetchSkills } from '../lib/cms'
+import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
 
 export const dynamic = 'force-dynamic'
@@ -192,7 +193,7 @@ export default async function HomePage() {
           ) : null}
           <div className="hero-copy">
             <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
-            <h1>{home?.name || 'Alexander Okonkwo'}</h1>
+            <h1>{home?.name || siteConfig.ownerName}</h1>
             <RichTextContent
               className="bio rich-text-content"
               fallback="Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery."
@@ -279,9 +280,9 @@ export default async function HomePage() {
 
         <article className="card reveal full">
           <div className="section-head">
-            <h2>Lab / Notes</h2>
+            <h2>{siteConfig.blogLabel}</h2>
             <Link className="view-all-link" href="/blog">
-              View All Notes
+              View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
             </Link>
           </div>
 

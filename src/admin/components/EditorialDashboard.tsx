@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode } from 'react'
 import { usePayloadAPI } from 'payload/components/hooks'
+import { siteConfig } from '../../utils/siteConfig'
 
 type NoteDoc = {
   id?: string
@@ -56,7 +57,7 @@ export default function EditorialDashboard() {
     <section className="ao-dashboard-root">
       <header className="ao-dashboard-hero">
         <p className="ao-dashboard-eyebrow">Editorial Dashboard</p>
-        <h2>Lab / Notes CMS</h2>
+        <h2>{siteConfig.blogLabel} CMS</h2>
         <p>Manage publishing workflows, portfolio content, and site operations from one focused control center.</p>
       </header>
 

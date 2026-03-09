@@ -15,6 +15,7 @@ import { Projects } from './collections/Projects'
 import { Skills } from './collections/Skills'
 import { AdminBranding } from './globals/AdminBranding'
 import { Home } from './globals/Home'
+import { siteConfig } from './utils/siteConfig'
 
 export default buildConfig({
   upload: {
@@ -34,7 +35,7 @@ export default buildConfig({
     user: 'users',
     css: path.resolve(process.cwd(), 'src/admin/admin.css'),
     meta: {
-      titleSuffix: ' · Alexander Okonkwo CMS',
+      titleSuffix: ` · ${siteConfig.cmsTitle}`,
       favicon: '/ao-icon.svg',
       ogImage: '/ao-icon.svg',
     },

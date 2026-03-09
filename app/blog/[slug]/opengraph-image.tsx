@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og'
 import type { BlogPost } from '../../../lib/blog'
 import { formatDate, toDisplayText } from '../../../lib/blog'
 import { fetchBlogPostBySlug } from '../../../lib/cms'
+import { siteConfig } from '../../../src/utils/siteConfig'
 
 export const runtime = 'nodejs'
 export const size = {
@@ -18,7 +19,7 @@ type Params = {
 export default async function OGImage({ params }: { params: Params | Promise<Params> }) {
   const resolvedParams = await params
   const post = await fetchBlogPostBySlug<BlogPost>(resolvedParams.slug)
-  const title = String(post?.title || 'Lab / Notes')
+  const title = String(post?.title || siteConfig.blogLabel)
   const summary =
     toDisplayText(post?.summary) || 'Technical writeups covering architecture decisions, tradeoffs, and build logs.'
   const date = formatDate(post?.publishedDate)
@@ -47,7 +48,7 @@ export default async function OGImage({ params }: { params: Params | Promise<Par
             color: '#b9b9b9',
           }}
         >
-          Alexander Okonkwo · Lab / Notes
+          {siteConfig.ownerName} · {siteConfig.blogLabel}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -74,7 +75,7 @@ export default async function OGImage({ params }: { params: Params | Promise<Par
             color: '#b2b2b2',
           }}
         >
-          <div style={{ display: 'flex' }}>alexok.dev/blog</div>
+          <div style={{ display: 'flex' }}>{siteConfig.siteUrl.replace(/^https?:\/\//, '')}/blog</div>
           <div style={{ display: 'flex' }}>{date || 'Engineering Journal'}</div>
         </div>
       </div>

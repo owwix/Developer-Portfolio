@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload/types'
+import { siteConfig } from '../utils/siteConfig'
 
 export const AdminBranding: GlobalConfig = {
   slug: 'admin-branding',
@@ -24,7 +25,7 @@ export const AdminBranding: GlobalConfig = {
       name: 'brandMonogram',
       label: 'Brand Monogram',
       type: 'text',
-      defaultValue: 'AO',
+      defaultValue: siteConfig.cmsMonogram,
       admin: {
         description: 'Fallback text icon when no image is set.',
       },
@@ -33,14 +34,14 @@ export const AdminBranding: GlobalConfig = {
       name: 'loginTitle',
       label: 'Login Title',
       type: 'text',
-      defaultValue: 'Alexander Okonkwo CMS',
+      defaultValue: siteConfig.cmsTitle,
       required: true,
     },
     {
       name: 'loginSubtitle',
       label: 'Login Subtitle',
       type: 'text',
-      defaultValue: 'Engineering Journal Control Center',
+      defaultValue: siteConfig.cmsSubtitle,
     },
   ],
 }
