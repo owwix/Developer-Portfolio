@@ -27,6 +27,7 @@ const DEFAULT_PUBLIC_API_RULES: RouteRule[] = [
   // Intentionally public write endpoints for frontend UX signals and contact flow.
   { path: '/api/phone-requests', methods: ['POST', 'OPTIONS'] },
   { path: '/api/blog/analytics', methods: ['GET', 'POST', 'OPTIONS'] },
+  { path: '/api/journey/analytics', methods: ['POST', 'OPTIONS'] },
 ]
 
 function normalizePath(input: string): string {

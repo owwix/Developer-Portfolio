@@ -234,6 +234,9 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <TagPills className="post-tag-row" tags={postTags} />
           <div className="post-actions-row">
             <BookmarkButton slug={String(post.slug || '')} title={String(post.title || 'Untitled Article')} />
+            <Link className="view-all-link" data-journey-type="contact" href="/reach-by-phone">
+              Reach Out
+            </Link>
           </div>
           <MobileToc items={toc} />
           {summaryText ? <p className="page-intro">{summaryText}</p> : null}

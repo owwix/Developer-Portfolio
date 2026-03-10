@@ -49,7 +49,7 @@ export default function BlogCard({
   }
 
   return (
-    <Link className={cardClassName} href={href}>
+    <Link className={cardClassName} data-journey-type="blog-open" href={href}>
       {content}
     </Link>
   )
