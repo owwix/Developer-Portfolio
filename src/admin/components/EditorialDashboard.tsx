@@ -70,15 +70,15 @@ function countTotal<T>(result: unknown): number {
 
 function AdminDashboardShell({ children }: { children: ReactNode }) {
   return (
-    <div className="dashboard">
-      <div className="dashboard__wrap mx-auto w-full p-6">{children}</div>
+    <div className="dashboard dashboard-shell">
+      <div className="dashboard__wrap dashboard-canvas mx-auto w-full p-6">{children}</div>
     </div>
   )
 }
 
 function DashboardHeader() {
   return (
-    <header className="rounded-2xl border border-zinc-800 bg-panel p-6">
+    <header className="dashboard-header rounded-2xl border border-zinc-800 bg-panel p-6">
       <p className="text-xs uppercase tracking-editorial font-medium text-zinc-500">Editorial Dashboard</p>
       <h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">{siteConfig.blogLabel} CMS</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">
@@ -90,7 +90,7 @@ function DashboardHeader() {
 
 function MetricCard({ label, value, helper }: MetricCardProps) {
   return (
-    <article className="rounded-xl border border-zinc-800 bg-metric px-4 py-3">
+    <article className="metric-card rounded-xl border border-zinc-800 bg-metric px-4 py-3">
       <p className="text-xs uppercase tracking-editorial text-zinc-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
       <p className="mt-1 text-xs text-zinc-500">{helper}</p>
@@ -100,7 +100,7 @@ function MetricCard({ label, value, helper }: MetricCardProps) {
 
 function MetricsStrip({ metrics }: { metrics: MetricCardProps[] }) {
   return (
-    <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="dashboard-metrics mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {metrics.map((metric) => (
         <MetricCard helper={metric.helper} key={metric.label} label={metric.label} value={metric.value} />
       ))}
@@ -110,7 +110,7 @@ function MetricsStrip({ metrics }: { metrics: MetricCardProps[] }) {
 
 function SectionCard({ title, actionLabel, actionHref, children }: SectionCardProps) {
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-panel p-5 min-h-section">
+    <section className="section-card rounded-2xl border border-zinc-800 bg-panel p-5 min-h-section">
       <header className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-white">{title}</h2>
         {actionLabel && actionHref ? (
@@ -126,7 +126,7 @@ function SectionCard({ title, actionLabel, actionHref, children }: SectionCardPr
 
 function ListRow({ href, title, meta }: ListRowProps) {
   return (
-    <a className="ao-list-row block rounded-xl border border-zinc-900 bg-row px-4 py-3 transition duration-150 focus-ring" href={href}>
+    <a className="dashboard-list-row ao-list-row block rounded-xl border border-zinc-900 bg-row px-4 py-3 transition duration-150 focus-ring" href={href}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-zinc-100">{title}</p>
@@ -142,7 +142,7 @@ function ListRow({ href, title, meta }: ListRowProps) {
 
 function EmptyState({ title, description, ctaLabel, ctaHref }: EmptyStateProps) {
   return (
-    <div className="rounded-xl border border-dashed border-zinc-800 bg-empty px-4 py-5">
+    <div className="dashboard-empty-state rounded-xl border border-dashed border-zinc-800 bg-empty px-4 py-5">
       <p className="text-sm font-medium text-zinc-200">{title}</p>
       <p className="mt-1 text-sm text-zinc-500">{description}</p>
       {ctaLabel && ctaHref ? (
@@ -156,7 +156,7 @@ function EmptyState({ title, description, ctaLabel, ctaHref }: EmptyStateProps) 
 
 function PrimaryActionButton({ href, label }: ActionLink) {
   return (
-    <a className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-medium text-black transition hover-lift hover:bg-zinc-200 focus-ring" href={href}>
+    <a className="dashboard-primary-action inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-medium text-black transition hover-lift hover:bg-zinc-200 focus-ring" href={href}>
       {label}
     </a>
   )
@@ -164,7 +164,7 @@ function PrimaryActionButton({ href, label }: ActionLink) {
 
 function SecondaryActionButton({ href, label }: ActionLink) {
   return (
-    <a className="inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-transparent px-4 py-3 text-sm font-medium text-zinc-200 transition hover-lift hover:border-zinc-700 hover:bg-zinc-900 focus-ring" href={href}>
+    <a className="dashboard-secondary-action inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-transparent px-4 py-3 text-sm font-medium text-zinc-200 transition hover-lift hover:border-zinc-700 hover:bg-zinc-900 focus-ring" href={href}>
       {label}
     </a>
   )
@@ -172,7 +172,7 @@ function SecondaryActionButton({ href, label }: ActionLink) {
 
 function QuickActionGrid({ primaryAction, secondaryActions }: { primaryAction: ActionLink; secondaryActions: ActionLink[] }) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="quick-action-grid grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div className="sm:col-span-2">
         <PrimaryActionButton href={primaryAction.href} label={primaryAction.label} />
       </div>
