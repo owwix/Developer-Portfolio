@@ -42,7 +42,9 @@ export default buildConfig({
       ogImage: '/ao-icon.svg',
     },
     components: {
-      beforeDashboard: [EditorialDashboard],
+      views: {
+        Dashboard: EditorialDashboard,
+      },
       graphics: {
         Icon: AdminIcon,
         Logo: AdminLogo,

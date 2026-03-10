@@ -543,6 +543,9 @@ p {
 
 .back-to-portfolio-link {
   margin-top: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .reading-list-panel {
