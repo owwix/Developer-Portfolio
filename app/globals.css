@@ -1798,6 +1798,10 @@ p {
   border-radius: 10px;
   padding: 0.95rem 1rem;
   background: rgba(9, 9, 9, 0.84);
+  max-height: calc(100vh - 2.2rem);
+  max-height: calc(100dvh - 2.2rem);
+  display: flex;
+  flex-direction: column;
 }
 
 .toc h2 {
@@ -1806,7 +1810,9 @@ p {
 }
 
 .toc nav {
-  max-height: min(70vh, calc(100vh - 7.25rem));
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
   overflow-y: auto;
   padding-right: 0.2rem;
   scrollbar-width: thin;
