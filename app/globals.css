@@ -1805,6 +1805,13 @@ p {
   margin-bottom: 0.5rem;
 }
 
+.toc nav {
+  max-height: min(70vh, calc(100vh - 7.25rem));
+  overflow-y: auto;
+  padding-right: 0.2rem;
+  scrollbar-width: thin;
+}
+
 .toc ul {
   list-style: none;
   margin: 0;

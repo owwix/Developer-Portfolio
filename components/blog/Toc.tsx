@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { TocItem } from '../../lib/blog'
 
 export default function Toc({ items = [] }: { items?: TocItem[] }) {
   const [activeId, setActiveId] = useState<string>('')
+  const navRef = useRef<HTMLElement | null>(null)
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
 
   const ids = useMemo(() => items.map((item) => item.id), [items])
 
@@ -56,16 +58,47 @@ export default function Toc({ items = [] }: { items?: TocItem[] }) {
     }
   }, [ids])
 
+  useEffect(() => {
+    if (!activeId) return
+    const navEl = navRef.current
+    const activeLink = linkRefs.current[activeId]
+    if (!navEl || !activeLink) return
+
+    const topPadding = 10
+    const bottomPadding = 10
+    const currentTop = navEl.scrollTop
+    const visibleTop = currentTop + topPadding
+    const visibleBottom = currentTop + navEl.clientHeight - bottomPadding
+    const itemTop = activeLink.offsetTop
+    const itemBottom = itemTop + activeLink.offsetHeight
+
+    if (itemTop >= visibleTop && itemBottom <= visibleBottom) return
+
+    const targetTop = itemTop - Math.max((navEl.clientHeight - activeLink.offsetHeight) / 2, 0)
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    navEl.scrollTo({
+      top: Math.max(targetTop, 0),
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    })
+  }, [activeId])
+
   if (!items.length) return null
 
   return (
     <aside className="toc" aria-label="Table of contents">
       <h2>On This Page</h2>
-      <nav>
+      <nav ref={navRef}>
         <ul>
           {items.map((item) => (
             <li className={item.level >= 3 ? 'toc-indent' : ''} key={item.id}>
-              <a className={activeId === item.id ? 'is-active' : ''} href={`#${item.id}`}>
+              <a
+                className={activeId === item.id ? 'is-active' : ''}
+                href={`#${item.id}`}
+                ref={(el) => {
+                  linkRefs.current[item.id] = el
+                }}
+              >
                 {item.text}
               </a>
             </li>
