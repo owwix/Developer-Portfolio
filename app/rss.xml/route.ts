@@ -64,10 +64,11 @@ export async function GET() {
     .join('')
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXML(`${siteConfig.ownerName} · ${siteConfig.blogLabel}`)}</title>
     <link>${escapeXML(`${siteConfig.siteUrl}/blog`)}</link>
+    <atom:link href="${escapeXML(`${siteConfig.siteUrl}/rss.xml`)}" rel="self" type="application/rss+xml" />
     <description>${escapeXML(`Engineering notes and build logs from ${siteConfig.ownerName}.`)}</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>${items}

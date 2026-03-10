@@ -7,7 +7,7 @@ import { siteConfig } from '../src/utils/siteConfig'
 
 export const dynamic = 'force-dynamic'
 
-const STATIC_PATHS = ['/', '/blog', '/open-source', '/templates', '/reach-by-phone', '/now']
+const STATIC_PATHS = ['/', '/blog', '/open-source', '/templates', '/reach-by-phone', '/now', '/rss', '/rss.xml']
 
 function toAbsolute(path: string): string {
   if (path.startsWith('http://') || path.startsWith('https://')) return path
