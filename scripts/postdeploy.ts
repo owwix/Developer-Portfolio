@@ -1,5 +1,4 @@
 import dotenv from 'dotenv'
-import { spawn } from 'node:child_process'
 
 dotenv.config()
 
@@ -23,22 +22,6 @@ function toAbsoluteUrl(pathOrUrl: string, siteUrl: string): string {
   return `${normalizedBase}${normalizedPath}`
 }
 
-async function runCommand(command: string, args: string[]): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    const child = spawn(command, args, {
-      stdio: 'inherit',
-      shell: process.platform === 'win32',
-      env: process.env,
-    })
-
-    child.on('error', reject)
-    child.on('exit', (code) => {
-      if (code === 0) resolve()
-      else reject(new Error(`${command} ${args.join(' ')} failed with exit code ${code ?? 'unknown'}`))
-    })
-  })
-}
-
 async function warmUrl(url: string, timeoutMs: number): Promise<void> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
@@ -59,26 +42,11 @@ async function warmUrl(url: string, timeoutMs: number): Promise<void> {
 async function run() {
   console.log('[postdeploy] Starting post-deploy workflow...')
 
-  const runRichTextMigration = isEnabled('POSTDEPLOY_RUN_RICHTEXT_MIGRATION', false)
   const runWarmup = isEnabled('POSTDEPLOY_RUN_WARMUP', false)
-  const failOnMigrationError = isEnabled('POSTDEPLOY_FAIL_ON_MIGRATION_ERROR', true)
   const failOnWarmupError = isEnabled('POSTDEPLOY_FAIL_ON_WARMUP_ERROR', false)
   const includeDefaultWarmupRoutes = isEnabled('POSTDEPLOY_WARMUP_DEFAULT_ROUTES', true)
   const warmupTimeoutMs = Number(process.env.POSTDEPLOY_WARMUP_TIMEOUT_MS || 10000)
   const siteUrl = String(process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || '').trim()
-
-  if (runRichTextMigration) {
-    console.log('[postdeploy] Running rich-text migration...')
-    try {
-      await runCommand('npm', ['run', 'migrate:richtext'])
-      console.log('[postdeploy] Rich-text migration completed.')
-    } catch (error) {
-      console.error('[postdeploy] Rich-text migration failed:', error)
-      if (failOnMigrationError) throw error
-    }
-  } else {
-    console.log('[postdeploy] Skipping rich-text migration (POSTDEPLOY_RUN_RICHTEXT_MIGRATION != 1).')
-  }
 
   if (runWarmup) {
     if (!siteUrl) {

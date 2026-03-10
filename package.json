@@ -13,7 +13,6 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.next.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:richtext": "tsx scripts/migrate-richtext.ts",
     "postdeploy": "tsx scripts/postdeploy.ts"
   },
   "dependencies": {
