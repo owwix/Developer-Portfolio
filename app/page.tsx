@@ -3,6 +3,7 @@ import BlogCard from '../components/blog/BlogCard'
 import GitHubSnapshot from '../components/home/GitHubSnapshot'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
+import ResumeModeToggle from '../components/home/ResumeModeToggle'
 import TrustBlock from '../components/home/TrustBlock'
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
@@ -222,7 +223,11 @@ function SocialLinkIcon({ type }: { type: SocialIconType }) {
   )
 }
 
-export default async function HomePage() {
+type HomePageProps = {
+  searchParams?: Promise<{ mode?: string | string[] }> | { mode?: string | string[] }
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
   let home: HomeData | null = null
   let projects: ProjectRow[] = []
   let skills: SkillRow[] = []
@@ -258,6 +263,10 @@ export default async function HomePage() {
     nowData = null
   }
 
+  const params = (await searchParams) || {}
+  const rawMode = Array.isArray(params?.mode) ? params.mode[0] : params?.mode
+  const isResumeMode = String(rawMode || '').toLowerCase() === 'resume'
+
   const skillRows = skills.flatMap((doc) => {
     if (Array.isArray(doc?.skills) && doc.skills.length) {
       return doc.skills
@@ -282,13 +291,13 @@ export default async function HomePage() {
   const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
   const sectionVisibility = home?.sectionVisibility || {}
   const showProjects = sectionVisibility.projects !== false
-  const showSkills = sectionVisibility.skills !== false
-  const showOpenSource = sectionVisibility.openSource !== false
-  const showNowPreview = sectionVisibility.nowPreview !== false
+  const showSkills = sectionVisibility.skills !== false && !isResumeMode
+  const showOpenSource = sectionVisibility.openSource !== false && !isResumeMode
+  const showNowPreview = sectionVisibility.nowPreview !== false && !isResumeMode
   const showTrustBlock = sectionVisibility.trustBlock !== false && home?.trustBlock?.enabled !== false
-  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
+  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername) && !isResumeMode
   const showExperience = sectionVisibility.experience !== false
-  const showBlog = sectionVisibility.blog !== false
+  const showBlog = sectionVisibility.blog !== false && !isResumeMode
   const nowUpdated = formatNowDate(nowData?.updatedAt)
 
   return (
@@ -309,13 +318,14 @@ export default async function HomePage() {
             <p className="hero-blog-note">
               I document architecture decisions, build logs, and engineering lessons learned while building production systems in
               my{' '}
-              <Link href="/blog" className="hero-blog-link">
+              <Link data-journey-type="blog-open" href="/blog" className="hero-blog-link">
                 blog
               </Link>
               .
             </p>
           </div>
         </div>
+        <ResumeModeToggle enabled={isResumeMode} />
         <div className="links">
           {home?.email ? (
             <span className="pill social-link-pill">
@@ -343,7 +353,7 @@ export default async function HomePage() {
               </a>
             )
           })}
-          <Link href="/reach-by-phone" className="pill-link social-link-pill">
+          <Link data-journey-type="contact" href="/reach-by-phone" className="pill-link social-link-pill">
             <span aria-hidden="true" className="link-pill-icon">
               <SocialLinkIcon type="phone" />
             </span>

@@ -9,6 +9,7 @@ import EditorialDashboard from './admin/components/EditorialDashboard'
 import { BlogAnalytics } from './collections/BlogAnalytics'
 import { BlogPosts } from './collections/BlogPosts'
 import { Experiences } from './collections/Experiences'
+import { JourneyAnalytics } from './collections/JourneyAnalytics'
 import { Media } from './collections/Media'
 import { PhoneRequests } from './collections/PhoneRequests'
 import { OpenSourceResources } from './collections/OpenSourceResources'
@@ -54,6 +55,7 @@ export default buildConfig({
   collections: [
     BlogPosts,
     BlogAnalytics,
+    JourneyAnalytics,
     Media,
     Projects,
     OpenSourceResources,
