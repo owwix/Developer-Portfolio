@@ -29,7 +29,7 @@ export default function BlogSubscribeCard({ title, description, digestUrl, diges
             {digestLabel || 'Join Digest'}
           </a>
         ) : null}
-        <Link className="view-all-link" href="/rss.xml">
+        <Link className="view-all-link" href="/rss">
           Follow RSS
         </Link>
       </div>
