@@ -16,6 +16,46 @@ type ProjectDoc = {
   updatedAt?: string
 }
 
+type InquiryDoc = {
+  id?: string
+}
+
+type QueryData<T> = {
+  docs?: T[]
+  totalDocs?: number
+}
+
+type MetricCardProps = {
+  label: string
+  value: number
+  helper: string
+}
+
+type SectionCardProps = {
+  title: string
+  actionLabel?: string
+  actionHref?: string
+  children: ReactNode
+}
+
+type ListRowProps = {
+  href: string
+  title: string
+  meta: string
+}
+
+type EmptyStateProps = {
+  title: string
+  description: string
+  ctaLabel?: string
+  ctaHref?: string
+}
+
+type ActionLink = {
+  href: string
+  label: string
+}
+
 function formatDate(value?: string): string {
   if (!value) return ''
   const date = new Date(value)
@@ -23,24 +63,125 @@ function formatDate(value?: string): string {
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-function EntryLink({ href, title, meta }: { href: string; title: string; meta: string }) {
+function countTotal<T>(result: unknown): number {
+  const data = (result as { data?: QueryData<T> } | undefined)?.data
+  return Number(data?.totalDocs ?? data?.docs?.length ?? 0)
+}
+
+function AdminDashboardShell({ children }: { children: ReactNode }) {
   return (
-    <a className="ao-dashboard-link" href={href}>
-      <span className="ao-dashboard-link-title">{title}</span>
-      <span className="ao-dashboard-link-meta">{meta}</span>
+    <div className="dashboard">
+      <div className="dashboard__wrap">
+        <section className="mx-auto w-full rounded-3xl border border-zinc-800 bg-shell p-6">{children}</section>
+      </div>
+    </div>
+  )
+}
+
+function DashboardHeader() {
+  return (
+    <header className="rounded-2xl border border-zinc-800 bg-panel p-6">
+      <p className="text-xs uppercase tracking-editorial font-medium text-zinc-500">Editorial Dashboard</p>
+      <h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">{siteConfig.blogLabel} CMS</h1>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">
+        Manage publishing workflows, portfolio content, and site operations from one focused control center.
+      </p>
+    </header>
+  )
+}
+
+function MetricCard({ label, value, helper }: MetricCardProps) {
+  return (
+    <article className="rounded-xl border border-zinc-800 bg-metric px-4 py-3">
+      <p className="text-xs uppercase tracking-editorial text-zinc-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
+      <p className="mt-1 text-xs text-zinc-500">{helper}</p>
+    </article>
+  )
+}
+
+function MetricsStrip({ metrics }: { metrics: MetricCardProps[] }) {
+  return (
+    <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {metrics.map((metric) => (
+        <MetricCard helper={metric.helper} key={metric.label} label={metric.label} value={metric.value} />
+      ))}
+    </section>
+  )
+}
+
+function SectionCard({ title, actionLabel, actionHref, children }: SectionCardProps) {
+  return (
+    <section className="rounded-2xl border border-zinc-800 bg-panel p-5 min-h-section">
+      <header className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        {actionLabel && actionHref ? (
+          <a className="text-xs uppercase tracking-editorial text-zinc-500 transition hover:text-zinc-300 focus-ring rounded-lg px-2 py-1" href={actionHref}>
+            {actionLabel}
+          </a>
+        ) : null}
+      </header>
+      <div className="mt-4 space-y-3">{children}</div>
+    </section>
+  )
+}
+
+function ListRow({ href, title, meta }: ListRowProps) {
+  return (
+    <a className="ao-list-row block rounded-xl border border-zinc-900 bg-row px-4 py-3 transition duration-150 focus-ring" href={href}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-zinc-100">{title}</p>
+          <p className="mt-2 text-xs text-zinc-500">{meta}</p>
+        </div>
+        <span aria-hidden="true" className="ao-row-chevron text-zinc-500">
+          →
+        </span>
+      </div>
     </a>
   )
 }
 
-function DashboardSection({ title, actionHref, actionLabel, children }: { title: string; actionHref: string; actionLabel: string; children: ReactNode }) {
+function EmptyState({ title, description, ctaLabel, ctaHref }: EmptyStateProps) {
   return (
-    <section className="ao-dashboard-section">
-      <header className="ao-dashboard-section-head">
-        <h3>{title}</h3>
-        <a href={actionHref}>{actionLabel}</a>
-      </header>
-      {children}
-    </section>
+    <div className="rounded-xl border border-dashed border-zinc-800 bg-empty px-4 py-5">
+      <p className="text-sm font-medium text-zinc-200">{title}</p>
+      <p className="mt-1 text-sm text-zinc-500">{description}</p>
+      {ctaLabel && ctaHref ? (
+        <a className="mt-3 inline-flex items-center rounded-lg px-2 py-1 text-sm font-medium text-white transition hover:text-zinc-300 focus-ring" href={ctaHref}>
+          {ctaLabel}
+        </a>
+      ) : null}
+    </div>
+  )
+}
+
+function PrimaryActionButton({ href, label }: ActionLink) {
+  return (
+    <a className="inline-flex items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-medium text-black transition hover-lift hover:bg-zinc-200 focus-ring" href={href}>
+      {label}
+    </a>
+  )
+}
+
+function SecondaryActionButton({ href, label }: ActionLink) {
+  return (
+    <a className="inline-flex items-center justify-center rounded-lg border border-zinc-800 bg-transparent px-4 py-3 text-sm font-medium text-zinc-200 transition hover-lift hover:border-zinc-700 hover:bg-zinc-900 focus-ring" href={href}>
+      {label}
+    </a>
+  )
+}
+
+function QuickActionGrid({ primaryAction, secondaryActions }: { primaryAction: ActionLink; secondaryActions: ActionLink[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="sm:col-span-2">
+        <PrimaryActionButton href={primaryAction.href} label={primaryAction.label} />
+      </div>
+      {secondaryActions.map((action) => (
+        <SecondaryActionButton href={action.href} key={action.href} label={action.label} />
+      ))}
+    </div>
   )
 }
 
@@ -48,89 +189,134 @@ export default function EditorialDashboard() {
   const [notesResult] = usePayloadAPI('/api/blog-posts?limit=5&sort=-updatedAt')
   const [draftResult] = usePayloadAPI('/api/blog-posts?limit=5&sort=-updatedAt&where[_status][equals]=draft')
   const [projectResult] = usePayloadAPI('/api/projects?limit=4&sort=-updatedAt')
+  const [inquiryResult] = usePayloadAPI('/api/phone-requests?limit=1&sort=-updatedAt')
 
-  const notes = useMemo<NoteDoc[]>(() => notesResult?.data?.docs || [], [notesResult?.data])
-  const drafts = useMemo<NoteDoc[]>(() => draftResult?.data?.docs || [], [draftResult?.data])
-  const projects = useMemo<ProjectDoc[]>(() => projectResult?.data?.docs || [], [projectResult?.data])
+  const notesData = (notesResult?.data || {}) as QueryData<NoteDoc>
+  const draftsData = (draftResult?.data || {}) as QueryData<NoteDoc>
+  const projectsData = (projectResult?.data || {}) as QueryData<ProjectDoc>
+
+  const notes = useMemo<NoteDoc[]>(() => notesData.docs || [], [notesData])
+  const drafts = useMemo<NoteDoc[]>(() => draftsData.docs || [], [draftsData])
+  const projects = useMemo<ProjectDoc[]>(() => projectsData.docs || [], [projectsData])
+
+  const noteCount = countTotal<NoteDoc>(notesResult)
+  const draftCount = countTotal<NoteDoc>(draftResult)
+  const projectCount = countTotal<ProjectDoc>(projectResult)
+  const inquiryCount = countTotal<InquiryDoc>(inquiryResult)
 
   return (
-    <div className="dashboard">
-      <div className="dashboard__wrap">
-        <section className="ao-dashboard-root">
-          <header className="ao-dashboard-hero">
-            <p className="ao-dashboard-eyebrow">Editorial Dashboard</p>
-            <h2>{siteConfig.blogLabel} CMS</h2>
-            <p>Manage publishing workflows, portfolio content, and site operations from one focused control center.</p>
-          </header>
+    <AdminDashboardShell>
+      <DashboardHeader />
 
-          <div className="ao-dashboard-grid">
-            <DashboardSection actionHref="/admin/collections/blog-posts/create" actionLabel="New Note" title="Recent Notes">
-              {notes.length ? (
-                <div className="ao-dashboard-list">
-                  {notes.map((note) => (
-                    <EntryLink
-                      href={note.id ? `/admin/collections/blog-posts/${note.id}` : '/admin/collections/blog-posts'}
-                      key={note.id ? String(note.id) : `note-${note.title || 'untitled'}`}
-                      meta={note.isComingSoon ? 'Coming soon' : formatDate(note.updatedAt) || 'Recently updated'}
-                      title={note.title || 'Untitled note'}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="ao-dashboard-empty">No notes yet.</p>
-              )}
-            </DashboardSection>
+      <MetricsStrip
+        metrics={[
+          {
+            label: 'Notes',
+            value: noteCount,
+            helper: noteCount === 1 ? '1 published item' : `${noteCount} total notes`,
+          },
+          {
+            label: 'Drafts',
+            value: draftCount,
+            helper: draftCount === 0 ? 'No drafts in progress' : 'In active drafting workflow',
+          },
+          {
+            label: 'Projects',
+            value: projectCount,
+            helper: projectCount === 0 ? 'No projects yet' : 'Portfolio records live',
+          },
+          {
+            label: 'Inquiries',
+            value: inquiryCount,
+            helper: inquiryCount === 0 ? 'Inbox currently clear' : 'Pending review in inbox',
+          },
+        ]}
+      />
 
-            <DashboardSection actionHref="/admin/collections/blog-posts?where[_status][equals]=draft" actionLabel="View Drafts" title="Draft Notes">
-              {drafts.length ? (
-                <div className="ao-dashboard-list">
-                  {drafts.map((note) => (
-                    <EntryLink
-                      href={note.id ? `/admin/collections/blog-posts/${note.id}` : '/admin/collections/blog-posts'}
-                      key={note.id ? String(note.id) : `draft-${note.title || 'untitled'}`}
-                      meta={formatDate(note.updatedAt) || 'Draft'}
-                      title={note.title || 'Untitled draft'}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="ao-dashboard-empty">No active drafts.</p>
-              )}
-            </DashboardSection>
-
-            <DashboardSection actionHref="/admin/collections/projects/create" actionLabel="New Project" title="Projects">
-              {projects.length ? (
-                <div className="ao-dashboard-list">
-                  {projects.map((project) => (
-                    <EntryLink
-                      href={project.id ? `/admin/collections/projects/${project.id}` : '/admin/collections/projects'}
-                      key={project.id ? String(project.id) : `project-${project.title || 'untitled'}`}
-                      meta={formatDate(project.updatedAt) || 'Recently updated'}
-                      title={project.title || 'Untitled project'}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="ao-dashboard-empty">No projects yet.</p>
-              )}
-            </DashboardSection>
-
-            <section className="ao-dashboard-section">
-              <header className="ao-dashboard-section-head">
-                <h3>Quick Actions</h3>
-              </header>
-              <div className="ao-dashboard-actions">
-                <a href="/admin/collections/blog-posts/create">Write Note</a>
-                <a href="/admin/collections/open-source-resources/create">New Open Source Resource</a>
-                <a href="/admin/collections/media">Upload Asset</a>
-                <a href="/admin/collections/phone-requests">Review Inquiries</a>
-                <a href="/admin/globals/home">Edit Homepage Content</a>
-                <a href="/admin/globals/now">Update Now Page</a>
+      <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-12">
+        <div className="grid grid-cols-1 gap-5 xl:col-span-7">
+          <SectionCard actionHref="/admin/collections/blog-posts/create" actionLabel="New Note" title="Recent Notes">
+            {notes.length ? (
+              <div className="grid grid-cols-1 gap-3">
+                {notes.map((note) => (
+                  <ListRow
+                    href={note.id ? `/admin/collections/blog-posts/${note.id}` : '/admin/collections/blog-posts'}
+                    key={note.id ? String(note.id) : `note-${note.title || 'untitled'}`}
+                    meta={note.isComingSoon ? 'Coming soon' : formatDate(note.updatedAt) || 'Recently updated'}
+                    title={note.title || 'Untitled note'}
+                  />
+                ))}
               </div>
-            </section>
-          </div>
-        </section>
+            ) : (
+              <EmptyState
+                ctaHref="/admin/collections/blog-posts/create"
+                ctaLabel="Write first note"
+                description="Start publishing a new note and build your editorial backlog."
+                title="No notes published yet."
+              />
+            )}
+          </SectionCard>
+
+          <SectionCard actionHref="/admin/collections/projects/create" actionLabel="New Project" title="Projects">
+            {projects.length ? (
+              <div className="grid grid-cols-1 gap-3">
+                {projects.map((project) => (
+                  <ListRow
+                    href={project.id ? `/admin/collections/projects/${project.id}` : '/admin/collections/projects'}
+                    key={project.id ? String(project.id) : `project-${project.title || 'untitled'}`}
+                    meta={formatDate(project.updatedAt) || 'Recently updated'}
+                    title={project.title || 'Untitled project'}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                ctaHref="/admin/collections/projects/create"
+                ctaLabel="Create project"
+                description="Add your first project to keep portfolio updates and case studies current."
+                title="No projects yet."
+              />
+            )}
+          </SectionCard>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 xl:col-span-5">
+          <SectionCard actionHref="/admin/collections/blog-posts?where[_status][equals]=draft" actionLabel="View Drafts" title="Draft Notes">
+            {drafts.length ? (
+              <div className="grid grid-cols-1 gap-3">
+                {drafts.map((note) => (
+                  <ListRow
+                    href={note.id ? `/admin/collections/blog-posts/${note.id}` : '/admin/collections/blog-posts'}
+                    key={note.id ? String(note.id) : `draft-${note.title || 'untitled'}`}
+                    meta={formatDate(note.updatedAt) || 'Draft'}
+                    title={note.title || 'Untitled draft'}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                ctaHref="/admin/collections/blog-posts/create"
+                ctaLabel="Create draft"
+                description="Start a new draft to continue your publishing workflow."
+                title="No drafts in progress."
+              />
+            )}
+          </SectionCard>
+
+          <SectionCard title="Quick Actions">
+            <QuickActionGrid
+              primaryAction={{ href: '/admin/collections/blog-posts/create', label: 'Write Note' }}
+              secondaryActions={[
+                { href: '/admin/collections/open-source-resources/create', label: 'New Open Source Resource' },
+                { href: '/admin/collections/media', label: 'Upload Asset' },
+                { href: '/admin/collections/phone-requests', label: 'Review Inquiries' },
+                { href: '/admin/globals/home', label: 'Edit Homepage Content' },
+                { href: '/admin/globals/now', label: 'Update Now Page' },
+              ]}
+            />
+          </SectionCard>
+        </div>
       </div>
-    </div>
+    </AdminDashboardShell>
   )
 }
