@@ -88,14 +88,14 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
 
               if (caseStudy.external) {
                 return (
-                  <a href={caseStudy.href} rel="noreferrer" target="_blank">
+                  <a data-journey-type="case-study" href={caseStudy.href} rel="noreferrer" target="_blank">
                     <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
                   </a>
                 )
               }
 
               return (
-                <Link href={caseStudy.href}>
+                <Link data-journey-type="case-study" href={caseStudy.href}>
                   <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
                 </Link>
               )
@@ -107,12 +107,12 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
             <RichTextContent className="rich-text-content summary-richtext" fallback="No summary available." value={project.summary} />
             <div className="meta">
               {project.liveUrl ? (
-                <a className="badge badge-link" href={project.liveUrl} rel="noreferrer" target="_blank">
+                <a className="badge badge-link" data-journey-type="project-live" href={project.liveUrl} rel="noreferrer" target="_blank">
                   Live URL
                 </a>
               ) : null}
               {project.repoUrl ? (
-                <a className="badge badge-link" href={project.repoUrl} rel="noreferrer" target="_blank">
+                <a className="badge badge-link" data-journey-type="repo" href={project.repoUrl} rel="noreferrer" target="_blank">
                   Repo
                 </a>
               ) : null}
@@ -122,14 +122,14 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
 
                 if (caseStudy.external) {
                   return (
-                    <a className="badge badge-link" href={caseStudy.href} rel="noreferrer" target="_blank">
+                    <a className="badge badge-link" data-journey-type="case-study" href={caseStudy.href} rel="noreferrer" target="_blank">
                       Case Study
                     </a>
                   )
                 }
 
                 return (
-                  <Link className="badge badge-link" href={caseStudy.href}>
+                  <Link className="badge badge-link" data-journey-type="case-study" href={caseStudy.href}>
                     Case Study
                   </Link>
                 )

@@ -257,6 +257,25 @@ p {
   border-bottom-color: var(--accent);
 }
 
+
+.resume-mode-banner {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.62rem 0.78rem;
+  background: rgba(9, 9, 9, 0.72);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resume-mode-banner p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
 .hero {
   display: grid;
   gap: 1.15rem;

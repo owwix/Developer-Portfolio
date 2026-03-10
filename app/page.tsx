@@ -3,6 +3,7 @@ import BlogCard from '../components/blog/BlogCard'
 import GitHubSnapshot from '../components/home/GitHubSnapshot'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
+import ResumeModeToggle from '../components/home/ResumeModeToggle'
 import TrustBlock from '../components/home/TrustBlock'
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
@@ -27,6 +28,16 @@ type HomeData = {
     trustBlock?: boolean
     experience?: boolean
     blog?: boolean
+    resumeMode?: {
+      projects?: boolean
+      skills?: boolean
+      openSource?: boolean
+      nowPreview?: boolean
+      githubSnapshot?: boolean
+      trustBlock?: boolean
+      experience?: boolean
+      blog?: boolean
+    }
   }
   bio?: unknown
   email?: string
@@ -222,7 +233,11 @@ function SocialLinkIcon({ type }: { type: SocialIconType }) {
   )
 }
 
-export default async function HomePage() {
+type HomePageProps = {
+  searchParams?: Promise<{ mode?: string | string[] }> | { mode?: string | string[] }
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
   let home: HomeData | null = null
   let projects: ProjectRow[] = []
   let skills: SkillRow[] = []
@@ -258,6 +273,10 @@ export default async function HomePage() {
     nowData = null
   }
 
+  const params = (await searchParams) || {}
+  const rawMode = Array.isArray(params?.mode) ? params.mode[0] : params?.mode
+  const isResumeMode = String(rawMode || '').toLowerCase() === 'resume'
+
   const skillRows = skills.flatMap((doc) => {
     if (Array.isArray(doc?.skills) && doc.skills.length) {
       return doc.skills
@@ -281,14 +300,26 @@ export default async function HomePage() {
   const githubUsername = String(home?.githubSnapshot?.username || githubFromLinks || '').trim()
   const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
   const sectionVisibility = home?.sectionVisibility || {}
-  const showProjects = sectionVisibility.projects !== false
-  const showSkills = sectionVisibility.skills !== false
-  const showOpenSource = sectionVisibility.openSource !== false
-  const showNowPreview = sectionVisibility.nowPreview !== false
-  const showTrustBlock = sectionVisibility.trustBlock !== false && home?.trustBlock?.enabled !== false
-  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
-  const showExperience = sectionVisibility.experience !== false
-  const showBlog = sectionVisibility.blog !== false
+  const resumeVisibility = sectionVisibility.resumeMode || {}
+
+  const sectionVisible = (defaultVisible: boolean, normalValue: boolean | undefined, resumeValue: boolean | undefined): boolean => {
+    const baseVisible = normalValue ?? defaultVisible
+    if (!baseVisible) return false
+    if (!isResumeMode) return true
+    return resumeValue ?? defaultVisible
+  }
+
+  const showProjects = sectionVisible(true, sectionVisibility.projects, resumeVisibility.projects)
+  const showSkills = sectionVisible(true, sectionVisibility.skills, resumeVisibility.skills)
+  const showOpenSource = sectionVisible(true, sectionVisibility.openSource, resumeVisibility.openSource)
+  const showNowPreview = sectionVisible(true, sectionVisibility.nowPreview, resumeVisibility.nowPreview)
+  const showTrustBlock = sectionVisible(true, sectionVisibility.trustBlock, resumeVisibility.trustBlock) && home?.trustBlock?.enabled !== false
+  const showGitHubSnapshot =
+    sectionVisible(true, sectionVisibility.githubSnapshot, resumeVisibility.githubSnapshot) &&
+    home?.githubSnapshot?.enabled !== false &&
+    Boolean(githubUsername)
+  const showExperience = sectionVisible(true, sectionVisibility.experience, resumeVisibility.experience)
+  const showBlog = sectionVisible(true, sectionVisibility.blog, resumeVisibility.blog)
   const nowUpdated = formatNowDate(nowData?.updatedAt)
 
   return (
@@ -309,13 +340,14 @@ export default async function HomePage() {
             <p className="hero-blog-note">
               I document architecture decisions, build logs, and engineering lessons learned while building production systems in
               my{' '}
-              <Link href="/blog" className="hero-blog-link">
+              <Link data-journey-type="blog-open" href="/blog" className="hero-blog-link">
                 blog
               </Link>
               .
             </p>
           </div>
         </div>
+        <ResumeModeToggle enabled={isResumeMode} />
         <div className="links">
           {home?.email ? (
             <span className="pill social-link-pill">
@@ -343,7 +375,7 @@ export default async function HomePage() {
               </a>
             )
           })}
-          <Link href="/reach-by-phone" className="pill-link social-link-pill">
+          <Link data-journey-type="contact" href="/reach-by-phone" className="pill-link social-link-pill">
             <span aria-hidden="true" className="link-pill-icon">
               <SocialLinkIcon type="phone" />
             </span>

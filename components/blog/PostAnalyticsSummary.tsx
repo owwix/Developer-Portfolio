@@ -48,8 +48,6 @@ export default function PostAnalyticsSummary({ slug }: PostAnalyticsSummaryProps
   return (
     <div className="post-analytics-row" aria-label="Post analytics">
       <span className="meta-chip">{metrics.views} views</span>
-      <span className="meta-chip">{metrics.avgReadDepth.toFixed(1)}% avg read depth</span>
-      <span className="meta-chip">{metrics.dropOffRate.toFixed(1)}% drop-off</span>
     </div>
   )
 }

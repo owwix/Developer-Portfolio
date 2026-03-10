@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
+import JourneyTracker from '../components/analytics/JourneyTracker'
 import NetworkBackground from '../components/ui/NetworkBackground'
 import ThemeToggle from '../components/ui/ThemeToggle'
 import { siteConfig, siteMetadata } from '../src/utils/siteConfig'
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <NetworkBackground />
         <ThemeToggle />
+        <JourneyTracker />
         {children}
         <footer className="site-footer">
           <p>

@@ -91,6 +91,64 @@ export const Home: GlobalConfig = {
           type: 'checkbox',
           defaultValue: true,
         },
+        {
+          name: 'resumeMode',
+          label: 'Resume Mode Visibility',
+          type: 'group',
+          fields: [
+            {
+              name: 'projects',
+              label: 'Show Projects in Resume Mode',
+              type: 'checkbox',
+              defaultValue: true,
+            },
+            {
+              name: 'skills',
+              label: 'Show Skills in Resume Mode',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'openSource',
+              label: 'Show Open Source in Resume Mode',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'nowPreview',
+              label: 'Show Now Preview in Resume Mode',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'githubSnapshot',
+              label: 'Show GitHub Snapshot in Resume Mode',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+            {
+              name: 'trustBlock',
+              label: 'Show Trust Block in Resume Mode',
+              type: 'checkbox',
+              defaultValue: true,
+            },
+            {
+              name: 'experience',
+              label: 'Show Experience in Resume Mode',
+              type: 'checkbox',
+              defaultValue: true,
+            },
+            {
+              name: 'blog',
+              label: 'Show Blog in Resume Mode',
+              type: 'checkbox',
+              defaultValue: false,
+            },
+          ],
+          admin: {
+            description: 'Control which sections stay visible when /?mode=resume is active.',
+          },
+        },
       ],
       admin: {
         description: 'Turn homepage sections on/off without code changes.',
