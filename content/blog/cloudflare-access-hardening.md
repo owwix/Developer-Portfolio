@@ -103,6 +103,44 @@ Allow -> Emails -> alex@alexok.dev
 
 Only identities matching this policy can access `/admin`.
 
+### Step 4 (Optional): Set Up One-time PIN Login
+
+If you want OTP-based login in Cloudflare Access, add the built-in One-time PIN identity provider.
+
+Dashboard path:
+
+```text
+Cloudflare One -> Integrations -> Identity providers -> Add new identity provider -> One-time PIN
+```
+
+Required API token permission (at least one):
+
+- `Access: Organizations, Identity Providers, and Groups Write`
+
+API example:
+
+```bash
+curl "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/identity_providers" \
+  --request POST \
+  --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  --json '{
+    "name": "One-time PIN login",
+    "type": "onetimepin",
+    "config": {}
+  }'
+```
+
+Terraform example (v5):
+
+```hcl
+resource "cloudflare_zero_trust_access_identity_provider" "onetimepin_login" {
+  account_id = var.cloudflare_account_id
+  name       = "One-time PIN login"
+  type       = "onetimepin"
+  config     = {}
+}
+```
+
 ### Result
 
 Before:
@@ -153,12 +191,14 @@ I treat every API route as protected unless there is a concrete reason to expose
 CLOUDFLARE_ACCESS_ENABLED=1
 CLOUDFLARE_ACCESS_ALLOWED_EMAILS=alex@example.com
 CLOUDFLARE_ACCESS_ALLOWED_EMAIL_DOMAINS=example.com
+CLOUDFLARE_ACCESS_ALLOWED_IPS=203.0.113.10,198.51.100.0/24
 CLOUDFLARE_ACCESS_CLIENT_ID=...
 CLOUDFLARE_ACCESS_CLIENT_SECRET=...
 CLOUDFLARE_ACCESS_PUBLIC_API_ROUTES=/api/webhooks/*|POST
 ```
 
 - `CLOUDFLARE_ACCESS_ENABLED=1` turns enforcement on.
+- `CLOUDFLARE_ACCESS_ALLOWED_IPS` is an optional app-layer bypass allowlist (exact IPs or IPv4 CIDRs).
 - Either `cf-access-jwt-assertion` **or** service token headers can satisfy identity.
 - If allowlists are configured, email identity must also match.
 

@@ -5,16 +5,19 @@ import { evaluateCloudflareAccess, shouldProtectRequest } from './accessControl'
 function mockReq({
   path = '/',
   method = 'GET',
+  ip = '',
   headers = {},
 }: {
   path?: string
   method?: string
+  ip?: string
   headers?: Record<string, string>
 }): Request {
   const lower = Object.fromEntries(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v]))
   return {
     path,
     method,
+    ip,
     header(name: string) {
       return lower[name.toLowerCase()]
     },
@@ -63,6 +66,36 @@ describe('evaluateCloudflareAccess', () => {
     const result = evaluateCloudflareAccess(mockReq({}))
     expect(result.allowed).toBe(false)
     expect(result.status).toBe(401)
+  })
+
+  it('allows when request IP is allowlisted', () => {
+    process.env.CLOUDFLARE_ACCESS_ENABLED = '1'
+    process.env.CLOUDFLARE_ACCESS_ALLOWED_IPS = '203.0.113.10'
+
+    const result = evaluateCloudflareAccess(
+      mockReq({
+        headers: {
+          'cf-connecting-ip': '203.0.113.10',
+        },
+      }),
+    )
+
+    expect(result.allowed).toBe(true)
+  })
+
+  it('allows when request IP matches an allowlisted IPv4 CIDR', () => {
+    process.env.CLOUDFLARE_ACCESS_ENABLED = '1'
+    process.env.CLOUDFLARE_ACCESS_ALLOWED_IPS = '198.51.100.0/24'
+
+    const result = evaluateCloudflareAccess(
+      mockReq({
+        headers: {
+          'x-forwarded-for': '198.51.100.42, 10.0.0.1',
+        },
+      }),
+    )
+
+    expect(result.allowed).toBe(true)
   })
 
   it('allows when jwt assertion header exists', () => {
