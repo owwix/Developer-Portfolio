@@ -71,9 +71,7 @@ function countTotal<T>(result: unknown): number {
 function AdminDashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="dashboard">
-      <div className="dashboard__wrap">
-        <section className="mx-auto w-full rounded-3xl border border-zinc-800 bg-shell p-6">{children}</section>
-      </div>
+      <div className="dashboard__wrap mx-auto w-full p-6">{children}</div>
     </div>
   )
 }

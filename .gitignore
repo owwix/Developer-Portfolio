@@ -3,3 +3,5 @@ dist
 .next
 .env
 npm-debug.log*
+content/blog/
+
