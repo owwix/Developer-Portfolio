@@ -20,6 +20,14 @@ type InquiryDoc = {
   id?: string
 }
 
+type JourneyDoc = {
+  id?: string
+  sourcePath?: string
+  targetPath?: string
+  journeyType?: string
+  count?: number
+}
+
 type QueryData<T> = {
   docs?: T[]
   totalDocs?: number
@@ -66,6 +74,20 @@ function formatDate(value?: string): string {
 function countTotal<T>(result: unknown): number {
   const data = (result as { data?: QueryData<T> } | undefined)?.data
   return Number(data?.totalDocs ?? data?.docs?.length ?? 0)
+}
+
+
+function formatRate(value: number): string {
+  if (!Number.isFinite(value)) return '0%'
+  return `${Math.round(value * 10) / 10}%`
+}
+
+function sumJourneys(items: JourneyDoc[], predicate: (item: JourneyDoc) => boolean): number {
+  return items.reduce((total, item) => {
+    if (!predicate(item)) return total
+    const count = Number(item?.count || 0)
+    return total + (Number.isFinite(count) ? count : 0)
+  }, 0)
 }
 
 function AdminDashboardShell({ children }: { children: ReactNode }) {
@@ -188,19 +210,31 @@ export default function EditorialDashboard() {
   const [draftResult] = usePayloadAPI('/api/blog-posts?limit=5&sort=-updatedAt&where[_status][equals]=draft')
   const [projectResult] = usePayloadAPI('/api/projects?limit=4&sort=-updatedAt')
   const [inquiryResult] = usePayloadAPI('/api/phone-requests?limit=1&sort=-updatedAt')
+  const [journeyResult] = usePayloadAPI('/api/journey-analytics?limit=12&sort=-count')
 
   const notesData = (notesResult?.data || {}) as QueryData<NoteDoc>
   const draftsData = (draftResult?.data || {}) as QueryData<NoteDoc>
   const projectsData = (projectResult?.data || {}) as QueryData<ProjectDoc>
+  const journeyData = (journeyResult?.data || {}) as QueryData<JourneyDoc>
 
   const notes = useMemo<NoteDoc[]>(() => notesData.docs || [], [notesData])
   const drafts = useMemo<NoteDoc[]>(() => draftsData.docs || [], [draftsData])
   const projects = useMemo<ProjectDoc[]>(() => projectsData.docs || [], [projectsData])
+  const journeys = useMemo<JourneyDoc[]>(() => journeyData.docs || [], [journeyData])
 
   const noteCount = countTotal<NoteDoc>(notesResult)
   const draftCount = countTotal<NoteDoc>(draftResult)
   const projectCount = countTotal<ProjectDoc>(projectResult)
   const inquiryCount = countTotal<InquiryDoc>(inquiryResult)
+
+  const homepageToProject = sumJourneys(
+    journeys,
+    (item) => item.sourcePath === '/' && (item.journeyType === 'project-live' || item.journeyType === 'case-study' || item.journeyType === 'repo'),
+  )
+  const blogToContact = sumJourneys(journeys, (item) => String(item.sourcePath || '').startsWith('/blog') && item.journeyType === 'contact')
+  const caseStudyToRepo = sumJourneys(journeys, (item) => item.journeyType === 'repo')
+  const totalTrackedJourneys = journeys.reduce((total, item) => total + Number(item.count || 0), 0)
+  const conversionBase = Math.max(totalTrackedJourneys, 1)
 
   return (
     <AdminDashboardShell>
@@ -297,6 +331,44 @@ export default function EditorialDashboard() {
                 ctaLabel="Create draft"
                 description="Start a new draft to continue your publishing workflow."
                 title="No drafts in progress."
+              />
+            )}
+          </SectionCard>
+
+          <SectionCard actionHref="/admin/collections/journey-analytics" actionLabel="View All" title="Visitor Journey Funnels">
+            <div className="grid grid-cols-1 gap-2">
+              <article className="rounded-xl border border-zinc-900 bg-row px-3 py-2">
+                <p className="text-xs uppercase tracking-editorial text-zinc-500">Homepage → Project Interest</p>
+                <p className="mt-1 text-lg font-semibold text-zinc-100">{homepageToProject}</p>
+              </article>
+              <article className="rounded-xl border border-zinc-900 bg-row px-3 py-2">
+                <p className="text-xs uppercase tracking-editorial text-zinc-500">Blog → Contact Intent</p>
+                <p className="mt-1 text-lg font-semibold text-zinc-100">{blogToContact}</p>
+              </article>
+              <article className="rounded-xl border border-zinc-900 bg-row px-3 py-2">
+                <p className="text-xs uppercase tracking-editorial text-zinc-500">Case Study / Portfolio → Repo</p>
+                <p className="mt-1 text-lg font-semibold text-zinc-100">{caseStudyToRepo}</p>
+                <p className="mt-1 text-xs text-zinc-500">{formatRate((caseStudyToRepo / conversionBase) * 100)} of tracked journeys</p>
+              </article>
+            </div>
+
+            {journeys.length ? (
+              <div className="grid grid-cols-1 gap-2">
+                {journeys.slice(0, 5).map((journey) => (
+                  <div className="rounded-xl border border-zinc-900 bg-row px-3 py-2" key={journey.id || `${journey.sourcePath}-${journey.targetPath}-${journey.journeyType}`}>
+                    <p className="text-sm text-zinc-200">
+                      {journey.sourcePath || 'Unknown'} → {journey.targetPath || 'Unknown'}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {journey.journeyType || 'navigation'} · {Number(journey.count || 0)} events
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                description="Journey tracking starts populating after visitors click internal and outbound links."
+                title="No journey events yet."
               />
             )}
           </SectionCard>

@@ -40,6 +40,7 @@ describe('shouldProtectRequest', () => {
   it('keeps explicitly public write endpoints open', () => {
     expect(shouldProtectRequest('/api/phone-requests', 'POST')).toBe(false)
     expect(shouldProtectRequest('/api/blog/analytics', 'POST')).toBe(false)
+    expect(shouldProtectRequest('/api/journey/analytics', 'POST')).toBe(false)
   })
 
   it('protects non-whitelisted methods on public paths', () => {

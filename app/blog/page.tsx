@@ -90,6 +90,14 @@ export default async function BlogArchivePage() {
           ← Back to Portfolio
         </Link>
       </header>
+      {posts.length ? (
+        <ArchiveFilters posts={posts} />
+      ) : (
+        <section className="card reveal">
+          <p className="empty-state">No posts yet. Publish your first technical note from Payload admin.</p>
+        </section>
+      )}
+
       {home?.blogCta?.enabled !== false ? (
         <BlogSubscribeCard
           description={home?.blogCta?.description}
@@ -98,14 +106,6 @@ export default async function BlogArchivePage() {
           title={home?.blogCta?.title}
         />
       ) : null}
-
-      {posts.length ? (
-        <ArchiveFilters posts={posts} />
-      ) : (
-        <section className="card reveal">
-          <p className="empty-state">No posts yet. Publish your first technical note from Payload admin.</p>
-        </section>
-      )}
     </main>
   )
 }
