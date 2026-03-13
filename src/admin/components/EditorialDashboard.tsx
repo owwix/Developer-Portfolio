@@ -71,6 +71,59 @@ function formatDate(value?: string): string {
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
+function toTitleCase(value: string): string {
+  return value
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function truncateLabel(value: string, maxLength = 48): string {
+  if (value.length <= maxLength) return value
+  return `${value.slice(0, maxLength - 1)}…`
+}
+
+function formatPathLabel(path?: string): string {
+  const raw = String(path || '').trim()
+  if (!raw) return 'Unknown'
+  if (raw === '/') return 'Home'
+  if (raw === '/blog') return 'Blog'
+  if (raw === '/reach-by-phone') return 'Reach by Phone'
+  if (raw === '/open-source') return 'Open Source'
+  if (raw === '/now') return 'Now'
+  if (raw.startsWith('external:')) {
+    const externalTarget = raw.replace(/^external:/, '')
+    return `External: ${truncateLabel(externalTarget, 42)}`
+  }
+  if (raw === 'mailto') return 'Email Link'
+  if (raw === 'tel') return 'Phone Link'
+  if (raw.startsWith('/blog/')) {
+    const slug = raw.replace('/blog/', '').split('/')[0] || ''
+    const title = toTitleCase(slug.replace(/[-_]+/g, ' '))
+    return `Blog: ${truncateLabel(title, 38)}`
+  }
+  if (raw.startsWith('/')) {
+    const cleaned = toTitleCase(raw.replace(/^\//, '').replace(/[-_/]+/g, ' '))
+    return truncateLabel(cleaned || raw, 48)
+  }
+  return truncateLabel(raw, 48)
+}
+
+function formatJourneyTypeLabel(value?: string): string {
+  const normalized = String(value || 'navigation').trim().toLowerCase()
+  const labels: Record<string, string> = {
+    navigation: 'Navigation',
+    outbound: 'Outbound',
+    contact: 'Contact',
+    'blog-open': 'Blog Open',
+    repo: 'Repo',
+    'project-live': 'Live Project',
+    'case-study': 'Case Study',
+  }
+  return labels[normalized] || toTitleCase(normalized.replace(/[-_]+/g, ' '))
+}
+
 function countTotal<T>(result: unknown): number {
   const data = (result as { data?: QueryData<T> } | undefined)?.data
   return Number(data?.totalDocs ?? data?.docs?.length ?? 0)
@@ -357,10 +410,10 @@ export default function EditorialDashboard() {
                 {journeys.slice(0, 5).map((journey) => (
                   <div className="rounded-xl border border-zinc-900 bg-row px-3 py-2" key={journey.id || `${journey.sourcePath}-${journey.targetPath}-${journey.journeyType}`}>
                     <p className="text-sm text-zinc-200">
-                      {journey.sourcePath || 'Unknown'} → {journey.targetPath || 'Unknown'}
+                      {formatPathLabel(journey.sourcePath)} → {formatPathLabel(journey.targetPath)}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
-                      {journey.journeyType || 'navigation'} · {Number(journey.count || 0)} events
+                      {formatJourneyTypeLabel(journey.journeyType)} · {Number(journey.count || 0)} events
                     </p>
                   </div>
                 ))}
