@@ -64,12 +64,23 @@ export const Projects: CollectionConfig = {
     {
       name: 'projectImages',
       label: 'Project Images',
-      type: 'relationship',
-      relationTo: 'media',
-      hasMany: true,
+      type: 'array',
+      labels: {
+        singular: 'Project Image',
+        plural: 'Project Images',
+      },
+      fields: [
+        {
+          name: 'image',
+          label: 'Image',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+        },
+      ],
       admin: {
         position: 'sidebar',
-        description: 'Optional gallery shown on the project card with left and right navigation.',
+        description: 'Optional gallery shown on the project card with left and right navigation. Order controls display order.',
       },
     },
     {

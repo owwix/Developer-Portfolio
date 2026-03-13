@@ -31,7 +31,13 @@ type ProjectRow = {
   projectImage?:
     | string
     | ProjectImage
-  projectImages?: Array<string | ProjectImage>
+  projectImages?: Array<
+    | string
+    | ProjectImage
+    | {
+        image?: string | ProjectImage
+      }
+  >
 }
 
 type PaginatedProjectsProps = {
@@ -63,10 +69,17 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
 
   const getProjectImages = (project: ProjectRow): ProjectImage[] => {
     const galleryImages = Array.isArray(project.projectImages)
-      ? project.projectImages.filter((image): image is ProjectImage => {
-          if (!image || typeof image === 'string') return false
-          return Boolean(getImageUrl(image))
-        })
+      ? project.projectImages
+          .map<ProjectImage | null>((entry) => {
+            if (!entry || typeof entry === 'string') return null
+            if ('image' in entry) {
+              const nestedImage = entry.image
+              if (!nestedImage || typeof nestedImage === 'string') return null
+              return nestedImage
+            }
+            return entry as ProjectImage
+          })
+          .filter((image): image is ProjectImage => Boolean(getImageUrl(image)))
       : []
 
     if (galleryImages.length > 0) return galleryImages

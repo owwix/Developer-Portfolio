@@ -118,7 +118,13 @@ type ProjectRow = {
         title?: string
       }
   projectImage?: string | ProjectImage
-  projectImages?: Array<string | ProjectImage>
+  projectImages?: Array<
+    | string
+    | ProjectImage
+    | {
+        image?: string | ProjectImage
+      }
+  >
 }
 
 type NowData = {
