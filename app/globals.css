@@ -303,6 +303,47 @@ p {
   margin-top: 0.9rem;
 }
 
+.resume-mode-banner {
+  margin-top: 0.1rem;
+  border: 1px solid #353a42;
+  border-radius: 10px;
+  background: linear-gradient(160deg, rgba(18, 21, 28, 0.92), rgba(12, 14, 19, 0.9));
+  padding: 0.58rem 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.resume-mode-banner.is-active {
+  border-color: #4b5c75;
+}
+
+.resume-mode-text {
+  margin: 0;
+  color: #d5deeb;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.resume-mode-action {
+  flex-shrink: 0;
+  text-decoration: none;
+  border: 1px solid #50607a;
+  border-radius: 10px;
+  background: #eff4ff;
+  color: #132030;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.79rem;
+  line-height: 1.2;
+  padding: 0.5rem 0.72rem;
+}
+
+.resume-mode-action:hover {
+  border-color: #7b93b5;
+}
+
 .links a,
 .pill,
 .pill-link {
@@ -390,6 +431,29 @@ p {
   margin-bottom: 0.6rem;
   background: #060606;
   display: block;
+}
+
+.project-image-shell {
+  margin-bottom: 0.6rem;
+}
+
+.project-image-controls {
+  margin-top: 0.42rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.project-image-btn {
+  min-width: 4.2rem;
+}
+
+.project-image-status {
+  margin: 0;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
 }
 
 .item p {
@@ -2107,6 +2171,25 @@ html[data-theme='light'] .item {
   border-color: #d4dce6;
 }
 
+html[data-theme='light'] .resume-mode-banner {
+  border-color: #c8d6e5;
+  background: linear-gradient(160deg, #eaf2fb, #e4edf8);
+}
+
+html[data-theme='light'] .resume-mode-banner.is-active {
+  border-color: #96b0cf;
+}
+
+html[data-theme='light'] .resume-mode-text {
+  color: #25364a;
+}
+
+html[data-theme='light'] .resume-mode-action {
+  background: #ffffff;
+  border-color: #b4c5d8;
+  color: #1a2a3d;
+}
+
 html[data-theme='light'] .project-item-image,
 html[data-theme='light'] .blog-card-image,
 html[data-theme='light'] .post-cover {
@@ -2528,6 +2611,11 @@ html[data-theme='light'] .form-error {
 
   .hero-copy {
     max-width: 100%;
+  }
+
+  .resume-mode-banner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .section-context {

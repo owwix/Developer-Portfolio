@@ -62,6 +62,17 @@ export const Projects: CollectionConfig = {
       },
     },
     {
+      name: 'projectImages',
+      label: 'Project Images',
+      type: 'relationship',
+      relationTo: 'media',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Optional gallery shown on the project card with left and right navigation.',
+      },
+    },
+    {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,

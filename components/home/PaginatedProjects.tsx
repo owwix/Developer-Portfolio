@@ -4,6 +4,16 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import RichTextContent from '../ui/RichTextContent'
 
+type ProjectImage = {
+  url?: string
+  alt?: string
+  sizes?: {
+    avatar?: {
+      url?: string
+    }
+  }
+}
+
 type ProjectRow = {
   id?: string
   slug?: string
@@ -20,15 +30,8 @@ type ProjectRow = {
       }
   projectImage?:
     | string
-    | {
-        url?: string
-        alt?: string
-        sizes?: {
-          avatar?: {
-            url?: string
-          }
-        }
-      }
+    | ProjectImage
+  projectImages?: Array<string | ProjectImage>
 }
 
 type PaginatedProjectsProps = {
@@ -38,6 +41,7 @@ type PaginatedProjectsProps = {
 
 export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedProjectsProps) {
   const [page, setPage] = useState(1)
+  const [imageIndices, setImageIndices] = useState<Record<string, number>>({})
   const totalPages = Math.max(1, Math.ceil(projects.length / pageSize))
   const currentPage = Math.min(page, totalPages)
 
@@ -50,18 +54,49 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
     return <p className="empty-state">No projects yet.</p>
   }
 
-  const getProjectImage = (project: ProjectRow): string => {
-    if (!project.projectImage || typeof project.projectImage === 'string') {
-      return ''
-    }
-    return project.projectImage.url || project.projectImage.sizes?.avatar?.url || ''
+  const getProjectKey = (project: ProjectRow): string => project.id || project.slug || project.title || 'project'
+
+  const getImageUrl = (image?: ProjectImage | null): string => {
+    if (!image) return ''
+    return image.url || image.sizes?.avatar?.url || ''
   }
 
-  const getProjectImageAlt = (project: ProjectRow): string => {
+  const getProjectImages = (project: ProjectRow): ProjectImage[] => {
+    const galleryImages = Array.isArray(project.projectImages)
+      ? project.projectImages.filter((image): image is ProjectImage => {
+          if (!image || typeof image === 'string') return false
+          return Boolean(getImageUrl(image))
+        })
+      : []
+
+    if (galleryImages.length > 0) return galleryImages
+
     if (!project.projectImage || typeof project.projectImage === 'string') {
-      return `${project.title || 'Project'} cover image`
+      return []
     }
-    return project.projectImage.alt || `${project.title || 'Project'} cover image`
+
+    return getImageUrl(project.projectImage) ? [project.projectImage] : []
+  }
+
+  const getProjectImageAlt = (project: ProjectRow, image?: ProjectImage): string => {
+    if (!image) return `${project.title || 'Project'} cover image`
+    return image.alt || `${project.title || 'Project'} cover image`
+  }
+
+  const getActiveImageIndex = (project: ProjectRow, imageCount: number): number => {
+    if (imageCount <= 1) return 0
+    const index = imageIndices[getProjectKey(project)] || 0
+    return Math.min(Math.max(index, 0), imageCount - 1)
+  }
+
+  const moveProjectImage = (project: ProjectRow, imageCount: number, direction: 1 | -1): void => {
+    if (imageCount <= 1) return
+    const key = getProjectKey(project)
+    setImageIndices((prev) => {
+      const current = prev[key] || 0
+      const next = (current + direction + imageCount) % imageCount
+      return { ...prev, [key]: next }
+    })
   }
 
   const getCaseStudy = (project: ProjectRow): { href: string; external: boolean } | null => {
@@ -81,28 +116,59 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
     <>
       <div className="stack">
         {paginatedProjects.map((project) => (
-          <article className="item" key={project.id || project.slug || project.title}>
+          <article className="item" key={getProjectKey(project)}>
             {(() => {
               const caseStudy = getCaseStudy(project)
-              if (!caseStudy || !getProjectImage(project)) return null
+              const images = getProjectImages(project)
+              if (!images.length) return null
 
-              if (caseStudy.external) {
-                return (
+              const activeIndex = getActiveImageIndex(project, images.length)
+              const activeImage = images[activeIndex]
+              const imageElement = (
+                <img alt={getProjectImageAlt(project, activeImage)} className="project-item-image" src={getImageUrl(activeImage)} />
+              )
+
+              const imageContent = caseStudy ? (
+                caseStudy.external ? (
                   <a href={caseStudy.href} rel="noreferrer" target="_blank">
-                    <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
+                    {imageElement}
                   </a>
+                ) : (
+                  <Link href={caseStudy.href}>{imageElement}</Link>
                 )
-              }
+              ) : (
+                imageElement
+              )
 
               return (
-                <Link href={caseStudy.href}>
-                  <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
-                </Link>
+                <div className="project-image-shell">
+                  {imageContent}
+                  {images.length > 1 ? (
+                    <div className="project-image-controls">
+                      <button
+                        aria-label={`Show previous image for ${project.title || 'project'}`}
+                        className="pagination-btn project-image-btn"
+                        onClick={() => moveProjectImage(project, images.length, -1)}
+                        type="button"
+                      >
+                        Left
+                      </button>
+                      <span className="project-image-status">
+                        {activeIndex + 1} / {images.length}
+                      </span>
+                      <button
+                        aria-label={`Show next image for ${project.title || 'project'}`}
+                        className="pagination-btn project-image-btn"
+                        onClick={() => moveProjectImage(project, images.length, 1)}
+                        type="button"
+                      >
+                        Right
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               )
             })()}
-            {getProjectImage(project) ? (
-              getCaseStudy(project) ? null : <img alt={getProjectImageAlt(project)} className="project-item-image" src={getProjectImage(project)} />
-            ) : null}
             <h3>{project.title || 'Untitled Project'}</h3>
             <RichTextContent className="rich-text-content summary-richtext" fallback="No summary available." value={project.summary} />
             <div className="meta">

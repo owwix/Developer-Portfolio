@@ -97,6 +97,64 @@ export const Home: GlobalConfig = {
       },
     },
     {
+      name: 'resumeSectionVisibility',
+      label: 'Resume Section Visibility',
+      type: 'group',
+      fields: [
+        {
+          name: 'projects',
+          label: 'Show Projects',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'skills',
+          label: 'Show Skills',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'openSource',
+          label: 'Show Open Source',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        {
+          name: 'nowPreview',
+          label: 'Show Now Preview',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        {
+          name: 'githubSnapshot',
+          label: 'Show GitHub Snapshot',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        {
+          name: 'trustBlock',
+          label: 'Show Trust Block',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        {
+          name: 'experience',
+          label: 'Show Experience',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'blog',
+          label: 'Show Blog',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+      ],
+      admin: {
+        description: 'Controls sections when visiting resume mode via ?mode=resume or ?view=resume.',
+      },
+    },
+    {
       name: 'githubSnapshot',
       label: 'GitHub Snapshot',
       type: 'group',

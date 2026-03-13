@@ -14,20 +14,23 @@ import { sortByDisplayOrder } from '../src/utils/order'
 
 export const dynamic = 'force-dynamic'
 
+type SectionVisibility = {
+  projects?: boolean
+  skills?: boolean
+  openSource?: boolean
+  nowPreview?: boolean
+  githubSnapshot?: boolean
+  trustBlock?: boolean
+  experience?: boolean
+  blog?: boolean
+}
+
 type HomeData = {
   name?: string
   headline?: string
   openSourceSubtitle?: string
-  sectionVisibility?: {
-    projects?: boolean
-    skills?: boolean
-    openSource?: boolean
-    nowPreview?: boolean
-    githubSnapshot?: boolean
-    trustBlock?: boolean
-    experience?: boolean
-    blog?: boolean
-  }
+  sectionVisibility?: SectionVisibility
+  resumeSectionVisibility?: SectionVisibility
   bio?: unknown
   email?: string
   githubSnapshot?: {
@@ -88,6 +91,16 @@ type ExperienceRow = {
   endDate?: string
 }
 
+type ProjectImage = {
+  url?: string
+  alt?: string
+  sizes?: {
+    avatar?: {
+      url?: string
+    }
+  }
+}
+
 type ProjectRow = {
   id?: string
   displayOrder?: number
@@ -103,17 +116,8 @@ type ProjectRow = {
         slug?: string
         title?: string
       }
-  projectImage?:
-    | string
-    | {
-        url?: string
-        alt?: string
-        sizes?: {
-          avatar?: {
-            url?: string
-          }
-        }
-    }
+  projectImage?: string | ProjectImage
+  projectImages?: Array<string | ProjectImage>
 }
 
 type NowData = {
@@ -121,6 +125,12 @@ type NowData = {
   title?: string
   intro?: string
   updatedAt?: string
+}
+
+type HomePageProps = {
+  searchParams?:
+    | Promise<Record<string, string | string[] | undefined>>
+    | Record<string, string | string[] | undefined>
 }
 
 function inferSocialIcon(link: HomeLink): SocialIconType | null {
@@ -222,7 +232,16 @@ function SocialLinkIcon({ type }: { type: SocialIconType }) {
   )
 }
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = await Promise.resolve(searchParams || {})
+  const modeParam = Array.isArray(resolvedSearchParams.mode) ? resolvedSearchParams.mode[0] : resolvedSearchParams.mode
+  const viewParam = Array.isArray(resolvedSearchParams.view) ? resolvedSearchParams.view[0] : resolvedSearchParams.view
+  const resumeParam = Array.isArray(resolvedSearchParams.resume) ? resolvedSearchParams.resume[0] : resolvedSearchParams.resume
+  const isResumeMode =
+    String(modeParam || '').toLowerCase() === 'resume' ||
+    String(viewParam || '').toLowerCase() === 'resume' ||
+    ['1', 'true', 'yes'].includes(String(resumeParam || '').toLowerCase())
+
   let home: HomeData | null = null
   let projects: ProjectRow[] = []
   let skills: SkillRow[] = []
@@ -280,7 +299,7 @@ export default async function HomePage() {
     .find(Boolean)
   const githubUsername = String(home?.githubSnapshot?.username || githubFromLinks || '').trim()
   const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
-  const sectionVisibility = home?.sectionVisibility || {}
+  const sectionVisibility = isResumeMode ? home?.resumeSectionVisibility || home?.sectionVisibility || {} : home?.sectionVisibility || {}
   const showProjects = sectionVisibility.projects !== false
   const showSkills = sectionVisibility.skills !== false
   const showOpenSource = sectionVisibility.openSource !== false
@@ -290,6 +309,11 @@ export default async function HomePage() {
   const showExperience = sectionVisibility.experience !== false
   const showBlog = sectionVisibility.blog !== false
   const nowUpdated = formatNowDate(nowData?.updatedAt)
+  const resumeModeHref = isResumeMode ? '/' : '/?mode=resume'
+  const resumeModeActionLabel = isResumeMode ? 'Exit Resume Mode' : 'Enable Resume Mode'
+  const resumeModeText = isResumeMode
+    ? 'Resume mode is active. Sections shown here are controlled in Resume Section Visibility.'
+    : 'Need a quick recruiter-friendly view? Enable Resume mode.'
 
   return (
     <main className="container page-home">
@@ -315,6 +339,12 @@ export default async function HomePage() {
               .
             </p>
           </div>
+        </div>
+        <div className={`resume-mode-banner${isResumeMode ? ' is-active' : ''}`}>
+          <p className="resume-mode-text">{resumeModeText}</p>
+          <Link className="resume-mode-action" href={resumeModeHref}>
+            {resumeModeActionLabel}
+          </Link>
         </div>
         <div className="links">
           {home?.email ? (
