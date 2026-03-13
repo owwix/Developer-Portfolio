@@ -307,13 +307,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
   const sectionVisibility = isResumeMode ? home?.resumeSectionVisibility || home?.sectionVisibility || {} : home?.sectionVisibility || {}
   const showProjects = sectionVisibility.projects !== false
-  const showSkills = sectionVisibility.skills !== false && !isResumeMode
-  const showOpenSource = sectionVisibility.openSource !== false && !isResumeMode
-  const showNowPreview = sectionVisibility.nowPreview !== false && !isResumeMode
+  const showSkills = sectionVisibility.skills !== false
+  const showOpenSource = sectionVisibility.openSource !== false
+  const showNowPreview = sectionVisibility.nowPreview !== false
   const showTrustBlock = sectionVisibility.trustBlock !== false && home?.trustBlock?.enabled !== false
-  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername) && !isResumeMode
+  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
   const showExperience = sectionVisibility.experience !== false
-  const showBlog = sectionVisibility.blog !== false && !isResumeMode
+  const showBlog = sectionVisibility.blog !== false
   const nowUpdated = formatNowDate(nowData?.updatedAt)
 
   return (
