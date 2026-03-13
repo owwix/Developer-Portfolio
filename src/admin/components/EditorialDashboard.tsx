@@ -5,6 +5,7 @@ import { siteConfig } from '../../utils/siteConfig'
 type NoteDoc = {
   id?: string
   title?: string
+  slug?: string
   updatedAt?: string
   _status?: 'draft' | 'published'
   isComingSoon?: boolean
@@ -84,7 +85,7 @@ function truncateLabel(value: string, maxLength = 48): string {
   return `${value.slice(0, maxLength - 1)}…`
 }
 
-function formatPathLabel(path?: string): string {
+function formatPathLabel(path?: string, blogTitleBySlug?: Record<string, string>): string {
   const raw = String(path || '').trim()
   if (!raw) return 'Unknown'
   if (raw === '/') return 'Home'
@@ -100,6 +101,10 @@ function formatPathLabel(path?: string): string {
   if (raw === 'tel') return 'Phone Link'
   if (raw.startsWith('/blog/')) {
     const slug = raw.replace('/blog/', '').split('/')[0] || ''
+    const mappedTitle = slug ? blogTitleBySlug?.[slug] : ''
+    if (mappedTitle) {
+      return `Blog: ${truncateLabel(mappedTitle, 38)}`
+    }
     const title = toTitleCase(slug.replace(/[-_]+/g, ' '))
     return `Blog: ${truncateLabel(title, 38)}`
   }
@@ -260,20 +265,34 @@ function QuickActionGrid({ primaryAction, secondaryActions }: { primaryAction: A
 
 export default function EditorialDashboard() {
   const [notesResult] = usePayloadAPI('/api/blog-posts?limit=5&sort=-updatedAt')
+  const [allNotesResult] = usePayloadAPI('/api/blog-posts?limit=250&sort=-updatedAt')
   const [draftResult] = usePayloadAPI('/api/blog-posts?limit=5&sort=-updatedAt&where[_status][equals]=draft')
   const [projectResult] = usePayloadAPI('/api/projects?limit=4&sort=-updatedAt')
   const [inquiryResult] = usePayloadAPI('/api/phone-requests?limit=1&sort=-updatedAt')
   const [journeyResult] = usePayloadAPI('/api/journey-analytics?limit=12&sort=-count')
 
   const notesData = (notesResult?.data || {}) as QueryData<NoteDoc>
+  const allNotesData = (allNotesResult?.data || {}) as QueryData<NoteDoc>
   const draftsData = (draftResult?.data || {}) as QueryData<NoteDoc>
   const projectsData = (projectResult?.data || {}) as QueryData<ProjectDoc>
   const journeyData = (journeyResult?.data || {}) as QueryData<JourneyDoc>
 
   const notes = useMemo<NoteDoc[]>(() => notesData.docs || [], [notesData])
+  const allNotes = useMemo<NoteDoc[]>(() => allNotesData.docs || [], [allNotesData])
   const drafts = useMemo<NoteDoc[]>(() => draftsData.docs || [], [draftsData])
   const projects = useMemo<ProjectDoc[]>(() => projectsData.docs || [], [projectsData])
   const journeys = useMemo<JourneyDoc[]>(() => journeyData.docs || [], [journeyData])
+  const blogTitleBySlug = useMemo<Record<string, string>>(
+    () =>
+      allNotes.reduce<Record<string, string>>((acc, note) => {
+        const slug = String(note?.slug || '').trim()
+        const title = String(note?.title || '').trim()
+        if (!slug || !title) return acc
+        acc[slug] = title
+        return acc
+      }, {}),
+    [allNotes],
+  )
 
   const noteCount = countTotal<NoteDoc>(notesResult)
   const draftCount = countTotal<NoteDoc>(draftResult)
@@ -410,7 +429,7 @@ export default function EditorialDashboard() {
                 {journeys.slice(0, 5).map((journey) => (
                   <div className="rounded-xl border border-zinc-900 bg-row px-3 py-2" key={journey.id || `${journey.sourcePath}-${journey.targetPath}-${journey.journeyType}`}>
                     <p className="text-sm text-zinc-200">
-                      {formatPathLabel(journey.sourcePath)} → {formatPathLabel(journey.targetPath)}
+                      {formatPathLabel(journey.sourcePath, blogTitleBySlug)} → {formatPathLabel(journey.targetPath, blogTitleBySlug)}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
                       {formatJourneyTypeLabel(journey.journeyType)} · {Number(journey.count || 0)} events
