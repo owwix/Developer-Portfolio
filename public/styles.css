@@ -266,6 +266,16 @@ h2 {
   color: var(--ink-soft);
 }
 
+.summary-list {
+  margin: 0.55rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--ink-soft);
+}
+
+.summary-list li + li {
+  margin-top: 0.3rem;
+}
+
 .project-image {
   width: 100%;
   max-height: none;

@@ -61,7 +61,6 @@ export const Education: CollectionConfig = {
     {
       name: 'startDate',
       type: 'date',
-      required: true,
     },
     {
       name: 'endDate',

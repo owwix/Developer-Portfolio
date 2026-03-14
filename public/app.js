@@ -121,6 +121,25 @@ const formatDate = (value) => {
   return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
 };
 
+const extractRichTextPlainText = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value.trim();
+  if (!Array.isArray(value)) return "";
+
+  const visit = (node) => {
+    if (!node) return "";
+    if (typeof node.text === "string") return node.text;
+    if (!Array.isArray(node.children)) return "";
+    return node.children.map(visit).join(" ");
+  };
+
+  return value
+    .map(visit)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
 const fetchJSON = async (path) => {
   const res = await fetch(path);
   if (!res.ok) {
@@ -484,6 +503,41 @@ const renderExperiences = (docs) => {
   }
 };
 
+const renderEducation = (docs) => {
+  const wrap = byId("education");
+  wrap.innerHTML = "";
+  if (!docs.length) return setEmpty(wrap);
+
+  const sorted = [...docs].sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
+  for (const entry of sorted) {
+    const card = document.createElement("article");
+    card.className = "item";
+    const degreeLine = [entry.degree, entry.fieldOfStudy].filter(Boolean).join(", ");
+    const start = formatDate(entry.startDate);
+    const end = entry.current ? "Present" : formatDate(entry.endDate);
+    const summary = extractRichTextPlainText(entry.summary);
+    const highlights = Array.isArray(entry.highlights)
+      ? entry.highlights.map((item) => item?.highlight).filter(Boolean)
+      : [];
+
+    card.innerHTML = `
+      <h3>${degreeLine || "Education"} ${entry.institution ? `- ${entry.institution}` : ""}</h3>
+      ${summary ? `<p>${summary}</p>` : ""}
+      ${
+        highlights.length
+          ? `<ul class="summary-list">${highlights.map((highlight) => `<li>${highlight}</li>`).join("")}</ul>`
+          : ""
+      }
+      <div class="meta">
+        ${start ? `<span class="badge">${start}${end ? ` - ${end}` : ""}</span>` : end ? `<span class="badge">${end}</span>` : ""}
+        ${entry.location ? `<span class="badge">${entry.location}</span>` : ""}
+        ${entry.current ? '<span class="badge featured">Current</span>' : ""}
+      </div>
+    `;
+    wrap.appendChild(card);
+  }
+};
+
 const renderBlogs = (docs) => {
   const wrap = byId("blogs");
   wrap.innerHTML = "";
@@ -578,11 +632,12 @@ const renderBlogs = (docs) => {
 const init = async () => {
   initNetworkBackground();
   try {
-    const [home, projects, skills, experiences, blogs] = await Promise.all([
+    const [home, projects, skills, experiences, education, blogs] = await Promise.all([
       fetchJSON("/api/globals/home?depth=2"),
       fetchJSON("/api/projects?depth=2&limit=24&sort=-startDate"),
       fetchJSON("/api/skills?limit=60"),
       fetchJSON("/api/experiences?limit=24&sort=-startDate"),
+      fetchJSON("/api/education?limit=24&sort=-startDate"),
       fetchJSON("/api/blog-posts?depth=2&limit=30&sort=-publishedDate"),
     ]);
 
@@ -590,6 +645,7 @@ const init = async () => {
     renderProjects(projects.docs || []);
     renderSkills(skills.docs || []);
     renderExperiences(experiences.docs || []);
+    renderEducation(education.docs || []);
     renderBlogs(blogs.docs || []);
   } catch (err) {
     byId("name").textContent = "Could not load content";
