@@ -155,6 +155,10 @@ type HomePageProps = {
     | Record<string, string | string[] | undefined>
 }
 
+function logHomepageFetchError(label: string, error: unknown): void {
+  console.error(`[homepage] Failed to load ${label}`, error)
+}
+
 function inferSocialIcon(link: HomeLink): SocialIconType | null {
   const icon = String(link?.icon || '').toLowerCase()
   if (icon === 'linkedin' || icon === 'github' || icon === 'email' || icon === 'phone') return icon
@@ -280,8 +284,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   let openSource: OpenSourceResource[] = defaultOpenSourceResources
   let nowData: NowData | null = null
 
-  try {
-    const [homeRes, projectsRes, skillsRes, expRes, educationRes, blogRes, openSourceRes] = await Promise.all([
+  const [homeResult, projectsResult, skillsResult, experiencesResult, educationResult, blogResult, openSourceResult] =
+    await Promise.allSettled([
       fetchHome<HomeData>(),
       fetchProjects<{ docs?: ProjectRow[] }>(100),
       fetchSkills<{ docs?: SkillRow[] }>(100),
@@ -291,16 +295,47 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       fetchOpenSourceResources<{ docs?: OpenSourceResourceRow[] }>(200),
     ])
 
-    home = homeRes
-    projects = sortByDisplayOrder(projectsRes?.docs || [])
-    skills = sortByDisplayOrder(skillsRes?.docs || [])
-    experiences = sortByDisplayOrder(expRes?.docs || [])
-    education = sortByDisplayOrder(educationRes?.docs || [])
-    blogs = sortByDisplayOrder(blogRes?.docs || []).slice(0, 3)
-    const fromCMS = normalizeOpenSourceResources(openSourceRes?.docs || [])
+  if (homeResult.status === 'fulfilled') {
+    home = homeResult.value
+  } else {
+    logHomepageFetchError('home', homeResult.reason)
+  }
+
+  if (projectsResult.status === 'fulfilled') {
+    projects = sortByDisplayOrder(projectsResult.value?.docs || [])
+  } else {
+    logHomepageFetchError('projects', projectsResult.reason)
+  }
+
+  if (skillsResult.status === 'fulfilled') {
+    skills = sortByDisplayOrder(skillsResult.value?.docs || [])
+  } else {
+    logHomepageFetchError('skills', skillsResult.reason)
+  }
+
+  if (experiencesResult.status === 'fulfilled') {
+    experiences = sortByDisplayOrder(experiencesResult.value?.docs || [])
+  } else {
+    logHomepageFetchError('experiences', experiencesResult.reason)
+  }
+
+  if (educationResult.status === 'fulfilled') {
+    education = sortByDisplayOrder(educationResult.value?.docs || [])
+  } else {
+    logHomepageFetchError('education', educationResult.reason)
+  }
+
+  if (blogResult.status === 'fulfilled') {
+    blogs = sortByDisplayOrder(blogResult.value?.docs || []).slice(0, 3)
+  } else {
+    logHomepageFetchError('blog posts', blogResult.reason)
+  }
+
+  if (openSourceResult.status === 'fulfilled') {
+    const fromCMS = normalizeOpenSourceResources(openSourceResult.value?.docs || [])
     if (fromCMS.length) openSource = fromCMS
-  } catch (error) {
-    console.error(error)
+  } else {
+    logHomepageFetchError('open source resources', openSourceResult.reason)
   }
 
   try {

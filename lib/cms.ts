@@ -1,5 +1,5 @@
 const LOCAL_BASE_URL = `http://127.0.0.1:${process.env.PORT || 3000}`
-const BASE_URL = process.env.PAYLOAD_INTERNAL_SERVER_URL || LOCAL_BASE_URL
+const BASE_URL = process.env.PAYLOAD_INTERNAL_SERVER_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || LOCAL_BASE_URL
 
 const normalizeBase = (url: string): string => String(url || '').replace(/\/$/, '')
 
