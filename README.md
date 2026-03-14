@@ -35,6 +35,7 @@ For a release checklist, see `TEMPLATE_CHECKLIST.md`.
   - `projects`
   - `skills`
   - `experiences`
+  - `education`
 - A global document for homepage content:
   - `home`
 - Auth-enabled `users` collection for admin login
@@ -75,6 +76,7 @@ For a release checklist, see `TEMPLATE_CHECKLIST.md`.
 - Use `projects` to manage portfolio project cards and details.
 - Use `skills` for grouped technical skills and proficiency ratings.
 - Use `experiences` for timeline-based work history and impact bullets.
+- Use `education` for degrees, schools, dates, and academic highlights.
 
 ## Build and start
 

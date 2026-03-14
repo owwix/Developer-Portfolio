@@ -8,6 +8,7 @@ import AdminLogo from './admin/components/AdminLogo'
 import EditorialDashboard from './admin/components/EditorialDashboard'
 import { BlogAnalytics } from './collections/BlogAnalytics'
 import { BlogPosts } from './collections/BlogPosts'
+import { Education } from './collections/Education'
 import { Experiences } from './collections/Experiences'
 import { JourneyAnalytics } from './collections/JourneyAnalytics'
 import { Media } from './collections/Media'
@@ -61,6 +62,7 @@ export default buildConfig({
     OpenSourceResources,
     Skills,
     Experiences,
+    Education,
     PhoneRequests,
     {
       slug: 'users',

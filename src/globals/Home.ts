@@ -86,6 +86,12 @@ export const Home: GlobalConfig = {
           defaultValue: true,
         },
         {
+          name: 'education',
+          label: 'Show Education',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
           name: 'blog',
           label: 'Show Blog',
           type: 'checkbox',
@@ -140,6 +146,12 @@ export const Home: GlobalConfig = {
         {
           name: 'experience',
           label: 'Show Experience',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'education',
+          label: 'Show Education',
           type: 'checkbox',
           defaultValue: true,
         },

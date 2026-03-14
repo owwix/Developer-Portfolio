@@ -8,7 +8,7 @@ import TrustBlock from '../components/home/TrustBlock'
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
 import { type BlogPost } from '../lib/blog'
-import { fetchBlogPosts, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
+import { fetchBlogPosts, fetchEducation, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
 import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
@@ -23,6 +23,7 @@ type SectionVisibility = {
   githubSnapshot?: boolean
   trustBlock?: boolean
   experience?: boolean
+  education?: boolean
   blog?: boolean
 }
 
@@ -90,6 +91,20 @@ type ExperienceRow = {
   current?: boolean
   startDate?: string
   endDate?: string
+}
+
+type EducationRow = {
+  id?: string
+  displayOrder?: number
+  degree?: string
+  fieldOfStudy?: string
+  institution?: string
+  summary?: unknown
+  location?: string
+  current?: boolean
+  startDate?: string
+  endDate?: string
+  highlights?: Array<{ highlight?: string }>
 }
 
 type ProjectImage = {
@@ -183,6 +198,14 @@ function getExperienceDateRange(exp: ExperienceRow): string {
   return end ? `${start} - ${end}` : start
 }
 
+function getEducationDateRange(entry: EducationRow): string {
+  const start = formatExperienceDate(entry.startDate)
+  if (!start) return ''
+  if (entry.current) return `${start} - Present`
+  const end = formatExperienceDate(entry.endDate)
+  return end ? `${start} - ${end}` : start
+}
+
 function formatNowDate(value?: string): string {
   if (!value) return ''
   const date = new Date(value)
@@ -252,16 +275,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   let projects: ProjectRow[] = []
   let skills: SkillRow[] = []
   let experiences: ExperienceRow[] = []
+  let education: EducationRow[] = []
   let blogs: BlogPost[] = []
   let openSource: OpenSourceResource[] = defaultOpenSourceResources
   let nowData: NowData | null = null
 
   try {
-    const [homeRes, projectsRes, skillsRes, expRes, blogRes, openSourceRes] = await Promise.all([
+    const [homeRes, projectsRes, skillsRes, expRes, educationRes, blogRes, openSourceRes] = await Promise.all([
       fetchHome<HomeData>(),
       fetchProjects<{ docs?: ProjectRow[] }>(100),
       fetchSkills<{ docs?: SkillRow[] }>(100),
       fetchExperiences<{ docs?: ExperienceRow[] }>(6),
+      fetchEducation<{ docs?: EducationRow[] }>(6),
       fetchBlogPosts<{ docs?: BlogPost[] }>(40),
       fetchOpenSourceResources<{ docs?: OpenSourceResourceRow[] }>(200),
     ])
@@ -270,6 +295,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     projects = sortByDisplayOrder(projectsRes?.docs || [])
     skills = sortByDisplayOrder(skillsRes?.docs || [])
     experiences = sortByDisplayOrder(expRes?.docs || [])
+    education = sortByDisplayOrder(educationRes?.docs || [])
     blogs = sortByDisplayOrder(blogRes?.docs || []).slice(0, 3)
     const fromCMS = normalizeOpenSourceResources(openSourceRes?.docs || [])
     if (fromCMS.length) openSource = fromCMS
@@ -313,6 +339,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const showTrustBlock = sectionVisibility.trustBlock !== false && home?.trustBlock?.enabled !== false
   const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
   const showExperience = sectionVisibility.experience !== false
+  const showEducation = sectionVisibility.education !== false
   const showBlog = sectionVisibility.blog !== false
   const nowUpdated = formatNowDate(nowData?.updatedAt)
 
@@ -466,6 +493,45 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </div>
             ) : (
               <p className="empty-state">No experience entries yet.</p>
+            )}
+          </article>
+        ) : null}
+
+        {showEducation ? (
+          <article className="card reveal full">
+            <h2>Education</h2>
+            {education.length ? (
+              <div className="stack">
+                {education.map((entry) => {
+                  const dateRange = getEducationDateRange(entry)
+                  const degreeLine = [entry.degree, entry.fieldOfStudy].filter(Boolean).join(', ')
+
+                  return (
+                    <article className="item" key={entry.id || `${entry.institution}-${entry.degree}`}>
+                      <h3>
+                        {degreeLine || 'Education'} {entry.institution ? `- ${entry.institution}` : ''}
+                      </h3>
+                      {entry.summary ? (
+                        <RichTextContent className="rich-text-content summary-richtext" fallback="" value={entry.summary} />
+                      ) : null}
+                      {entry.highlights?.length ? (
+                        <ul className="summary-list">
+                          {entry.highlights.map((item, index) =>
+                            item?.highlight ? <li key={`${entry.id || entry.degree}-highlight-${index}`}>{item.highlight}</li> : null,
+                          )}
+                        </ul>
+                      ) : null}
+                      <div className="meta">
+                        {dateRange ? <span className="badge">{dateRange}</span> : null}
+                        {entry.location ? <span className="badge">{entry.location}</span> : null}
+                        {entry.current ? <span className="badge featured">Current</span> : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="empty-state">No education entries yet.</p>
             )}
           </article>
         ) : null}

@@ -523,6 +523,16 @@ p {
   line-height: 1.6;
 }
 
+.summary-list {
+  margin: 0.48rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--ink-soft);
+}
+
+.summary-list li + li {
+  margin-top: 0.32rem;
+}
+
 .meta {
   margin-top: 0.55rem;
   display: flex;

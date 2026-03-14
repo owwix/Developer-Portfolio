@@ -62,6 +62,10 @@ export async function fetchExperiences<T = unknown>(limit = 10): Promise<T> {
   return fetchCMS<T>(`/api/experiences?limit=${limit}&sort=-startDate`)
 }
 
+export async function fetchEducation<T = unknown>(limit = 10): Promise<T> {
+  return fetchCMS<T>(`/api/education?limit=${limit}&sort=-startDate`)
+}
+
 export async function fetchBlogPosts<T = unknown>(limit = 100, options: BlogFetchOptions = {}): Promise<T> {
   const query = new URLSearchParams({
     depth: '2',
