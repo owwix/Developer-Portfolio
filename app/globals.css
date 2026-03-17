@@ -335,10 +335,8 @@ p {
   border-radius: 10px;
   background: linear-gradient(160deg, rgba(18, 21, 28, 0.92), rgba(12, 14, 19, 0.9));
   padding: 0.58rem 0.72rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
+  display: grid;
+  gap: 0.55rem;
 }
 
 .resume-mode-banner.is-active {
@@ -351,6 +349,13 @@ p {
   font-family: var(--font-mono), 'IBM Plex Mono', monospace;
   font-size: 0.78rem;
   line-height: 1.5;
+}
+
+.resume-mode-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
 }
 
 .resume-mode-action {
@@ -372,21 +377,18 @@ p {
   color: #eef4ff;
 }
 
-.resume-mode-actions {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  justify-content: flex-end;
-  gap: 0.45rem;
-  white-space: nowrap;
-  overflow-x: auto;
-  max-width: 100%;
-}
-
 .resume-mode-file-actions {
   display: inline-flex;
   flex-wrap: nowrap;
   white-space: nowrap;
   gap: 0.45rem;
+  justify-self: end;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.resume-mode-toggle-action {
+  flex-shrink: 0;
 }
 
 .links a,
@@ -2683,8 +2685,18 @@ html[data-theme='light'] .form-error {
   }
 
   .resume-mode-banner {
+    gap: 0.5rem;
+  }
+
+  .resume-mode-top {
+    width: 100%;
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .resume-mode-file-actions {
+    justify-self: start;
   }
 
   .section-context {
