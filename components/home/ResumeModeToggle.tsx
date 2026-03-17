@@ -16,14 +16,14 @@ export default function ResumeModeToggle({ enabled, resumeFileUrl, resumeFileNam
       </p>
       <div className="resume-mode-actions">
         {enabled && resumeFileUrl ? (
-          <>
+          <span className="resume-mode-file-actions">
             <a className="resume-mode-action" data-journey-type="resume-open" href={resumeFileUrl} rel="noreferrer" target="_blank">
               View Resume
             </a>
             <a className="resume-mode-action" data-journey-type="resume-download" download={resumeFileName || 'resume.pdf'} href={resumeFileUrl}>
               Download PDF
             </a>
-          </>
+          </span>
         ) : null}
         <Link className="resume-mode-action" href={enabled ? '/' : '/?mode=resume'}>
         {enabled ? 'Disable Resume Mode' : 'Enable Resume Mode'}

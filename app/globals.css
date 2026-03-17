@@ -312,6 +312,13 @@ p {
   gap: 0.58rem 0.62rem;
 }
 
+.resume-link-pair {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0.58rem;
+  white-space: nowrap;
+}
+
 .hero .bio,
 .hero .hero-blog-note {
   max-width: 40rem;
@@ -365,8 +372,18 @@ p {
 
 .resume-mode-actions {
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  gap: 0.45rem;
+  white-space: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.resume-mode-file-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
   gap: 0.45rem;
 }
 

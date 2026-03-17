@@ -401,7 +401,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const resumeUpdatedAt = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.updatedAt || '' : ''
   const latestPortfolioUpdate = Math.max(latestUpdatedAt(projects), latestUpdatedAt(experiences), latestUpdatedAt(education))
   const showResumeSyncWarning = Boolean(resumeFileUrl && latestPortfolioUpdate && Date.parse(resumeUpdatedAt) < latestPortfolioUpdate)
-  const resumeUpdatedLabel = formatNowDate(resumeUpdatedAt)
   const latestPortfolioUpdateLabel = latestPortfolioUpdate ? formatNowDate(new Date(latestPortfolioUpdate).toISOString()) : ''
 
   return (
@@ -431,17 +430,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
         <ResumeModeToggle enabled={isResumeMode} resumeFileName={resumeFileName} resumeFileUrl={resumeFileUrl} />
         <div className="links">
-          {resumeFileUrl ? (
-            <a className="social-link-pill" data-journey-type="resume-open" href={resumeFileUrl} rel="noreferrer" target="_blank">
-              View Resume (PDF)
-            </a>
-          ) : null}
-          {resumeFileUrl ? (
-            <a className="social-link-pill" data-journey-type="resume-download" download={resumeFileName} href={resumeFileUrl}>
-              Download Resume
-            </a>
-          ) : null}
-          {resumeUpdatedLabel ? <span className="pill social-link-pill">Resume updated {resumeUpdatedLabel}</span> : null}
           {showResumeSyncWarning ? (
             <span className="pill social-link-pill resume-sync-warning">
               Resume may be out of sync (latest portfolio update: {latestPortfolioUpdateLabel || 'recently'})
@@ -522,6 +510,35 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </article>
         ) : null}
 
+        {isResumeMode && showExperience ? (
+          <article className="card reveal full">
+            <h2>Experience</h2>
+            {experiences.length ? (
+              <div className="stack">
+                {experiences.map((exp) => {
+                  const dateRange = getExperienceDateRange(exp)
+
+                  return (
+                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
+                      <h3>
+                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
+                      </h3>
+                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
+                      <div className="meta">
+                        {dateRange ? <span className="badge">{dateRange}</span> : null}
+                        {exp.location ? <span className="badge">{exp.location}</span> : null}
+                        {exp.current ? <span className="badge featured">Current</span> : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="empty-state">No experience entries yet.</p>
+            )}
+          </article>
+        ) : null}
+
         {showProjects ? (
           <article className="card reveal">
             <h2>Projects</h2>
@@ -584,7 +601,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <TrustBlock description={home?.trustBlock?.description} items={home?.trustBlock?.items} title={home?.trustBlock?.title} />
         ) : null}
 
-        {showExperience ? (
+        {!isResumeMode && showExperience ? (
           <article className="card reveal full">
             <h2>Experience</h2>
             {experiences.length ? (
