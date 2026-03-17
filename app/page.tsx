@@ -58,6 +58,7 @@ type HomeData = {
     | {
         url?: string
         filename?: string
+        updatedAt?: string
       }
 }
 
@@ -97,6 +98,7 @@ type ExperienceRow = {
   current?: boolean
   startDate?: string
   endDate?: string
+  updatedAt?: string
 }
 
 type EducationRow = {
@@ -111,6 +113,7 @@ type EducationRow = {
   startDate?: string
   endDate?: string
   highlights?: Array<{ highlight?: string }>
+  updatedAt?: string
 }
 
 type ProjectImage = {
@@ -146,6 +149,8 @@ type ProjectRow = {
         image?: string | ProjectImage
       }
   >
+  focusAreas?: string[]
+  updatedAt?: string
 }
 
 type NowData = {
@@ -226,6 +231,14 @@ function formatNowDate(value?: string): string {
     year: 'numeric',
     timeZone: 'UTC',
   })
+}
+
+function latestUpdatedAt(items: Array<{ updatedAt?: string }>): number {
+  return items.reduce((latest, item) => {
+    const timestamp = Date.parse(String(item?.updatedAt || ''))
+    if (Number.isNaN(timestamp)) return latest
+    return Math.max(latest, timestamp)
+  }, 0)
 }
 
 function SocialLinkIcon({ type }: { type: SocialIconType }) {
@@ -385,6 +398,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const nowUpdated = formatNowDate(nowData?.updatedAt)
   const resumeFileUrl = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.url || '' : ''
   const resumeFileName = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.filename || 'resume.pdf' : 'resume.pdf'
+  const resumeUpdatedAt = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.updatedAt || '' : ''
+  const latestPortfolioUpdate = Math.max(latestUpdatedAt(projects), latestUpdatedAt(experiences), latestUpdatedAt(education))
+  const showResumeSyncWarning = Boolean(resumeFileUrl && latestPortfolioUpdate && Date.parse(resumeUpdatedAt) < latestPortfolioUpdate)
+  const resumeUpdatedLabel = formatNowDate(resumeUpdatedAt)
+  const latestPortfolioUpdateLabel = latestPortfolioUpdate ? formatNowDate(new Date(latestPortfolioUpdate).toISOString()) : ''
 
   return (
     <main className="container page-home">
@@ -411,7 +429,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </p>
           </div>
         </div>
-        <ResumeModeToggle enabled={isResumeMode} />
+        <ResumeModeToggle enabled={isResumeMode} resumeFileName={resumeFileName} resumeFileUrl={resumeFileUrl} />
         <div className="links">
           {resumeFileUrl ? (
             <a className="social-link-pill" data-journey-type="resume-open" href={resumeFileUrl} rel="noreferrer" target="_blank">
@@ -422,6 +440,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <a className="social-link-pill" data-journey-type="resume-download" download={resumeFileName} href={resumeFileUrl}>
               Download Resume
             </a>
+          ) : null}
+          {resumeUpdatedLabel ? <span className="pill social-link-pill">Resume updated {resumeUpdatedLabel}</span> : null}
+          {showResumeSyncWarning ? (
+            <span className="pill social-link-pill resume-sync-warning">
+              Resume may be out of sync (latest portfolio update: {latestPortfolioUpdateLabel || 'recently'})
+            </span>
           ) : null}
           {home?.email ? (
             <span className="pill social-link-pill">
@@ -459,6 +483,45 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       </header>
 
       <section className="grid">
+        {isResumeMode && showEducation ? (
+          <article className="card reveal full">
+            <h2>Education</h2>
+            {education.length ? (
+              <div className="stack">
+                {education.map((entry) => {
+                  const dateRange = getEducationDateRange(entry)
+                  const degreeLine = [entry.degree, entry.fieldOfStudy].filter(Boolean).join(', ')
+
+                  return (
+                    <article className="item" key={entry.id || `${entry.institution}-${entry.degree}`}>
+                      <h3>
+                        {degreeLine || 'Education'} {entry.institution ? `- ${entry.institution}` : ''}
+                      </h3>
+                      {entry.summary ? (
+                        <RichTextContent className="rich-text-content summary-richtext" fallback="" value={entry.summary} />
+                      ) : null}
+                      {entry.highlights?.length ? (
+                        <ul className="summary-list">
+                          {entry.highlights.map((item, index) =>
+                            item?.highlight ? <li key={`${entry.id || entry.degree}-highlight-${index}`}>{item.highlight}</li> : null,
+                          )}
+                        </ul>
+                      ) : null}
+                      <div className="meta">
+                        {dateRange ? <span className="badge">{dateRange}</span> : null}
+                        {entry.location ? <span className="badge">{entry.location}</span> : null}
+                        {entry.current ? <span className="badge featured">Current</span> : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="empty-state">No education entries yet.</p>
+            )}
+          </article>
+        ) : null}
+
         {showProjects ? (
           <article className="card reveal">
             <h2>Projects</h2>
@@ -550,7 +613,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </article>
         ) : null}
 
-        {showEducation ? (
+        {!isResumeMode && showEducation ? (
           <article className="card reveal full">
             <h2>Education</h2>
             {education.length ? (

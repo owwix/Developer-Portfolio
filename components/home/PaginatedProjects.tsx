@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import RichTextContent from '../ui/RichTextContent'
 
 type ProjectImage = {
@@ -38,6 +38,7 @@ type ProjectRow = {
         image?: string | ProjectImage
       }
   >
+  focusAreas?: string[]
 }
 
 type PaginatedProjectsProps = {
@@ -46,15 +47,34 @@ type PaginatedProjectsProps = {
 }
 
 export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedProjectsProps) {
+  const [activeFilter, setActiveFilter] = useState<'all' | 'frontend' | 'backend' | 'ai' | 'infra'>('all')
   const [page, setPage] = useState(1)
   const [imageIndices, setImageIndices] = useState<Record<string, number>>({})
-  const totalPages = Math.max(1, Math.ceil(projects.length / pageSize))
+  const normalizedProjects = useMemo(
+    () =>
+      projects.map((project) => ({
+        ...project,
+        focusAreas: Array.isArray(project.focusAreas)
+          ? project.focusAreas.map((area) => String(area || '').toLowerCase()).filter(Boolean)
+          : [],
+      })),
+    [projects],
+  )
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === 'all') return normalizedProjects
+    return normalizedProjects.filter((project) => project.focusAreas?.includes(activeFilter))
+  }, [activeFilter, normalizedProjects])
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / pageSize))
   const currentPage = Math.min(page, totalPages)
 
   const paginatedProjects = useMemo(() => {
     const start = (currentPage - 1) * pageSize
-    return projects.slice(start, start + pageSize)
-  }, [currentPage, pageSize, projects])
+    return filteredProjects.slice(start, start + pageSize)
+  }, [currentPage, filteredProjects, pageSize])
+
+  useEffect(() => {
+    setPage(1)
+  }, [activeFilter])
 
   if (!projects.length) {
     return <p className="empty-state">No projects yet.</p>
@@ -125,9 +145,37 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
     return null
   }
 
+  const filterOptions: Array<{ value: 'all' | 'frontend' | 'backend' | 'ai' | 'infra'; label: string }> = [
+    { value: 'all', label: `All (${projects.length})` },
+    { value: 'frontend', label: `Frontend (${normalizedProjects.filter((project) => project.focusAreas?.includes('frontend')).length})` },
+    { value: 'backend', label: `Backend (${normalizedProjects.filter((project) => project.focusAreas?.includes('backend')).length})` },
+    { value: 'ai', label: `AI (${normalizedProjects.filter((project) => project.focusAreas?.includes('ai')).length})` },
+    { value: 'infra', label: `Infra (${normalizedProjects.filter((project) => project.focusAreas?.includes('infra')).length})` },
+  ]
+
+  const formatFocusArea = (value: string): string => {
+    if (value === 'ai') return 'AI'
+    return value.charAt(0).toUpperCase() + value.slice(1)
+  }
+
   return (
     <>
+      <div aria-label="Filter projects by focus area" className="tag-filter-group project-filter-group" role="tablist">
+        {filterOptions.map((option) => (
+          <button
+            aria-selected={activeFilter === option.value}
+            className={`filter-pill ${activeFilter === option.value ? 'is-active' : ''}`.trim()}
+            key={option.value}
+            onClick={() => setActiveFilter(option.value)}
+            role="tab"
+            type="button"
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
       <div className="stack">
+        {!filteredProjects.length ? <p className="empty-state">No projects found for this filter yet.</p> : null}
         {paginatedProjects.map((project) => (
           <article className="item" key={getProjectKey(project)}>
             {(() => {
@@ -187,6 +235,11 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
             <h3>{project.title || 'Untitled Project'}</h3>
             <RichTextContent className="rich-text-content summary-richtext" fallback="No summary available." value={project.summary} />
             <div className="meta">
+              {(project.focusAreas || []).map((area) => (
+                <span className="badge" key={`${getProjectKey(project)}-focus-${area}`}>
+                  {formatFocusArea(area)}
+                </span>
+              ))}
               {project.liveUrl ? (
                 <a className="badge badge-link" data-journey-type="project-live" href={project.liveUrl} rel="noreferrer" target="_blank">
                   Live URL

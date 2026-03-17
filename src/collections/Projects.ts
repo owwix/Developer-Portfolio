@@ -100,6 +100,33 @@ export const Projects: CollectionConfig = {
       ],
     },
     {
+      name: 'focusAreas',
+      label: 'Focus Areas',
+      type: 'select',
+      hasMany: true,
+      options: [
+        {
+          label: 'Frontend',
+          value: 'frontend',
+        },
+        {
+          label: 'Backend',
+          value: 'backend',
+        },
+        {
+          label: 'AI',
+          value: 'ai',
+        },
+        {
+          label: 'Infra',
+          value: 'infra',
+        },
+      ],
+      admin: {
+        description: 'Used for homepage project filtering.',
+      },
+    },
+    {
       name: 'highlights',
       type: 'array',
       fields: [

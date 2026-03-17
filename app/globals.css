@@ -363,6 +363,13 @@ p {
   border-color: #7b93b5;
 }
 
+.resume-mode-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
 .links a,
 .pill,
 .pill-link {
@@ -1346,6 +1353,10 @@ p {
   gap: 0.4rem;
 }
 
+.project-filter-group {
+  margin-bottom: 0.75rem;
+}
+
 .filter-pill {
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -1361,6 +1372,11 @@ p {
   border-color: var(--accent);
   color: var(--accent-strong);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.resume-sync-warning {
+  border-color: var(--warn);
+  color: var(--warn);
 }
 
 .archive-grid {
@@ -2265,6 +2281,11 @@ html[data-theme='light'] .tag-pill-topic {
 html[data-theme='light'] .badge.featured {
   border-color: #90a1b5;
   color: #223246;
+}
+
+html[data-theme='light'] .resume-sync-warning {
+  border-color: #c9a86a;
+  color: #6a4d1c;
 }
 
 html[data-theme='light'] .skill-category {

@@ -36,6 +36,7 @@ For a release checklist, see `TEMPLATE_CHECKLIST.md`.
   - `skills`
   - `experiences`
   - `education`
+  - `resume-files`
 - A global document for homepage content:
   - `home`
 - Auth-enabled `users` collection for admin login
@@ -74,9 +75,11 @@ For a release checklist, see `TEMPLATE_CHECKLIST.md`.
 
 - Use `home` for your hero section, summary, and contact links.
 - Use `projects` to manage portfolio project cards and details.
+  - Add `focusAreas` tags (`frontend`, `backend`, `ai`, `infra`) to power homepage filtering.
 - Use `skills` for grouped technical skills and proficiency ratings.
 - Use `experiences` for timeline-based work history and impact bullets.
 - Use `education` for degrees, schools, dates, and academic highlights.
+- Use `resume-files` for uploaded PDF resumes, then select one in `home.resumeFile`.
 
 ## Build and start
 
