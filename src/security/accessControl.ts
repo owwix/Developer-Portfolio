@@ -22,6 +22,7 @@ const DEFAULT_PUBLIC_API_RULES: RouteRule[] = [
   { path: '/api/education', methods: SAFE_PUBLIC_METHODS },
   { path: '/api/open-source-resources', methods: SAFE_PUBLIC_METHODS },
   { path: '/api/blog-posts', methods: SAFE_PUBLIC_METHODS },
+  { path: '/api/resume-files', methods: SAFE_PUBLIC_METHODS },
   { path: '/api/globals/home', methods: SAFE_PUBLIC_METHODS },
   { path: '/api/globals/now', methods: SAFE_PUBLIC_METHODS },
   { path: '/api/media', methods: SAFE_PUBLIC_METHODS },

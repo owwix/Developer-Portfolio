@@ -53,6 +53,12 @@ type HomeData = {
     url?: string
     alt?: string
   }
+  resumeFile?:
+    | string
+    | {
+        url?: string
+        filename?: string
+      }
 }
 
 type HomeLink = {
@@ -377,6 +383,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const showEducation = sectionVisibility.education !== false
   const showBlog = sectionVisibility.blog !== false
   const nowUpdated = formatNowDate(nowData?.updatedAt)
+  const resumeFileUrl = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.url || '' : ''
+  const resumeFileName = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.filename || 'resume.pdf' : 'resume.pdf'
 
   return (
     <main className="container page-home">
@@ -405,6 +413,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
         <ResumeModeToggle enabled={isResumeMode} />
         <div className="links">
+          {resumeFileUrl ? (
+            <a className="social-link-pill" data-journey-type="resume-open" href={resumeFileUrl} rel="noreferrer" target="_blank">
+              View Resume (PDF)
+            </a>
+          ) : null}
+          {resumeFileUrl ? (
+            <a className="social-link-pill" data-journey-type="resume-download" download={resumeFileName} href={resumeFileUrl}>
+              Download Resume
+            </a>
+          ) : null}
           {home?.email ? (
             <span className="pill social-link-pill">
               <span aria-hidden="true" className="link-pill-icon">

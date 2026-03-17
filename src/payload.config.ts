@@ -15,6 +15,7 @@ import { Media } from './collections/Media'
 import { PhoneRequests } from './collections/PhoneRequests'
 import { OpenSourceResources } from './collections/OpenSourceResources'
 import { Projects } from './collections/Projects'
+import { ResumeFiles } from './collections/ResumeFiles'
 import { Skills } from './collections/Skills'
 import { AdminBranding } from './globals/AdminBranding'
 import { Home } from './globals/Home'
@@ -61,6 +62,7 @@ export default buildConfig({
     Projects,
     OpenSourceResources,
     Skills,
+    ResumeFiles,
     Experiences,
     Education,
     PhoneRequests,

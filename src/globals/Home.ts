@@ -20,6 +20,15 @@ export const Home: GlobalConfig = {
       },
     },
     {
+      name: 'resumeFile',
+      label: 'Resume PDF',
+      type: 'upload',
+      relationTo: 'resume-files',
+      admin: {
+        description: 'Upload the resume PDF shown as a view/download button on the homepage.',
+      },
+    },
+    {
       name: 'name',
       type: 'text',
       required: true,
