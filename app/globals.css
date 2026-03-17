@@ -356,10 +356,10 @@ p {
 .resume-mode-action {
   flex-shrink: 0;
   text-decoration: none;
-  border: 1px solid #50607a;
+  border: 1px solid #42536d;
   border-radius: 10px;
-  background: #eff4ff;
-  color: #132030;
+  background: #0b1220;
+  color: #dbe7f8;
   font-family: var(--font-mono), 'IBM Plex Mono', monospace;
   font-size: 0.79rem;
   line-height: 1.2;
@@ -367,7 +367,9 @@ p {
 }
 
 .resume-mode-action:hover {
-  border-color: #7b93b5;
+  border-color: #6a84ab;
+  background: #0f1829;
+  color: #eef4ff;
 }
 
 .resume-mode-actions {
