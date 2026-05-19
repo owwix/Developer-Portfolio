@@ -522,6 +522,12 @@ p {
   margin: 0;
 }
 
+.rich-text-content br {
+  content: "";
+  display: block;
+  margin-top: 0.62rem;
+}
+
 .rich-text-content ul,
 .rich-text-content ol {
   margin: 0;
