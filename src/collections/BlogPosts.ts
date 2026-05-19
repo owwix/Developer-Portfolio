@@ -29,7 +29,10 @@ export const BlogPosts: CollectionConfig = {
     drafts: true,
   },
   access: {
-    read: () => true,
+    read: ({ req }) => {
+      if (req.user) return true
+      return { _status: { equals: 'published' } }
+    },
   },
   fields: [
     {
