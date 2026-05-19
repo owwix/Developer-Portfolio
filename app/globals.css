@@ -67,10 +67,10 @@ a {
 }
 
 .theme-toggle {
-  position: fixed;
-  top: 0.9rem;
-  right: 0.9rem;
-  z-index: 40;
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 5;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--card-soft);
@@ -277,6 +277,7 @@ p {
 }
 
 .hero {
+  position: relative;
   display: grid;
   gap: 1.15rem;
   background: linear-gradient(150deg, rgba(10, 10, 10, 0.86), rgba(6, 6, 6, 0.78));
@@ -1211,6 +1212,11 @@ p {
 .page-blog .page-hero,
 .page-post .post-hero {
   margin-bottom: 1rem;
+}
+
+.page-hero,
+.post-hero {
+  position: relative;
 }
 
 .post-hero h1 {
@@ -2656,8 +2662,8 @@ html[data-theme='light'] .form-error {
   }
 
   .theme-toggle {
-    top: max(0.65rem, env(safe-area-inset-top));
-    right: max(0.65rem, env(safe-area-inset-right));
+    top: 0.5rem;
+    right: 0.5rem;
     min-height: 1.88rem;
     padding: 0.24rem 0.36rem;
     font-size: 0.69rem;

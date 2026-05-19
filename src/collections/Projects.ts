@@ -163,6 +163,14 @@ export const Projects: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'liveUrlLabel',
+      label: 'Live URL Button Label',
+      type: 'text',
+      admin: {
+        description: 'Optional custom text for the live URL button (e.g. "View Site", "Try Demo"). Defaults to "Live URL".',
+      },
+    },
+    {
       name: 'startDate',
       type: 'date',
       required: true,

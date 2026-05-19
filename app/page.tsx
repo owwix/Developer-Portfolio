@@ -7,6 +7,7 @@ import ResumeModeToggle from '../components/home/ResumeModeToggle'
 import TrustBlock from '../components/home/TrustBlock'
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
+import ThemeToggle from '../components/ui/ThemeToggle'
 import { type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchEducation, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
@@ -133,6 +134,7 @@ type ProjectRow = {
   title?: string
   summary?: unknown
   liveUrl?: string
+  liveUrlLabel?: string
   repoUrl?: string
   caseStudyUrl?: string
   caseStudyPost?:
@@ -406,6 +408,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <main className="container page-home">
       <header className="card hero reveal">
+        <ThemeToggle />
         <div className="hero-main">
           {home?.profilePhoto?.url ? (
             <img alt={home.profilePhoto?.alt || 'Profile photo'} className="avatar" src={home.profilePhoto.url} />

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import SectionContextNav from '../../components/blog/SectionContextNav'
+import ThemeToggle from '../../components/ui/ThemeToggle'
 import { fetchNow } from '../../lib/cms'
 import { siteConfig } from '../../src/utils/siteConfig'
 
@@ -73,6 +74,7 @@ export default async function NowPage() {
     <main className="container page-now">
       <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: 'Now' }]} />
       <header className="card page-hero reveal">
+        <ThemeToggle />
         <p className="eyebrow">{data?.eyebrow || 'Current Focus'}</p>
         <h1>{data?.title || 'Now'}</h1>
         <p className="page-intro">

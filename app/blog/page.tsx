@@ -5,6 +5,7 @@ import BlogCommandPalette from '../../components/blog/BlogCommandPalette'
 import BlogSubscribeCard from '../../components/blog/BlogSubscribeCard'
 import ReadingListPanel from '../../components/blog/ReadingListPanel'
 import SectionContextNav from '../../components/blog/SectionContextNav'
+import ThemeToggle from '../../components/ui/ThemeToggle'
 import type { BlogPost } from '../../lib/blog'
 import { getTags, isComingSoon, toDisplayText } from '../../lib/blog'
 import { fetchBlogPosts, fetchHome } from '../../lib/cms'
@@ -80,6 +81,7 @@ export default async function BlogArchivePage() {
       {commandEntries.length ? <BlogCommandPalette entries={commandEntries} /> : null}
       {commandEntries.length ? <ReadingListPanel posts={commandEntries.map((entry) => ({ slug: entry.slug, title: entry.title }))} /> : null}
       <header className="card page-hero reveal">
+        <ThemeToggle />
         <p className="eyebrow">Engineering Journal</p>
         <h1>{siteConfig.blogLabel}</h1>
         <p className="page-intro">

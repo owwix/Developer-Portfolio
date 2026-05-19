@@ -20,6 +20,7 @@ type ProjectRow = {
   title?: string
   summary?: unknown
   liveUrl?: string
+  liveUrlLabel?: string
   repoUrl?: string
   caseStudyUrl?: string
   caseStudyPost?:
@@ -242,7 +243,7 @@ export default function PaginatedProjects({ projects, pageSize = 1 }: PaginatedP
               ))}
               {project.liveUrl ? (
                 <a className="badge badge-link" data-journey-type="project-live" href={project.liveUrl} rel="noreferrer" target="_blank">
-                  Live URL
+                  {project.liveUrlLabel?.trim() || 'Live URL'}
                 </a>
               ) : null}
               {project.repoUrl ? (
