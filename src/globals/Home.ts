@@ -39,12 +39,90 @@ export const Home: GlobalConfig = {
       required: true,
     },
     {
+      name: 'homepageLayout',
+      label: 'Homepage Layout',
+      type: 'select',
+      defaultValue: 'softwareEngineering',
+      options: [
+        {
+          label: 'Software Engineering Narrative',
+          value: 'softwareEngineering',
+        },
+        {
+          label: 'Classic Portfolio',
+          value: 'classic',
+        },
+      ],
+      admin: {
+        description:
+          'Choose the homepage section order. Software Engineering Narrative prioritizes experience, featured projects, and engineering notes.',
+      },
+    },
+    {
       name: 'openSourceSubtitle',
       label: 'Open Source Subtitle',
       type: 'textarea',
       defaultValue: 'Reusable templates, starter kits, and developer tools built for real-world use.',
       admin: {
         description: 'Short description shown under the Open Source section title on the homepage.',
+      },
+    },
+    {
+      name: 'sectionDescriptions',
+      label: 'Homepage Section Descriptions',
+      type: 'group',
+      fields: [
+        {
+          name: 'experience',
+          label: 'Experience Description',
+          type: 'textarea',
+          defaultValue:
+            'Professional and product-focused engineering work first: roles and applied systems where I owned implementation, reliability, and delivery.',
+        },
+        {
+          name: 'projects',
+          label: 'Featured Projects Description',
+          type: 'textarea',
+          defaultValue:
+            'Selected shipped systems with product value up front, including AI-powered workflows, learning tools, and production portfolio infrastructure.',
+        },
+        {
+          name: 'blog',
+          label: 'Engineering Notes Description',
+          type: 'textarea',
+          defaultValue:
+            'Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I ship.',
+        },
+        {
+          name: 'skills',
+          label: 'Skills Description',
+          type: 'textarea',
+          defaultValue: 'Technologies I use to support the product, AI, platform, and delivery work above.',
+        },
+        {
+          name: 'openSource',
+          label: 'Open Source Description',
+          type: 'textarea',
+          defaultValue: 'Reusable templates, starter kits, and developer tools built for real-world use.',
+          admin: {
+            description: 'Overrides Open Source Subtitle when filled.',
+          },
+        },
+        {
+          name: 'education',
+          label: 'Education Description',
+          type: 'textarea',
+          defaultValue: 'Academic background and learning milestones that support the engineering work above.',
+        },
+        {
+          name: 'contact',
+          label: 'Contact Description',
+          type: 'textarea',
+          defaultValue: 'For software engineering roles, product engineering work, or technical discussions, start here.',
+        },
+      ],
+      admin: {
+        description: 'Edit the short intro copy shown beneath each homepage section heading.',
       },
     },
     {

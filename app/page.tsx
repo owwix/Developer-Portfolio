@@ -28,10 +28,24 @@ type SectionVisibility = {
   blog?: boolean
 }
 
+type HomepageLayout = 'softwareEngineering' | 'classic'
+
+type SectionDescriptions = {
+  experience?: string
+  projects?: string
+  blog?: string
+  skills?: string
+  openSource?: string
+  education?: string
+  contact?: string
+}
+
 type HomeData = {
   name?: string
   headline?: string
+  homepageLayout?: HomepageLayout
   openSourceSubtitle?: string
+  sectionDescriptions?: SectionDescriptions
   sectionVisibility?: SectionVisibility
   resumeSectionVisibility?: SectionVisibility
   bio?: unknown
@@ -190,6 +204,25 @@ function inferSocialIcon(link: HomeLink): SocialIconType | null {
 function getCustomIconUrl(link: HomeLink): string {
   if (!link?.customIcon || typeof link.customIcon === 'string') return ''
   return link.customIcon.url || link.customIcon.sizes?.avatar?.url || ''
+}
+
+const defaultSectionDescriptions: Required<SectionDescriptions> = {
+  experience:
+    'Professional and product-focused engineering work first: roles and applied systems where I owned implementation, reliability, and delivery.',
+  projects:
+    'Selected shipped systems with product value up front, including AI-powered workflows, learning tools, and production portfolio infrastructure.',
+  blog: 'Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I ship.',
+  skills: 'Technologies I use to support the product, AI, platform, and delivery work above.',
+  openSource: 'Reusable templates, starter kits, and developer tools built for real-world use.',
+  education: 'Academic background and learning milestones that support the engineering work above.',
+  contact: 'For software engineering roles, product engineering work, or technical discussions, start here.',
+}
+
+function getSectionDescription(home: HomeData | null, key: keyof SectionDescriptions): string {
+  const value = String(home?.sectionDescriptions?.[key] || '').trim()
+  if (value) return value
+  if (key === 'openSource') return String(home?.openSourceSubtitle || defaultSectionDescriptions.openSource).trim()
+  return defaultSectionDescriptions[key]
 }
 
 function extractGitHubUsername(url: string): string {
@@ -411,6 +444,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     const url = String(link?.url || '').toLowerCase()
     return Boolean(url) && !url.startsWith('mailto:') && !url.startsWith('tel:')
   })
+  const homepageLayout: HomepageLayout = home?.homepageLayout === 'classic' ? 'classic' : 'softwareEngineering'
+  const experienceDescription = getSectionDescription(home, 'experience')
+  const projectsDescription = getSectionDescription(home, 'projects')
+  const blogDescription = getSectionDescription(home, 'blog')
+  const skillsDescription = getSectionDescription(home, 'skills')
+  const openSourceDescription = getSectionDescription(home, 'openSource')
+  const educationDescription = getSectionDescription(home, 'education')
+  const contactDescription = getSectionDescription(home, 'contact')
 
   return (
     <main className="container page-home">
@@ -484,6 +525,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {isResumeMode && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
             <h2>Experience</h2>
+            <p className="section-intro">{experienceDescription}</p>
             {experiences.length ? (
               <div className="stack">
                 {experiences.map((exp) => {
@@ -513,6 +555,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {isResumeMode && showEducation ? (
           <article className="card reveal full" id="education">
             <h2>Education</h2>
+            <p className="section-intro">{educationDescription}</p>
             {education.length ? (
               <div className="stack">
                 {education.map((entry) => {
@@ -549,13 +592,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </article>
         ) : null}
 
-        {!isResumeMode && showExperience ? (
+        {!isResumeMode && homepageLayout === 'softwareEngineering' && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
             <h2>Experience</h2>
-            <p className="section-intro">
-              Professional and product-focused engineering work first: roles and applied systems where I owned implementation,
-              reliability, and delivery.
-            </p>
+            <p className="section-intro">{experienceDescription}</p>
             {experiences.length ? (
               <div className="stack">
                 {experiences.map((exp) => {
@@ -585,15 +625,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {showProjects ? (
           <article className="card reveal full featured-projects-card" id="projects">
             <h2>Featured Projects</h2>
-            <p className="section-intro">
-              Selected shipped systems with product value up front, including AI-powered workflows, learning tools, and production
-              portfolio infrastructure.
-            </p>
+            <p className="section-intro">{projectsDescription}</p>
             <PaginatedProjects projects={homepageProjects} />
           </article>
         ) : null}
 
-        {showBlog ? (
+        {showBlog && (isResumeMode || homepageLayout === 'softwareEngineering') ? (
           <article className="card reveal full notes-card" id="notes">
             <div className="section-head">
               <h2>Engineering Notes</h2>
@@ -601,10 +638,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
               </Link>
             </div>
-            <p className="section-intro">
-              Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I
-              ship.
-            </p>
+            <p className="section-intro">{blogDescription}</p>
 
             {blogs.length ? (
               <div className="blog-grid home-blog-grid">
@@ -621,7 +655,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {showSkills ? (
           <article className="card reveal full skills-card" id="skills">
             <h2>Skills</h2>
-            <p className="section-intro">Technologies I use to support the product, AI, platform, and delivery work above.</p>
+            <p className="section-intro">{skillsDescription}</p>
             <PaginatedSkillCategories groupedSkills={groupedSkills} />
           </article>
         ) : null}
@@ -634,9 +668,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 View All Resources
               </Link>
             </div>
-            <p className="open-source-subtitle">
-              {home?.openSourceSubtitle || 'Reusable templates, starter kits, and developer tools built for real-world use.'}
-            </p>
+            <p className="open-source-subtitle">{openSourceDescription}</p>
             <div className="open-source-grid">
               {openSourcePreview.map((resource) => (
                 <OpenSourceCard key={resource.id} resource={resource} />
@@ -674,9 +706,40 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <TrustBlock description={home?.trustBlock?.description} items={home?.trustBlock?.items} title={home?.trustBlock?.title} />
         ) : null}
 
+        {!isResumeMode && homepageLayout === 'classic' && showExperience ? (
+          <article className="card reveal full experience-card primary-section-card" id="experience">
+            <h2>Experience</h2>
+            <p className="section-intro">{experienceDescription}</p>
+            {experiences.length ? (
+              <div className="stack">
+                {experiences.map((exp) => {
+                  const dateRange = getExperienceDateRange(exp)
+
+                  return (
+                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
+                      <h3>
+                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
+                      </h3>
+                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
+                      <div className="meta">
+                        {dateRange ? <span className="badge">{dateRange}</span> : null}
+                        {exp.location ? <span className="badge">{exp.location}</span> : null}
+                        {exp.current ? <span className="badge featured">Current</span> : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="empty-state">No experience entries yet.</p>
+            )}
+          </article>
+        ) : null}
+
         {!isResumeMode && showEducation ? (
           <article className="card reveal full" id="education">
             <h2>Education</h2>
+            <p className="section-intro">{educationDescription}</p>
             {education.length ? (
               <div className="stack">
                 {education.map((entry) => {
@@ -713,11 +776,31 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </article>
         ) : null}
 
+        {!isResumeMode && homepageLayout === 'classic' && showBlog ? (
+          <article className="card reveal full notes-card" id="notes">
+            <div className="section-head">
+              <h2>Engineering Notes</h2>
+              <Link className="view-all-link" href="/blog">
+                View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
+              </Link>
+            </div>
+            <p className="section-intro">{blogDescription}</p>
+
+            {blogs.length ? (
+              <div className="blog-grid home-blog-grid">
+                {blogs.map((post) => (
+                  <BlogCard key={post.id || post.slug} post={post} variant="preview" />
+                ))}
+              </div>
+            ) : (
+              <p className="empty-state">No notes published yet.</p>
+            )}
+          </article>
+        ) : null}
+
         <article className="card reveal full contact-card" id="contact">
           <h2>Contact</h2>
-          <p className="section-intro">
-            For software engineering roles, product engineering work, or technical discussions, start here.
-          </p>
+          <p className="section-intro">{contactDescription}</p>
           <div className="links contact-actions">
             {home?.email ? (
               <a className="pill-link social-link-pill" data-journey-type="contact" href={`mailto:${home.email}`}>

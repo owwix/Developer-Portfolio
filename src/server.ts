@@ -56,6 +56,19 @@ const start = async () => {
     },
   })
 
+  const adminRoute = payload.config.routes.admin.replace(/\/$/, '')
+  const adminIndexPath = path.resolve(__dirname, '../node_modules/payload/dist/admin/index.html')
+
+  app.get(`${adminRoute}/*`, (req, res, nextMiddleware) => {
+    if (path.extname(req.path)) {
+      return nextMiddleware()
+    }
+
+    return res.sendFile(adminIndexPath, (error) => {
+      if (error) nextMiddleware(error)
+    })
+  })
+
   // Keep analytics on the same URL but handled by Express directly to avoid
   // request-stream conflicts between Next App Route handlers and Payload's /api stack.
   registerBlogAnalyticsRoute(app)

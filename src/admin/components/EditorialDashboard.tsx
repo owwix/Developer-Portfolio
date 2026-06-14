@@ -29,6 +29,10 @@ type JourneyDoc = {
   count?: number
 }
 
+type HomeGlobalDoc = {
+  homepageLayout?: 'softwareEngineering' | 'classic'
+}
+
 type QueryData<T> = {
   docs?: T[]
   totalDocs?: number
@@ -127,6 +131,11 @@ function formatJourneyTypeLabel(value?: string): string {
     'case-study': 'Case Study',
   }
   return labels[normalized] || toTitleCase(normalized.replace(/[-_]+/g, ' '))
+}
+
+function formatHomepageLayoutLabel(value?: HomeGlobalDoc['homepageLayout']): string {
+  if (value === 'classic') return 'Classic Portfolio'
+  return 'Software Engineering Narrative'
 }
 
 function countTotal<T>(result: unknown): number {
@@ -270,12 +279,14 @@ export default function EditorialDashboard() {
   const [projectResult] = usePayloadAPI('/api/projects?limit=4&sort=-updatedAt')
   const [inquiryResult] = usePayloadAPI('/api/phone-requests?limit=1&sort=-updatedAt')
   const [journeyResult] = usePayloadAPI('/api/journey-analytics?limit=12&sort=-count')
+  const [homeResult] = usePayloadAPI('/api/globals/home?depth=0')
 
   const notesData = (notesResult?.data || {}) as QueryData<NoteDoc>
   const allNotesData = (allNotesResult?.data || {}) as QueryData<NoteDoc>
   const draftsData = (draftResult?.data || {}) as QueryData<NoteDoc>
   const projectsData = (projectResult?.data || {}) as QueryData<ProjectDoc>
   const journeyData = (journeyResult?.data || {}) as QueryData<JourneyDoc>
+  const homeData = (homeResult?.data || {}) as HomeGlobalDoc
 
   const notes = useMemo<NoteDoc[]>(() => notesData.docs || [], [notesData])
   const allNotes = useMemo<NoteDoc[]>(() => allNotesData.docs || [], [allNotesData])
@@ -307,6 +318,7 @@ export default function EditorialDashboard() {
   const caseStudyToRepo = sumJourneys(journeys, (item) => item.journeyType === 'repo')
   const totalTrackedJourneys = journeys.reduce((total, item) => total + Number(item.count || 0), 0)
   const conversionBase = Math.max(totalTrackedJourneys, 1)
+  const homepageLayoutLabel = formatHomepageLayoutLabel(homeData.homepageLayout)
 
   return (
     <AdminDashboardShell>
@@ -446,6 +458,16 @@ export default function EditorialDashboard() {
           </SectionCard>
 
           <SectionCard title="Quick Actions">
+            <article className="rounded-xl border border-zinc-900 bg-row px-4 py-3">
+              <p className="text-xs uppercase tracking-editorial text-zinc-500">Homepage Layout + Section Copy</p>
+              <p className="mt-2 text-sm font-medium text-zinc-100">{homepageLayoutLabel}</p>
+              <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+                Switch homepage layouts and edit the short descriptions shown under each homepage section heading.
+              </p>
+              <a className="mt-3 inline-flex items-center rounded-lg px-2 py-1 text-sm font-medium text-white transition hover:text-zinc-300 focus-ring" href="/admin/globals/home">
+                Edit homepage content
+              </a>
+            </article>
             <QuickActionGrid
               primaryAction={{ href: '/admin/collections/blog-posts/create', label: 'Write Note' }}
               secondaryActions={[
