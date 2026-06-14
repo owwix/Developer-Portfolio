@@ -31,20 +31,20 @@ type SectionVisibility = {
 type HomepageLayout = 'softwareEngineering' | 'classic'
 
 type SectionDescriptions = {
-  experience?: string
-  projects?: string
-  blog?: string
-  skills?: string
-  openSource?: string
-  education?: string
-  contact?: string
+  experience?: string | null
+  projects?: string | null
+  blog?: string | null
+  skills?: string | null
+  openSource?: string | null
+  education?: string | null
+  contact?: string | null
 }
 
 type HomeData = {
   name?: string
   headline?: string
   homepageLayout?: HomepageLayout
-  openSourceSubtitle?: string
+  openSourceSubtitle?: string | null
   sectionDescriptions?: SectionDescriptions
   sectionVisibility?: SectionVisibility
   resumeSectionVisibility?: SectionVisibility
@@ -218,10 +218,17 @@ const defaultSectionDescriptions: Required<SectionDescriptions> = {
   contact: 'For software engineering roles, product engineering work, or technical discussions, start here.',
 }
 
+function normalizeOptionalText(value: unknown): string | undefined {
+  if (value === undefined || value === null) return undefined
+  return String(value).trim()
+}
+
 function getSectionDescription(home: HomeData | null, key: keyof SectionDescriptions): string {
-  const value = String(home?.sectionDescriptions?.[key] || '').trim()
-  if (value) return value
-  if (key === 'openSource') return String(home?.openSourceSubtitle || defaultSectionDescriptions.openSource).trim()
+  if (home?.sectionDescriptions) {
+    return normalizeOptionalText(home.sectionDescriptions[key]) || ''
+  }
+
+  if (key === 'openSource') return normalizeOptionalText(home?.openSourceSubtitle) ?? defaultSectionDescriptions.openSource
   return defaultSectionDescriptions[key]
 }
 
@@ -525,7 +532,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {isResumeMode && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
             <h2>Experience</h2>
-            <p className="section-intro">{experienceDescription}</p>
+            {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
             {experiences.length ? (
               <div className="stack">
                 {experiences.map((exp) => {
@@ -555,7 +562,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {isResumeMode && showEducation ? (
           <article className="card reveal full" id="education">
             <h2>Education</h2>
-            <p className="section-intro">{educationDescription}</p>
+            {educationDescription ? <p className="section-intro">{educationDescription}</p> : null}
             {education.length ? (
               <div className="stack">
                 {education.map((entry) => {
@@ -595,7 +602,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {!isResumeMode && homepageLayout === 'softwareEngineering' && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
             <h2>Experience</h2>
-            <p className="section-intro">{experienceDescription}</p>
+            {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
             {experiences.length ? (
               <div className="stack">
                 {experiences.map((exp) => {
@@ -625,7 +632,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {showProjects ? (
           <article className="card reveal full featured-projects-card" id="projects">
             <h2>Featured Projects</h2>
-            <p className="section-intro">{projectsDescription}</p>
+            {projectsDescription ? <p className="section-intro">{projectsDescription}</p> : null}
             <PaginatedProjects projects={homepageProjects} />
           </article>
         ) : null}
@@ -638,7 +645,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
               </Link>
             </div>
-            <p className="section-intro">{blogDescription}</p>
+            {blogDescription ? <p className="section-intro">{blogDescription}</p> : null}
 
             {blogs.length ? (
               <div className="blog-grid home-blog-grid">
@@ -655,7 +662,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {showSkills ? (
           <article className="card reveal full skills-card" id="skills">
             <h2>Skills</h2>
-            <p className="section-intro">{skillsDescription}</p>
+            {skillsDescription ? <p className="section-intro">{skillsDescription}</p> : null}
             <PaginatedSkillCategories groupedSkills={groupedSkills} />
           </article>
         ) : null}
@@ -668,7 +675,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 View All Resources
               </Link>
             </div>
-            <p className="open-source-subtitle">{openSourceDescription}</p>
+            {openSourceDescription ? <p className="open-source-subtitle">{openSourceDescription}</p> : null}
             <div className="open-source-grid">
               {openSourcePreview.map((resource) => (
                 <OpenSourceCard key={resource.id} resource={resource} />
@@ -709,7 +716,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {!isResumeMode && homepageLayout === 'classic' && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
             <h2>Experience</h2>
-            <p className="section-intro">{experienceDescription}</p>
+            {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
             {experiences.length ? (
               <div className="stack">
                 {experiences.map((exp) => {
@@ -739,7 +746,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {!isResumeMode && showEducation ? (
           <article className="card reveal full" id="education">
             <h2>Education</h2>
-            <p className="section-intro">{educationDescription}</p>
+            {educationDescription ? <p className="section-intro">{educationDescription}</p> : null}
             {education.length ? (
               <div className="stack">
                 {education.map((entry) => {
@@ -784,7 +791,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
               </Link>
             </div>
-            <p className="section-intro">{blogDescription}</p>
+            {blogDescription ? <p className="section-intro">{blogDescription}</p> : null}
 
             {blogs.length ? (
               <div className="blog-grid home-blog-grid">
@@ -800,7 +807,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         <article className="card reveal full contact-card" id="contact">
           <h2>Contact</h2>
-          <p className="section-intro">{contactDescription}</p>
+          {contactDescription ? <p className="section-intro">{contactDescription}</p> : null}
           <div className="links contact-actions">
             {home?.email ? (
               <a className="pill-link social-link-pill" data-journey-type="contact" href={`mailto:${home.email}`}>
