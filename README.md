@@ -73,7 +73,7 @@ For a release checklist, see `TEMPLATE_CHECKLIST.md`.
 
 ## Suggested content model usage
 
-- Use `home` for your hero section, summary, and contact links.
+- Use `home` for your hero section, summary, contact links, and final homepage contact CTA.
 - Use `projects` to manage portfolio project cards and details.
   - Add `focusAreas` tags (`frontend`, `backend`, `ai`, `infra`) to power homepage filtering.
 - Use `skills` for grouped technical skills and proficiency ratings.

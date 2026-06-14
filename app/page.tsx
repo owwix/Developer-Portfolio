@@ -132,6 +132,7 @@ type ProjectRow = {
   displayOrder?: number
   slug?: string
   title?: string
+  featured?: boolean
   summary?: unknown
   liveUrl?: string
   liveUrlLabel?: string
@@ -404,6 +405,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const latestPortfolioUpdate = Math.max(latestUpdatedAt(projects), latestUpdatedAt(experiences), latestUpdatedAt(education))
   const showResumeSyncWarning = Boolean(resumeFileUrl && latestPortfolioUpdate && Date.parse(resumeUpdatedAt) < latestPortfolioUpdate)
   const latestPortfolioUpdateLabel = latestPortfolioUpdate ? formatNowDate(new Date(latestPortfolioUpdate).toISOString()) : ''
+  const featuredProjects = projects.filter((project) => project.featured)
+  const homepageProjects = featuredProjects.length ? featuredProjects : projects
+  const contactLinks = (home?.links || []).filter((link) => {
+    const url = String(link?.url || '').toLowerCase()
+    return Boolean(url) && !url.startsWith('mailto:') && !url.startsWith('tel:')
+  })
 
   return (
     <main className="container page-home">
@@ -474,8 +481,37 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       </header>
 
       <section className="grid">
+        {isResumeMode && showExperience ? (
+          <article className="card reveal full experience-card primary-section-card" id="experience">
+            <h2>Experience</h2>
+            {experiences.length ? (
+              <div className="stack">
+                {experiences.map((exp) => {
+                  const dateRange = getExperienceDateRange(exp)
+
+                  return (
+                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
+                      <h3>
+                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
+                      </h3>
+                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
+                      <div className="meta">
+                        {dateRange ? <span className="badge">{dateRange}</span> : null}
+                        {exp.location ? <span className="badge">{exp.location}</span> : null}
+                        {exp.current ? <span className="badge featured">Current</span> : null}
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="empty-state">No experience entries yet.</p>
+            )}
+          </article>
+        ) : null}
+
         {isResumeMode && showEducation ? (
-          <article className="card reveal full">
+          <article className="card reveal full" id="education">
             <h2>Education</h2>
             {education.length ? (
               <div className="stack">
@@ -513,9 +549,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </article>
         ) : null}
 
-        {isResumeMode && showExperience ? (
-          <article className="card reveal full">
+        {!isResumeMode && showExperience ? (
+          <article className="card reveal full experience-card primary-section-card" id="experience">
             <h2>Experience</h2>
+            <p className="section-intro">
+              Professional and product-focused engineering work first: roles and applied systems where I owned implementation,
+              reliability, and delivery.
+            </p>
             {experiences.length ? (
               <div className="stack">
                 {experiences.map((exp) => {
@@ -543,21 +583,51 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         ) : null}
 
         {showProjects ? (
-          <article className="card reveal">
-            <h2>Projects</h2>
-            <PaginatedProjects projects={projects} />
+          <article className="card reveal full featured-projects-card" id="projects">
+            <h2>Featured Projects</h2>
+            <p className="section-intro">
+              Selected shipped systems with product value up front, including AI-powered workflows, learning tools, and production
+              portfolio infrastructure.
+            </p>
+            <PaginatedProjects projects={homepageProjects} />
+          </article>
+        ) : null}
+
+        {showBlog ? (
+          <article className="card reveal full notes-card" id="notes">
+            <div className="section-head">
+              <h2>Engineering Notes</h2>
+              <Link className="view-all-link" href="/blog">
+                View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
+              </Link>
+            </div>
+            <p className="section-intro">
+              Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I
+              ship.
+            </p>
+
+            {blogs.length ? (
+              <div className="blog-grid home-blog-grid">
+                {blogs.map((post) => (
+                  <BlogCard key={post.id || post.slug} post={post} variant="preview" />
+                ))}
+              </div>
+            ) : (
+              <p className="empty-state">No notes published yet.</p>
+            )}
           </article>
         ) : null}
 
         {showSkills ? (
-          <article className="card reveal">
+          <article className="card reveal full skills-card" id="skills">
             <h2>Skills</h2>
+            <p className="section-intro">Technologies I use to support the product, AI, platform, and delivery work above.</p>
             <PaginatedSkillCategories groupedSkills={groupedSkills} />
           </article>
         ) : null}
 
         {showOpenSource ? (
-          <article className="card reveal full">
+          <article className="card reveal full" id="open-source">
             <div className="section-head">
               <h2>Open Source</h2>
               <Link className="view-all-link" href="/open-source">
@@ -576,7 +646,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         ) : null}
 
         {showNowPreview && nowData?.enabled !== false && (nowData?.title || nowData?.intro || nowUpdated) ? (
-          <article className="card reveal full now-preview-card">
+          <article className="card reveal full now-preview-card" id="now">
             <div className="section-head">
               <h2>{nowData?.title || 'Now'}</h2>
               <Link className="view-all-link" href="/now">
@@ -604,37 +674,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <TrustBlock description={home?.trustBlock?.description} items={home?.trustBlock?.items} title={home?.trustBlock?.title} />
         ) : null}
 
-        {!isResumeMode && showExperience ? (
-          <article className="card reveal full">
-            <h2>Experience</h2>
-            {experiences.length ? (
-              <div className="stack">
-                {experiences.map((exp) => {
-                  const dateRange = getExperienceDateRange(exp)
-
-                  return (
-                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
-                      <h3>
-                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
-                      </h3>
-                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
-                      <div className="meta">
-                        {dateRange ? <span className="badge">{dateRange}</span> : null}
-                        {exp.location ? <span className="badge">{exp.location}</span> : null}
-                        {exp.current ? <span className="badge featured">Current</span> : null}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="empty-state">No experience entries yet.</p>
-            )}
-          </article>
-        ) : null}
-
         {!isResumeMode && showEducation ? (
-          <article className="card reveal full">
+          <article className="card reveal full" id="education">
             <h2>Education</h2>
             {education.length ? (
               <div className="stack">
@@ -672,26 +713,45 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </article>
         ) : null}
 
-        {showBlog ? (
-          <article className="card reveal full">
-            <div className="section-head">
-              <h2>{siteConfig.blogLabel}</h2>
-              <Link className="view-all-link" href="/blog">
-                View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
-              </Link>
-            </div>
+        <article className="card reveal full contact-card" id="contact">
+          <h2>Contact</h2>
+          <p className="section-intro">
+            For software engineering roles, product engineering work, or technical discussions, start here.
+          </p>
+          <div className="links contact-actions">
+            {home?.email ? (
+              <a className="pill-link social-link-pill" data-journey-type="contact" href={`mailto:${home.email}`}>
+                <span aria-hidden="true" className="link-pill-icon">
+                  <SocialLinkIcon type="email" />
+                </span>
+                Email Me
+              </a>
+            ) : null}
+            <Link data-journey-type="contact" href="/reach-by-phone" className="pill-link social-link-pill">
+              <span aria-hidden="true" className="link-pill-icon">
+                <SocialLinkIcon type="phone" />
+              </span>
+              Reach Me by Phone
+            </Link>
+            {contactLinks.map((link) => {
+              const customIconUrl = getCustomIconUrl(link)
+              const iconType = inferSocialIcon(link)
 
-            {blogs.length ? (
-              <div className="blog-grid home-blog-grid">
-                {blogs.map((post) => (
-                  <BlogCard key={post.id || post.slug} post={post} variant="preview" />
-                ))}
-              </div>
-            ) : (
-              <p className="empty-state">No notes published yet.</p>
-            )}
-          </article>
-        ) : null}
+              return (
+                <a className="social-link-pill" href={link.url} key={`contact-${link.label}-${link.url}`} rel="noreferrer" target="_blank">
+                  {customIconUrl ? (
+                    <img alt="" aria-hidden="true" className="link-pill-image-icon" src={customIconUrl} />
+                  ) : iconType ? (
+                    <span aria-hidden="true" className="link-pill-icon">
+                      <SocialLinkIcon type={iconType} />
+                    </span>
+                  ) : null}
+                  {link.label || 'Link'}
+                </a>
+              )
+            })}
+          </div>
+        </article>
       </section>
     </main>
   )

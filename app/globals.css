@@ -454,6 +454,18 @@ p {
   margin-bottom: 0.78rem;
 }
 
+.section-intro {
+  margin: -0.2rem 0 0.85rem;
+  color: var(--ink-soft);
+  max-width: 74ch;
+  line-height: 1.65;
+}
+
+.primary-section-card {
+  border-color: #464646;
+  background: linear-gradient(150deg, rgba(12, 12, 12, 0.82), rgba(6, 6, 6, 0.68));
+}
+
 .full {
   grid-column: 1 / -1;
 }
@@ -1003,6 +1015,21 @@ p {
   padding-top: 0.76rem;
   border-top: 1px solid var(--line-soft);
   color: var(--ink-soft);
+}
+
+.contact-card {
+  display: grid;
+  gap: 0.72rem;
+  border-color: #3b3b3b;
+  background: linear-gradient(150deg, rgba(10, 10, 10, 0.82), rgba(6, 6, 6, 0.7));
+}
+
+.contact-card .section-intro {
+  margin: 0;
+}
+
+.contact-actions {
+  margin-top: 0.1rem;
 }
 
 .now-preview-card,
@@ -2247,6 +2274,12 @@ html[data-theme='light'] .link-pill-icon {
 html[data-theme='light'] .item {
   background: rgba(255, 255, 255, 0.84);
   border-color: #d4dce6;
+}
+
+html[data-theme='light'] .primary-section-card,
+html[data-theme='light'] .contact-card {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.88), rgba(246, 249, 253, 0.86));
+  border-color: #bfcbd8;
 }
 
 html[data-theme='light'] .resume-mode-banner {
