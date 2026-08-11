@@ -3388,7 +3388,7 @@ body:has(.page-home) {
   scroll-margin-top: 88px;
 }
 
-.page-home > .grid > #experience { grid-column: span 5; }
+.page-home > .grid > #experience { grid-column: 1 / -1; }
 .page-home > .grid > #projects { grid-column: span 7; }
 .page-home > .grid > #notes { grid-column: 1 / -1; }
 .page-home > .grid > #skills { grid-column: span 5; }
@@ -3443,6 +3443,14 @@ body:has(.page-home) {
   height: 7px;
   border-radius: 50%;
   background: var(--terminal-green);
+}
+
+@media (min-width: 1041px) {
+  .page-home #experience > .stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.25rem, 2vw, 2rem);
+    align-items: start;
+  }
 }
 
 .page-home .item h3,
