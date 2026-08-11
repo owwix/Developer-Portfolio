@@ -15,7 +15,7 @@ const createMonogram = (value: string): string => {
   return `${cleaned[0][0] || ''}${cleaned[1][0] || ''}`.toUpperCase()
 }
 
-const ownerName = env.SITE_OWNER_NAME || env.NEXT_PUBLIC_SITE_OWNER_NAME || 'Your Name'
+const ownerName = env.SITE_OWNER_NAME || env.NEXT_PUBLIC_SITE_OWNER_NAME || 'Alexander Okonkwo'
 const ownerRole = env.SITE_OWNER_ROLE || env.NEXT_PUBLIC_SITE_OWNER_ROLE || 'Software Engineer'
 const siteUrl = normalizeUrl(env.SITE_URL || env.NEXT_PUBLIC_SITE_URL || env.PAYLOAD_PUBLIC_SERVER_URL)
 

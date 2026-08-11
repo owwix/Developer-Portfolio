@@ -13,6 +13,7 @@ import { fetchBlogPosts, fetchEducation, fetchExperiences, fetchHome, fetchNow, 
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
 import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
+import defaultPortrait from '../src/media/559C6E16-E47C-4706-8EFE-892284F85DB5.jpg'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +44,15 @@ type SectionDescriptions = {
 type HomeData = {
   name?: string
   headline?: string
+  terminalHero?: {
+    prompt?: string | null
+    statement?: string | null
+    identityCommand?: string | null
+    aboutCommand?: string | null
+    projectsLabel?: string | null
+    resumeLabel?: string | null
+    contactLabel?: string | null
+  }
   homepageLayout?: HomepageLayout
   openSourceSubtitle?: string | null
   sectionDescriptions?: SectionDescriptions
@@ -459,35 +469,81 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const openSourceDescription = getSectionDescription(home, 'openSource')
   const educationDescription = getSectionDescription(home, 'education')
   const contactDescription = getSectionDescription(home, 'contact')
+  const terminalPrompt = normalizeOptionalText(home?.terminalHero?.prompt) || 'alexander@portfolio:~$'
+  const heroStatement =
+    normalizeOptionalText(home?.terminalHero?.statement) ||
+    'I build production-ready web products, AI workflows, and dependable platforms.'
+  const identityCommand = normalizeOptionalText(home?.terminalHero?.identityCommand) || 'whoami'
+  const aboutCommand = normalizeOptionalText(home?.terminalHero?.aboutCommand) || 'cat about.txt'
+  const projectsLabel = normalizeOptionalText(home?.terminalHero?.projectsLabel) || 'view projects'
+  const resumeLabel = normalizeOptionalText(home?.terminalHero?.resumeLabel) || 'resume'
+  const contactLabel = normalizeOptionalText(home?.terminalHero?.contactLabel) || 'say hi'
 
   return (
     <main className="container page-home">
-      <header className="card hero reveal">
+      <nav aria-label="Portfolio sections" className="portfolio-nav reveal">
+        <a className="portfolio-prompt" href="#about">
+          {terminalPrompt}
+        </a>
+        <div className="portfolio-nav-links">
+          <a href="#about">about</a>
+          <a href="#experience">experience</a>
+          <a href="#projects">projects</a>
+          <a href="#notes">notes</a>
+          <a href="#skills">skills</a>
+          <a href="#open-source">open source</a>
+          <a href="#contact">contact</a>
+        </div>
         <ThemeToggle />
-        <div className="hero-main">
-          {home?.profilePhoto?.url ? (
-            <img alt={home.profilePhoto?.alt || 'Profile photo'} className="avatar" src={home.profilePhoto.url} />
-          ) : null}
+      </nav>
+
+      <header className="hero reveal" id="about">
+        <div className="card hero-terminal">
+          <div aria-hidden="true" className="terminal-chrome">
+            <span className="terminal-dot terminal-dot-red" />
+            <span className="terminal-dot terminal-dot-yellow" />
+            <span className="terminal-dot terminal-dot-green" />
+            <span className="terminal-title">{terminalPrompt.replace(/\$$/, '')}</span>
+          </div>
           <div className="hero-copy">
-            <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
+            <p className="terminal-command">$ {identityCommand}</p>
             <h1>{home?.name || siteConfig.ownerName}</h1>
+            <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
+            <p className="hero-statement">{heroStatement}</p>
+            <p className="terminal-command terminal-about-command">$ {aboutCommand}</p>
             <RichTextContent
               className="bio rich-text-content"
               fallback="Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery."
               value={home?.bio}
             />
-            <p className="hero-blog-note">
-              I document architecture decisions, build logs, and engineering lessons learned while building production systems in
-              my{' '}
-              <Link data-journey-type="blog-open" href="/blog" className="hero-blog-link">
-                blog
-              </Link>
-              .
-            </p>
+            <div className="hero-actions">
+              <a className="terminal-button terminal-button-primary" href="#projects">
+                {projectsLabel} <span aria-hidden="true">→</span>
+              </a>
+              {resumeFileUrl ? (
+                <a className="terminal-button" data-journey-type="resume-open" href={resumeFileUrl} rel="noreferrer" target="_blank">
+                  {resumeLabel} <span aria-hidden="true">↓</span>
+                </a>
+              ) : (
+                <Link className="terminal-button" href="/?mode=resume">
+                  {resumeLabel} <span aria-hidden="true">↓</span>
+                </Link>
+              )}
+              <a className="terminal-button" href="#contact">
+                {contactLabel} <span aria-hidden="true">→</span>
+              </a>
+            </div>
           </div>
+          <ResumeModeToggle enabled={isResumeMode} resumeFileName={resumeFileName} resumeFileUrl={resumeFileUrl} />
         </div>
-        <ResumeModeToggle enabled={isResumeMode} resumeFileName={resumeFileName} resumeFileUrl={resumeFileUrl} />
-        <div className="links">
+
+        <div className="hero-portrait-wrap">
+          <img
+            alt={home?.profilePhoto?.alt || `Portrait of ${home?.name || siteConfig.ownerName}`}
+            className="hero-portrait"
+            src={home?.profilePhoto?.url || defaultPortrait.src}
+          />
+          <div className="links hero-social-links">
           {showResumeSyncWarning ? (
             <span className="pill social-link-pill resume-sync-warning">
               Resume may be out of sync (latest portfolio update: {latestPortfolioUpdateLabel || 'recently'})
@@ -525,13 +581,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </span>
             Reach Me by Phone
           </Link>
+          </div>
         </div>
       </header>
 
       <section className="grid">
         {isResumeMode && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
-            <h2>Experience</h2>
+            <h2>experience --log</h2>
             {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
             {experiences.length ? (
               <div className="stack">
@@ -561,7 +618,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {isResumeMode && showEducation ? (
           <article className="card reveal full" id="education">
-            <h2>Education</h2>
+            <h2>education --cat</h2>
             {educationDescription ? <p className="section-intro">{educationDescription}</p> : null}
             {education.length ? (
               <div className="stack">
@@ -601,7 +658,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {!isResumeMode && homepageLayout === 'softwareEngineering' && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
-            <h2>Experience</h2>
+            <h2>experience --log</h2>
             {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
             {experiences.length ? (
               <div className="stack">
@@ -631,7 +688,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {showProjects ? (
           <article className="card reveal full featured-projects-card" id="projects">
-            <h2>Featured Projects</h2>
+            <h2>featured projects</h2>
             {projectsDescription ? <p className="section-intro">{projectsDescription}</p> : null}
             <PaginatedProjects projects={homepageProjects} />
           </article>
@@ -640,7 +697,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {showBlog && (isResumeMode || homepageLayout === 'softwareEngineering') ? (
           <article className="card reveal full notes-card" id="notes">
             <div className="section-head">
-              <h2>Engineering Notes</h2>
+              <h2>engineering notes --ls</h2>
               <Link className="view-all-link" href="/blog">
                 View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
               </Link>
@@ -661,7 +718,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {showSkills ? (
           <article className="card reveal full skills-card" id="skills">
-            <h2>Skills</h2>
+            <h2>skills --version</h2>
             {skillsDescription ? <p className="section-intro">{skillsDescription}</p> : null}
             <PaginatedSkillCategories groupedSkills={groupedSkills} />
           </article>
@@ -670,7 +727,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {showOpenSource ? (
           <article className="card reveal full" id="open-source">
             <div className="section-head">
-              <h2>Open Source</h2>
+              <h2>open source --ls</h2>
               <Link className="view-all-link" href="/open-source">
                 View All Resources
               </Link>
@@ -715,7 +772,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {!isResumeMode && homepageLayout === 'classic' && showExperience ? (
           <article className="card reveal full experience-card primary-section-card" id="experience">
-            <h2>Experience</h2>
+            <h2>experience --log</h2>
             {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
             {experiences.length ? (
               <div className="stack">
@@ -745,7 +802,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {!isResumeMode && showEducation ? (
           <article className="card reveal full" id="education">
-            <h2>Education</h2>
+            <h2>education --cat</h2>
             {educationDescription ? <p className="section-intro">{educationDescription}</p> : null}
             {education.length ? (
               <div className="stack">
@@ -786,7 +843,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {!isResumeMode && homepageLayout === 'classic' && showBlog ? (
           <article className="card reveal full notes-card" id="notes">
             <div className="section-head">
-              <h2>Engineering Notes</h2>
+              <h2>engineering notes --ls</h2>
               <Link className="view-all-link" href="/blog">
                 View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
               </Link>
@@ -806,7 +863,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         ) : null}
 
         <article className="card reveal full contact-card" id="contact">
-          <h2>Contact</h2>
+          <h2>contact --say-hi</h2>
           {contactDescription ? <p className="section-intro">{contactDescription}</p> : null}
           <div className="links contact-actions">
             {home?.email ? (

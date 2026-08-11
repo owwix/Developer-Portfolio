@@ -22,6 +22,11 @@ import { Home } from './globals/Home'
 import { Now } from './globals/Now'
 import { siteConfig } from './utils/siteConfig'
 
+const payloadServerURL =
+  process.env.PAYLOAD_INTERNAL_SERVER_URL ||
+  (process.env.NODE_ENV === 'production' ? process.env.PAYLOAD_PUBLIC_SERVER_URL : `http://localhost:${process.env.PORT || 3000}`) ||
+  `http://localhost:${process.env.PORT || 3000}`
+
 export default buildConfig({
   upload: {
     // Keep filenames stable and URL-safe across environments and deploys.
@@ -34,7 +39,7 @@ export default buildConfig({
     url: process.env.MONGODB_URI ?? '',
   }),
   editor: slateEditor({}),
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000',
+  serverURL: payloadServerURL,
   admin: {
     bundler: webpackBundler(),
     user: 'users',

@@ -16,7 +16,7 @@ export const Home: GlobalConfig = {
       type: 'upload',
       relationTo: 'media',
       admin: {
-        description: 'Upload a square or portrait headshot. It will display circle-cropped on the site.',
+        description: 'Upload a square or portrait headshot. It is displayed in the homepage portrait frame.',
       },
     },
     {
@@ -37,6 +37,61 @@ export const Home: GlobalConfig = {
       name: 'headline',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'terminalHero',
+      label: 'Terminal Hero',
+      type: 'group',
+      fields: [
+        {
+          name: 'prompt',
+          label: 'Terminal Prompt',
+          type: 'text',
+          defaultValue: 'alexander@portfolio:~$',
+          admin: {
+            description: 'Shown in the sticky navigation and terminal title bar.',
+          },
+        },
+        {
+          name: 'statement',
+          label: 'Hero Statement',
+          type: 'textarea',
+          defaultValue: 'I build production-ready web products, AI workflows, and dependable platforms.',
+        },
+        {
+          name: 'identityCommand',
+          label: 'Identity Command',
+          type: 'text',
+          defaultValue: 'whoami',
+        },
+        {
+          name: 'aboutCommand',
+          label: 'About Command',
+          type: 'text',
+          defaultValue: 'cat about.txt',
+        },
+        {
+          name: 'projectsLabel',
+          label: 'Projects Button Label',
+          type: 'text',
+          defaultValue: 'view projects',
+        },
+        {
+          name: 'resumeLabel',
+          label: 'Resume Button Label',
+          type: 'text',
+          defaultValue: 'resume',
+        },
+        {
+          name: 'contactLabel',
+          label: 'Contact Button Label',
+          type: 'text',
+          defaultValue: 'say hi',
+        },
+      ],
+      admin: {
+        description: 'Controls the terminal-style copy in the first viewport without changing code.',
+      },
     },
     {
       name: 'homepageLayout',
