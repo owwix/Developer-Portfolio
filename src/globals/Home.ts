@@ -39,6 +39,29 @@ export const Home: GlobalConfig = {
       required: true,
     },
     {
+      name: 'announcement',
+      label: 'Announcement Banner',
+      type: 'group',
+      fields: [
+        {
+          name: 'enabled',
+          label: 'Show Announcement',
+          type: 'checkbox',
+          defaultValue: true,
+        },
+        {
+          name: 'message',
+          label: 'Message',
+          type: 'textarea',
+          defaultValue:
+            'I am currently redesigning this site. Things may shift, and you might run into a bug or two.',
+        },
+      ],
+      admin: {
+        description: 'A temporary notice shown beneath the homepage navigation.',
+      },
+    },
+    {
       name: 'terminalHero',
       label: 'Terminal Hero',
       type: 'group',

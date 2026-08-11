@@ -3109,6 +3109,40 @@ body:has(.page-home) {
   color: var(--terminal-green);
 }
 
+.site-announcement {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: min(100%, 1240px);
+  margin: 0.85rem auto 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(222, 213, 197, 0.3);
+  border-radius: 5px;
+  background: rgba(222, 213, 197, 0.075);
+  color: #bbb7ae;
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: clamp(0.7rem, 0.78vw, 0.78rem);
+  line-height: 1.45;
+}
+
+.site-announcement p {
+  margin: 0;
+}
+
+.site-announcement strong {
+  color: var(--terminal-green-strong);
+  font-weight: 500;
+}
+
+.site-announcement-indicator {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--terminal-green);
+  box-shadow: 0 0 0 4px rgba(222, 213, 197, 0.1);
+}
+
 .page-home .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 310px);
@@ -3798,6 +3832,17 @@ body:has(.page-home) .site-footer {
 }
 
 @media (max-width: 480px) {
+  .site-announcement {
+    align-items: flex-start;
+    margin-top: 0.7rem;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.68rem;
+  }
+
+  .site-announcement-indicator {
+    margin-top: 0.3rem;
+  }
+
   .page-home .hero-copy {
     padding: 0.9rem;
   }

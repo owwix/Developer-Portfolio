@@ -41,6 +41,10 @@ type SectionDescriptions = {
 type HomeData = {
   name?: string
   headline?: string
+  announcement?: {
+    enabled?: boolean | null
+    message?: string | null
+  }
   terminalHero?: {
     prompt?: string | null
     statement?: string | null
@@ -484,6 +488,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const projectsLabel = normalizeOptionalText(home?.terminalHero?.projectsLabel) || 'view projects'
   const resumeLabel = normalizeOptionalText(home?.terminalHero?.resumeLabel) || 'resume'
   const contactLabel = normalizeOptionalText(home?.terminalHero?.contactLabel) || 'say hi'
+  const showAnnouncement = home?.announcement?.enabled !== false
+  const announcementMessage =
+    normalizeOptionalText(home?.announcement?.message) ||
+    'I am currently redesigning this site. Things may shift, and you might run into a bug or two.'
 
   return (
     <main className="container page-home">
@@ -501,6 +509,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <a href="#contact">contact</a>
         </div>
       </nav>
+
+      {showAnnouncement ? (
+        <aside aria-label="Site announcement" className="site-announcement reveal" role="status">
+          <span aria-hidden="true" className="site-announcement-indicator" />
+          <p>
+            <strong>Site update:</strong> {announcementMessage}
+          </p>
+        </aside>
+      ) : null}
 
       <header className="hero reveal" id="about">
         <div className="card hero-terminal">
