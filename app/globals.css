@@ -3189,6 +3189,19 @@ body:has(.page-home) {
   text-transform: none;
 }
 
+.hero-founder-title {
+  margin-top: 0.25rem;
+  color: var(--terminal-green);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+  font-size: clamp(0.76rem, 0.86vw, 0.86rem);
+  line-height: 1.4;
+}
+
+.hero-founder-title::before {
+  content: '↳ ';
+  color: var(--terminal-green-muted);
+}
+
 .hero-statement {
   max-width: 33ch;
   margin-top: clamp(0.75rem, 1.1vw, 1rem);

@@ -498,6 +498,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <p className="terminal-command">$ {identityCommand}</p>
             <h1>{home?.name || siteConfig.ownerName}</h1>
             <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
+            <p className="hero-founder-title">CEO &amp; Founder of Turnkeeper</p>
             <p className="hero-statement">{heroStatement}</p>
             <p className="terminal-command terminal-about-command">$ {aboutCommand}</p>
             <RichTextContent
