@@ -4,10 +4,8 @@ import GitHubSnapshot from '../components/home/GitHubSnapshot'
 import PaginatedProjects from '../components/home/PaginatedProjects'
 import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
 import ResumeModeToggle from '../components/home/ResumeModeToggle'
-import TrustBlock from '../components/home/TrustBlock'
 import OpenSourceCard from '../components/open-source/OpenSourceCard'
 import RichTextContent from '../components/ui/RichTextContent'
-import ThemeToggle from '../components/ui/ThemeToggle'
 import { type BlogPost } from '../lib/blog'
 import { fetchBlogPosts, fetchEducation, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
@@ -23,7 +21,6 @@ type SectionVisibility = {
   openSource?: boolean
   nowPreview?: boolean
   githubSnapshot?: boolean
-  trustBlock?: boolean
   experience?: boolean
   education?: boolean
   blog?: boolean
@@ -66,12 +63,6 @@ type HomeData = {
     description?: string
     username?: string
     featuredRepos?: Array<{ repository?: string }>
-  }
-  trustBlock?: {
-    enabled?: boolean
-    title?: string
-    description?: string
-    items?: Array<{ label?: string; value?: string }>
   }
   links?: HomeLink[]
   profilePhoto?: {
@@ -443,7 +434,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const showSkills = sectionVisibility.skills !== false
   const showOpenSource = sectionVisibility.openSource !== false
   const showNowPreview = sectionVisibility.nowPreview !== false
-  const showTrustBlock = sectionVisibility.trustBlock !== false && home?.trustBlock?.enabled !== false
   const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
   const showExperience = sectionVisibility.experience !== false
   const showEducation = sectionVisibility.education !== false
@@ -494,7 +484,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <a href="#open-source">open source</a>
           <a href="#contact">contact</a>
         </div>
-        <ThemeToggle />
       </nav>
 
       <header className="hero reveal" id="about">
@@ -764,10 +753,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             title={home?.githubSnapshot?.title}
             username={githubUsername}
           />
-        ) : null}
-
-        {showTrustBlock ? (
-          <TrustBlock description={home?.trustBlock?.description} items={home?.trustBlock?.items} title={home?.trustBlock?.title} />
         ) : null}
 
         {!isResumeMode && homepageLayout === 'classic' && showExperience ? (

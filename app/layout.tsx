@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
+import { Archivo, IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
 import JourneyTracker from '../components/analytics/JourneyTracker'
 import NetworkBackground from '../components/ui/NetworkBackground'
@@ -15,6 +15,11 @@ const plexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
   weight: ['400', '500'],
+})
+
+const archivo = Archivo({
+  subsets: ['latin'],
+  variable: '--font-display',
 })
 
 export const metadata: Metadata = {
@@ -51,19 +56,6 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const themeInitScript = `
-    (function () {
-      try {
-        var stored = localStorage.getItem('theme');
-        var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        var nextTheme = stored === 'light' || stored === 'dark' ? stored : (prefersLight ? 'light' : 'dark');
-        document.documentElement.setAttribute('data-theme', nextTheme);
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-    })();
-  `
-
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -75,10 +67,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const currentYear = new Date().getFullYear()
 
   return (
-    <html className={`${spaceGrotesk.variable} ${plexMono.variable}`} data-theme="dark" lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+    <html className={`${spaceGrotesk.variable} ${plexMono.variable} ${archivo.variable}`} data-theme="dark" lang="en">
       <body>
         <NetworkBackground />
         <JourneyTracker />

@@ -13,7 +13,6 @@ import ReadingProgress from '../../../components/blog/ReadingProgress'
 import SectionContextNav from '../../../components/blog/SectionContextNav'
 import TagPills from '../../../components/blog/TagPills'
 import Toc from '../../../components/blog/Toc'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
 import type { BlogPost } from '../../../lib/blog'
 import {
   formatDate,
@@ -222,7 +221,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         />
         {commandEntries.length ? <BlogCommandPalette entries={commandEntries} /> : null}
         <header className="card post-hero reveal">
-          <ThemeToggle />
           <p className="eyebrow">Engineering Article</p>
           <h1>{post.title}</h1>
           <p className="post-meta-line">

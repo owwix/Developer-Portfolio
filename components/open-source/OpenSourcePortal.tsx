@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { getOpenSourceByCategory, type OpenSourceResource } from '../../lib/openSource'
 import { siteConfig } from '../../src/utils/siteConfig'
 import SectionContextNav from '../blog/SectionContextNav'
-import ThemeToggle from '../ui/ThemeToggle'
 import OpenSourceCard from './OpenSourceCard'
 
 function toAnchorId(value: string): string {
@@ -20,7 +19,6 @@ export default function OpenSourcePortal({ resources }: OpenSourcePortalProps) {
     <main className="container page-open-source">
       <SectionContextNav items={[{ label: 'Portfolio', href: '/' }, { label: 'Open Source' }]} />
       <header className="card page-hero reveal">
-        <ThemeToggle />
         <p className="eyebrow">Developer Platform</p>
         <h1>Open Source</h1>
         <p className="page-intro">

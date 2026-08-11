@@ -55,29 +55,29 @@ export default function NetworkBackground() {
           speed: 0.18,
           radius: [0.6, 1.2] as [number, number],
           distance: 130,
-          alpha: 0.12 * alphaScale,
-          density: 14000 * densityScale,
+          alpha: 0.055 * alphaScale,
+          density: 32000 * densityScale,
         },
         {
           depth: 0.7,
           speed: 0.28,
           radius: [0.9, 1.8] as [number, number],
           distance: 160,
-          alpha: 0.14 * alphaScale,
-          density: 10500 * densityScale,
+          alpha: 0.07 * alphaScale,
+          density: 24000 * densityScale,
         },
         {
           depth: 1.15,
           speed: 0.42,
           radius: [1.2, 2.4] as [number, number],
           distance: 190,
-          alpha: 0.16 * alphaScale,
-          density: 8200 * densityScale,
+          alpha: 0.09 * alphaScale,
+          density: 18000 * densityScale,
         },
       ]
       const area = width * height
       layers = tunedSpecs.map((spec) => {
-        const count = Math.max(35, Math.min(220, Math.floor(area / spec.density)))
+        const count = Math.max(24, Math.min(130, Math.floor(area / spec.density)))
         return {
           ...spec,
           nodes: Array.from({ length: count }, () => ({
@@ -136,7 +136,7 @@ export default function NetworkBackground() {
             const dist = Math.hypot(dx, dy)
             if (dist > layer.distance) continue
             const alpha = (1 - dist / layer.distance) * layer.alpha
-            ctx.strokeStyle = `rgba(232, 232, 232, ${alpha.toFixed(3)})`
+            ctx.strokeStyle = `rgba(222, 213, 197, ${alpha.toFixed(3)})`
             ctx.lineWidth = 0.8 + layer.depth * 0.25
             ctx.beginPath()
             ctx.moveTo(a.x + offsetX, a.y + offsetY)
@@ -147,7 +147,7 @@ export default function NetworkBackground() {
 
         for (const node of nodes) {
           const pulse = 0.32 + 0.22 * Math.sin((tick + node.x + node.y) * 0.018 * layer.depth)
-          ctx.fillStyle = `rgba(246, 246, 246, ${pulse.toFixed(3)})`
+          ctx.fillStyle = `rgba(242, 239, 232, ${pulse.toFixed(3)})`
           ctx.beginPath()
           ctx.arc(node.x + offsetX, node.y + offsetY, node.r, 0, Math.PI * 2)
           ctx.fill()

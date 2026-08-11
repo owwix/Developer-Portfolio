@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import PhoneRequestForm from '../../components/forms/PhoneRequestForm'
-import ThemeToggle from '../../components/ui/ThemeToggle'
 import { siteConfig } from '../../src/utils/siteConfig'
 
 export const metadata: Metadata = {
@@ -13,7 +12,6 @@ export default function ReachByPhonePage() {
   return (
     <main className="container page-phone">
       <header className="card page-hero reveal">
-        <ThemeToggle />
         <p className="eyebrow">Direct Contact</p>
         <h1>Reach Me by Phone</h1>
         <p className="page-intro">

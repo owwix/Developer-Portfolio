@@ -216,12 +216,6 @@ export const Home: GlobalConfig = {
           defaultValue: true,
         },
         {
-          name: 'trustBlock',
-          label: 'Show Trust Block',
-          type: 'checkbox',
-          defaultValue: true,
-        },
-        {
           name: 'experience',
           label: 'Show Experience',
           type: 'checkbox',
@@ -276,12 +270,6 @@ export const Home: GlobalConfig = {
         {
           name: 'githubSnapshot',
           label: 'Show GitHub Snapshot',
-          type: 'checkbox',
-          defaultValue: false,
-        },
-        {
-          name: 'trustBlock',
-          label: 'Show Trust Block',
           type: 'checkbox',
           defaultValue: false,
         },
@@ -350,47 +338,6 @@ export const Home: GlobalConfig = {
               admin: {
                 description: 'Use "owner/name" or just "name" (uses the username above).',
               },
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'trustBlock',
-      label: 'Trust Block',
-      type: 'group',
-      fields: [
-        {
-          name: 'enabled',
-          label: 'Show Trust Block',
-          type: 'checkbox',
-          defaultValue: true,
-        },
-        {
-          name: 'title',
-          type: 'text',
-          defaultValue: 'Delivery Signals',
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          defaultValue:
-            'I treat product delivery like an engineering system: predictable deploys, clear ownership, and maintainable architecture decisions.',
-        },
-        {
-          name: 'items',
-          label: 'Signals',
-          type: 'array',
-          fields: [
-            {
-              name: 'label',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'value',
-              type: 'text',
-              required: true,
             },
           ],
         },
