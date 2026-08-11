@@ -71,6 +71,7 @@ export const Skills: CollectionConfig = {
             { label: 'Networking & Systems', value: 'networking-systems' },
             { label: 'Cloud & Deployment', value: 'cloud-deployment' },
             { label: 'Developer Tools', value: 'developer-tools' },
+            { label: 'AI Engineering', value: 'ai-engineering' },
           ],
         },
         {

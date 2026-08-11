@@ -219,28 +219,14 @@ const defaultSectionDescriptions: Required<SectionDescriptions> = {
   contact: 'For software engineering roles, product engineering work, or technical discussions, start here.',
 }
 
-const aiSkillGroups = [
-  {
-    title: 'Agents & Workflows',
-    description: 'Production-oriented agent flows that connect models, tools, structured outputs, and human review.',
-    skills: ['Agentic Workflow Design', 'Tool Calling', 'Structured Outputs', 'Human-in-the-Loop Systems'],
-  },
-  {
-    title: 'Model Integration',
-    description: 'Reliable application layers for integrating language models into web products and developer platforms.',
-    skills: ['LLM API Integration', 'Prompt & Tool Design', 'Context Management', 'Evaluation Workflows'],
-  },
-  {
-    title: 'AI Safety Systems',
-    description: 'Explainable safety pipelines that coordinate detector signals while preserving reviewable evidence.',
-    skills: ['Safety Intelligence', 'Detector Orchestration', 'Explainable Cases', 'Privacy-Minimized Architecture'],
-  },
-  {
-    title: 'AI Developer Tooling',
-    description: 'Developer-facing interfaces that make AI capabilities accessible across products and automation tools.',
-    skills: ['MCP Server Development', 'TypeScript SDKs', 'CLI Integrations', 'API Contract Design'],
-  },
-] as const
+const defaultAISkills: SkillRow[] = [
+  { category: 'ai-engineering', name: 'Agentic Workflow Design' },
+  { category: 'ai-engineering', name: 'LLM API Integration' },
+  { category: 'ai-engineering', name: 'MCP Server Development' },
+  { category: 'ai-engineering', name: 'Tool Calling & Structured Outputs' },
+  { category: 'ai-engineering', name: 'AI Safety Systems' },
+  { category: 'ai-engineering', name: 'Human-in-the-Loop Workflows' },
+]
 
 function normalizeOptionalText(value: unknown): string | undefined {
   if (value === undefined || value === null) return undefined
@@ -446,6 +432,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     acc[key].push(row)
     return acc
   }, {})
+  if (!groupedSkills['ai-engineering']?.length) {
+    groupedSkills['ai-engineering'] = defaultAISkills
+  }
   const openSourcePreview = openSource.filter((item) => item.showOnHomepage !== false).slice(0, 3)
   const githubFromLinks = (home?.links || [])
     .map((link) => extractGitHubUsername(link?.url || ''))
@@ -504,7 +493,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <a href="#projects">projects</a>
           <a href="#notes">notes</a>
           <a href="#skills">skills</a>
-          {showSkills ? <a href="#ai-skills">AI</a> : null}
           <a href="#open-source">open source</a>
           <a href="#contact">contact</a>
         </div>
@@ -735,30 +723,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <h2>skills --version</h2>
             {skillsDescription ? <p className="section-intro">{skillsDescription}</p> : null}
             <PaginatedSkillCategories groupedSkills={groupedSkills} />
-          </article>
-        ) : null}
-
-        {showSkills ? (
-          <article className="card reveal full ai-skills-card" id="ai-skills">
-            <h2>AI systems --capabilities</h2>
-            <p className="section-intro">
-              Applied AI engineering skills for building reliable agents, model-powered products, safety workflows, and developer tooling.
-            </p>
-            <div className="ai-skills-grid">
-              {aiSkillGroups.map((group) => (
-                <section className="item ai-skill-group" key={group.title}>
-                  <h3>{group.title}</h3>
-                  <p>{group.description}</p>
-                  <div className="meta">
-                    {group.skills.map((skill) => (
-                      <span className="badge" key={skill}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
           </article>
         ) : null}
 
