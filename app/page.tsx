@@ -44,6 +44,7 @@ type HomeData = {
   terminalHero?: {
     prompt?: string | null
     statement?: string | null
+    personalNote?: string | null
     identityCommand?: string | null
     aboutCommand?: string | null
     projectsLabel?: string | null
@@ -475,6 +476,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const heroStatement =
     normalizeOptionalText(home?.terminalHero?.statement) ||
     'I build production-ready web products, AI workflows, and dependable platforms.'
+  const personalNote =
+    normalizeOptionalText(home?.terminalHero?.personalNote) ||
+    'Outside of work, I lift weights, play chess, build personal coding projects, and seek out the occasional adrenaline rush. I have been interested in technology since childhood; some of my earliest experiences with code came from building simple Roblox games around 2009.'
   const identityCommand = normalizeOptionalText(home?.terminalHero?.identityCommand) || 'whoami'
   const aboutCommand = normalizeOptionalText(home?.terminalHero?.aboutCommand) || 'cat about.txt'
   const projectsLabel = normalizeOptionalText(home?.terminalHero?.projectsLabel) || 'view projects'
@@ -518,6 +522,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               fallback="Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery."
               value={home?.bio}
             />
+            {!isResumeMode ? (
+              <p className="hero-personal-note">
+                <span>off_hours:</span> {personalNote}
+              </p>
+            ) : null}
             <div className="hero-actions">
               <a className="terminal-button terminal-button-primary" href="#projects">
                 {projectsLabel} <span aria-hidden="true">→</span>

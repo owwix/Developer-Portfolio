@@ -59,6 +59,16 @@ export const Home: GlobalConfig = {
           defaultValue: 'I build production-ready web products, AI workflows, and dependable platforms.',
         },
         {
+          name: 'personalNote',
+          label: 'Personal Note',
+          type: 'textarea',
+          defaultValue:
+            'Outside of work, I lift weights, play chess, build personal coding projects, and seek out the occasional adrenaline rush. I have been interested in technology since childhood; some of my earliest experiences with code came from building simple Roblox games around 2009.',
+          admin: {
+            description: 'Shown beneath the technical bio in the standard hero. Hidden in Resume mode.',
+          },
+        },
+        {
           name: 'identityCommand',
           label: 'Identity Command',
           type: 'text',

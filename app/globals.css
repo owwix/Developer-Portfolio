@@ -3223,6 +3223,21 @@ body:has(.page-home) {
   line-height: 1.5;
 }
 
+.hero-personal-note {
+  max-width: 68ch;
+  margin-top: 0.7rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--terminal-line-bright);
+  color: var(--terminal-muted);
+  font-size: clamp(0.76rem, 0.84vw, 0.84rem);
+  line-height: 1.5;
+}
+
+.hero-personal-note span {
+  color: var(--terminal-green);
+  font-family: var(--font-mono), 'IBM Plex Mono', monospace;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
