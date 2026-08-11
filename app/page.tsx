@@ -535,16 +535,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <div className="links hero-social-links">
           {showResumeSyncWarning ? (
             <span className="pill social-link-pill resume-sync-warning">
-              Resume may be out of sync (latest portfolio update: {latestPortfolioUpdateLabel || 'recently'})
+              Portfolio current as of {latestPortfolioUpdateLabel || 'recently'} · résumé available above
             </span>
           ) : null}
           {home?.email ? (
-            <span className="pill social-link-pill">
+            <a className="pill social-link-pill" href={`mailto:${home.email}`}>
               <span aria-hidden="true" className="link-pill-icon">
                 <SocialLinkIcon type="email" />
               </span>
-              Email: {home.email}
-            </span>
+              Email
+            </a>
           ) : null}
           {(home?.links || []).map((link) => {
             if (!link?.url || String(link.url).toLowerCase().startsWith('mailto:')) return null
@@ -568,7 +568,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <span aria-hidden="true" className="link-pill-icon">
               <SocialLinkIcon type="phone" />
             </span>
-            Reach Me by Phone
+            Phone
           </Link>
           </div>
         </div>
