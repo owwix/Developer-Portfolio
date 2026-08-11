@@ -3405,6 +3405,7 @@ body:has(.page-home) {
 .page-home > .grid > #projects { grid-column: span 7; }
 .page-home > .grid > #notes { grid-column: 1 / -1; }
 .page-home > .grid > #skills { grid-column: span 5; }
+.page-home > .grid > #ai-skills { grid-column: 1 / -1; }
 .page-home > .grid > #open-source { grid-column: 1 / -1; }
 .page-home > .grid > #now { grid-column: span 5; }
 
@@ -3430,6 +3431,26 @@ body:has(.page-home) {
 
 .page-home .stack {
   margin-top: 1rem;
+}
+
+.page-home .ai-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.page-home .ai-skill-group {
+  min-width: 0;
+  padding: 0.9rem;
+}
+
+.page-home .ai-skill-group p {
+  margin-top: 0.45rem;
+}
+
+.page-home .ai-skill-group .meta {
+  margin-top: 0.7rem;
 }
 
 .page-home .item {
@@ -3670,6 +3691,7 @@ body:has(.page-home) .site-footer {
   .page-home > .grid > #projects,
   .page-home > .grid > #notes,
   .page-home > .grid > #skills,
+  .page-home > .grid > #ai-skills,
   .page-home > .grid > #open-source,
   .page-home > .grid > #now {
     grid-column: 1 / -1;
@@ -3680,6 +3702,10 @@ body:has(.page-home) .site-footer {
   }
 
   .page-home .open-source-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-home .ai-skills-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -3755,9 +3781,14 @@ body:has(.page-home) .site-footer {
   .page-home > .grid > #projects,
   .page-home > .grid > #notes,
   .page-home > .grid > #skills,
+  .page-home > .grid > #ai-skills,
   .page-home > .grid > #open-source,
   .page-home > .grid > #now {
     grid-column: 1;
+  }
+
+  .page-home .ai-skills-grid {
+    grid-template-columns: 1fr;
   }
 
   .page-home .featured-projects-card:has(.project-image-shell) .item {
