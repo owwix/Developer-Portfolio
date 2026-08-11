@@ -830,6 +830,7 @@ p {
   display: grid;
   gap: 0.75rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
 }
 
 .home-blog-grid {
@@ -846,6 +847,7 @@ p {
   display: grid;
   gap: 0.8rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
 }
 
 .open-source-grid.is-detailed {
