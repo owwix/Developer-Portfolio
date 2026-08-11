@@ -851,7 +851,26 @@ p {
 }
 
 .open-source-grid.is-detailed {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.open-source-grid.is-detailed .open-source-card {
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.open-source-grid.is-detailed .open-source-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+
+.open-source-grid.is-detailed .open-source-stack {
+  max-height: 4.2rem;
+  overflow: hidden;
 }
 
 .open-source-card {
@@ -1161,7 +1180,8 @@ p {
 }
 
 .blog-card-image {
-  height: 170px;
+  height: auto;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
 }
 
@@ -1412,7 +1432,38 @@ p {
 }
 
 .archive-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.archive-grid .blog-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.archive-grid .blog-card-image {
+  flex: 0 0 40%;
+  height: 40%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.archive-grid .blog-card h3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.archive-grid .blog-card-excerpt {
+  -webkit-line-clamp: 2;
+}
+
+.archive-grid .blog-card-cta {
+  margin-top: auto;
 }
 
 .command-palette-trigger {
@@ -2605,6 +2656,10 @@ html[data-theme='light'] .form-error {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .open-source-grid.is-detailed {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .github-metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2731,6 +2786,10 @@ html[data-theme='light'] .form-error {
   .archive-grid,
   .open-source-grid,
   .github-repo-list {
+    grid-template-columns: 1fr;
+  }
+
+  .open-source-grid.is-detailed {
     grid-template-columns: 1fr;
   }
 
@@ -2916,7 +2975,7 @@ html[data-theme='light'] .form-error {
   }
 
   .blog-card-image {
-    height: 154px;
+    height: auto;
   }
 
   .section-head {
@@ -3298,9 +3357,9 @@ body:has(.page-home) {
 
 .page-home > .grid > #experience { grid-column: span 5; }
 .page-home > .grid > #projects { grid-column: span 7; }
-.page-home > .grid > #notes { grid-column: span 7; }
+.page-home > .grid > #notes { grid-column: 1 / -1; }
 .page-home > .grid > #skills { grid-column: span 5; }
-.page-home > .grid > #open-source { grid-column: span 7; }
+.page-home > .grid > #open-source { grid-column: 1 / -1; }
 .page-home > .grid > #now { grid-column: span 5; }
 
 .page-home .card h2 {
@@ -3421,15 +3480,18 @@ body:has(.page-home) {
   border-radius: 5px;
 }
 
-.page-home .home-blog-grid,
-.page-home .open-source-grid {
-  grid-template-columns: 1fr;
-  gap: 0;
+.page-home .home-blog-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
   margin-top: 1rem;
 }
 
-.page-home .blog-card,
-.page-home .open-source-card,
+.page-home .open-source-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .page-home .github-repo-item,
 .page-home .github-metric {
   border: 0;
@@ -3437,6 +3499,64 @@ body:has(.page-home) {
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.page-home .open-source-card {
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--terminal-line);
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-home .open-source-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+
+.page-home .open-source-stack {
+  max-height: 4.2rem;
+  overflow: hidden;
+}
+
+.page-home .blog-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--terminal-line);
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-home .blog-card-image {
+  flex: 0 0 40%;
+  width: 100%;
+  height: 40%;
+  min-height: 0;
+  aspect-ratio: auto;
+  object-fit: cover;
+}
+
+.page-home .blog-card h3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.page-home .blog-card-excerpt {
+  -webkit-line-clamp: 2;
+}
+
+.page-home .blog-card-cta {
+  margin-top: auto;
 }
 
 .page-home .blog-card:hover,
@@ -3499,6 +3619,14 @@ body:has(.page-home) .site-footer {
   .page-home > .grid > #open-source,
   .page-home > .grid > #now {
     grid-column: 1 / -1;
+  }
+
+  .page-home .home-blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-home .open-source-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -3564,6 +3692,14 @@ body:has(.page-home) .site-footer {
 
   .page-home .featured-projects-card .project-image-shell {
     margin-bottom: 1rem;
+  }
+
+  .page-home .home-blog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-home .open-source-grid {
+    grid-template-columns: 1fr;
   }
 
   body:has(.page-home) .site-footer {
