@@ -50,7 +50,9 @@ const start = async () => {
 
   await payload.init({
     secret: process.env.PAYLOAD_SECRET ?? '',
-    express: app,
+    // Payload bundles an older compatible Express type, so bridge the duplicate
+    // type packages while keeping the same Express instance at runtime.
+    express: app as unknown as Parameters<typeof payload.init>[0]['express'],
     onInit: () => {
       payload.logger.info(`Payload admin URL: ${payload.getAdminURL()}`)
     },

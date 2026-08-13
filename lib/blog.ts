@@ -150,7 +150,8 @@ export function toPlainText(value: unknown): string {
   return toDisplayText(value)
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`]*`/g, ' ')
-    .replace(/[>#*_\-[\]()]*/g, ' ')
+    // Use + (not *) so zero-length matches cannot insert spaces between every character.
+    .replace(/[>#*_\[\]()-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }

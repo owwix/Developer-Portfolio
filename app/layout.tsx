@@ -1,20 +1,21 @@
 import type { Metadata } from 'next'
-import { Archivo, IBM_Plex_Mono, Space_Grotesk } from 'next/font/google'
+import { Archivo, JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import type { ReactNode } from 'react'
 import JourneyTracker from '../components/analytics/JourneyTracker'
 import NetworkBackground from '../components/ui/NetworkBackground'
 import { siteConfig, siteMetadata } from '../src/utils/siteConfig'
 import './globals.css'
+import './reforged.css'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-sans',
 })
 
-const plexMono = IBM_Plex_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
-  weight: ['400', '500'],
+  weight: ['400', '500', '600'],
 })
 
 const archivo = Archivo({
@@ -67,7 +68,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const currentYear = new Date().getFullYear()
 
   return (
-    <html className={`${spaceGrotesk.variable} ${plexMono.variable} ${archivo.variable}`} data-theme="dark" lang="en">
+    <html className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${archivo.variable}`} data-theme="dark" lang="en">
       <body>
         <NetworkBackground />
         <JourneyTracker />

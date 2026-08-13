@@ -1,14 +1,16 @@
-import Link from 'next/link'
-import BlogCard from '../components/blog/BlogCard'
-import GitHubSnapshot from '../components/home/GitHubSnapshot'
-import PaginatedProjects from '../components/home/PaginatedProjects'
-import PaginatedSkillCategories from '../components/home/PaginatedSkillCategories'
-import ResumeModeToggle from '../components/home/ResumeModeToggle'
-import OpenSourceCard from '../components/open-source/OpenSourceCard'
-import RichTextContent from '../components/ui/RichTextContent'
-import { type BlogPost } from '../lib/blog'
+import ReforgedHome, {
+  type ReforgedContactItem,
+  type ReforgedEducation,
+  type ReforgedExperience,
+  type ReforgedNote,
+  type ReforgedOpenSource,
+  type ReforgedProject,
+  type ReforgedSkillGroup,
+} from '../components/home/ReforgedHome'
+import { type BlogPost, formatDate, getReadTime, getTags, toPlainText } from '../lib/blog'
 import { fetchBlogPosts, fetchEducation, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
+import { renderRichText } from '../lib/renderRichText'
 import { siteConfig } from '../src/utils/siteConfig'
 import { sortByDisplayOrder } from '../src/utils/order'
 import defaultPortrait from '../src/media/559C6E16-E47C-4706-8EFE-892284F85DB5.jpg'
@@ -87,20 +89,7 @@ type HomeLink = {
   label?: string
   url?: string
   icon?: string
-  customIcon?:
-    | string
-    | {
-        url?: string
-        alt?: string
-        sizes?: {
-          avatar?: {
-            url?: string
-          }
-        }
-      }
 }
-
-type SocialIconType = 'linkedin' | 'github' | 'email' | 'phone'
 
 type SkillRow = {
   displayOrder?: number
@@ -137,16 +126,6 @@ type EducationRow = {
   updatedAt?: string
 }
 
-type ProjectImage = {
-  url?: string
-  alt?: string
-  sizes?: {
-    avatar?: {
-      url?: string
-    }
-  }
-}
-
 type ProjectRow = {
   id?: string
   displayOrder?: number
@@ -164,14 +143,6 @@ type ProjectRow = {
         slug?: string
         title?: string
       }
-  projectImage?: string | ProjectImage
-  projectImages?: Array<
-    | string
-    | ProjectImage
-    | {
-        image?: string | ProjectImage
-      }
-  >
   focusAreas?: string[]
   updatedAt?: string
 }
@@ -189,38 +160,26 @@ type HomePageProps = {
     | Record<string, string | string[] | undefined>
 }
 
+type RichTextNode = {
+  type?: string
+  text?: string
+  children?: RichTextNode[]
+  root?: { children?: RichTextNode[] }
+}
+
 function logHomepageFetchError(label: string, error: unknown): void {
   console.error(`[homepage] Failed to load ${label}`, error)
 }
 
-function inferSocialIcon(link: HomeLink): SocialIconType | null {
-  const icon = String(link?.icon || '').toLowerCase()
-  if (icon === 'linkedin' || icon === 'github' || icon === 'email' || icon === 'phone') return icon
-
-  const label = String(link?.label || '').toLowerCase()
-  const url = String(link?.url || '').toLowerCase()
-
-  if (label.includes('linkedin') || url.includes('linkedin.com')) return 'linkedin'
-  if (label.includes('github') || url.includes('github.com')) return 'github'
-  if (label.includes('email') || url.startsWith('mailto:')) return 'email'
-  if (label.includes('phone') || label.includes('call') || url.startsWith('tel:')) return 'phone'
-  return null
-}
-
-function getCustomIconUrl(link: HomeLink): string {
-  if (!link?.customIcon || typeof link.customIcon === 'string') return ''
-  return link.customIcon.url || link.customIcon.sizes?.avatar?.url || ''
-}
-
 const defaultSectionDescriptions: Required<SectionDescriptions> = {
   experience:
-    'Professional and product-focused engineering work first: roles and applied systems where I owned implementation, reliability, and delivery.',
+    'Founding work, platform engineering, and university systems.',
   projects:
-    'Selected shipped systems with product value up front, including AI-powered workflows, learning tools, and production portfolio infrastructure.',
+    'Shipped systems, from product strategy through infrastructure and public developer tooling.',
   blog: 'Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I ship.',
-  skills: 'Technologies I use to support the product, AI, platform, and delivery work above.',
-  openSource: 'Reusable templates, starter kits, and developer tools built for real-world use.',
-  education: 'Academic background and learning milestones that support the engineering work above.',
+  skills: 'Tools I use daily to take a product from interface to infrastructure.',
+  openSource: 'Public starting points, documented and production-ready.',
+  education: 'California State Polytechnic University, Pomona · Alumni Class of 26',
   contact: 'For software engineering roles, product engineering work, or technical discussions, start here.',
 }
 
@@ -231,6 +190,17 @@ const defaultAISkills: SkillRow[] = [
   { category: 'ai-engineering', name: 'Tool Calling & Structured Outputs' },
   { category: 'ai-engineering', name: 'AI Safety Systems' },
   { category: 'ai-engineering', name: 'Human-in-the-Loop Workflows' },
+]
+
+const defaultSkillGroups: ReforgedSkillGroup[] = [
+  { title: 'Frontend Development', items: ['React', 'Next.js', 'Tailwind CSS', 'TypeScript UI patterns'] },
+  { title: 'Backend Development', items: ['Node.js', 'Express', 'APIs', 'Prisma'] },
+  { title: 'Programming Languages', items: ['TypeScript', 'JavaScript', 'Python'] },
+  { title: 'Databases', items: ['PostgreSQL', 'MongoDB', 'Redis'] },
+  { title: 'Cloud Deployment', items: ['Vercel', 'Railway', 'Neon', 'Cloudflare'] },
+  { title: 'Developer Tools', items: ['Git', 'Docker', 'CI/CD'] },
+  { title: 'Networking Systems', items: ['HTTP', 'sockets', 'systems fundamentals'] },
+  { title: 'AI Engineering', items: ['LLM workflows', 'agents', 'MCP', 'safety tooling'] },
 ]
 
 function normalizeOptionalText(value: unknown): string | undefined {
@@ -247,11 +217,6 @@ function getSectionDescription(home: HomeData | null, key: keyof SectionDescript
   return defaultSectionDescriptions[key]
 }
 
-function extractGitHubUsername(url: string): string {
-  const match = String(url || '').trim().match(/github\.com\/([^/?#]+)/i)
-  return match?.[1] || ''
-}
-
 function formatExperienceDate(value?: string): string {
   if (!value) return ''
   const date = new Date(value)
@@ -266,81 +231,254 @@ function formatExperienceDate(value?: string): string {
 function getExperienceDateRange(exp: ExperienceRow): string {
   const start = formatExperienceDate(exp.startDate)
   if (!start) return ''
-  if (exp.current) return `${start} - Present`
+  if (exp.current) return `${start} — Present`
   const end = formatExperienceDate(exp.endDate)
-  return end ? `${start} - ${end}` : start
+  return end ? `${start} — ${end}` : start
 }
 
 function getEducationDateRange(entry: EducationRow): string {
   const start = formatExperienceDate(entry.startDate)
   if (!start) return ''
-  if (entry.current) return `${start} - Present`
+  if (entry.current) return `${start} — Present`
   const end = formatExperienceDate(entry.endDate)
-  return end ? `${start} - ${end}` : start
+  return end ? `${start} — ${end}` : start
 }
 
-function formatNowDate(value?: string): string {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
+function formatCategoryTitle(category: string): string {
+  return category
+    .split('-')
+    .map((word) => (word.toLowerCase() === 'ai' ? 'AI' : `${word.charAt(0).toUpperCase()}${word.slice(1)}`))
+    .join(' ')
+}
+
+function collectRichTextNodes(value: unknown): RichTextNode[] {
+  if (value == null) return []
+  if (typeof value === 'string') return [{ text: value }]
+  if (Array.isArray(value)) return value.flatMap((entry) => collectRichTextNodes(entry))
+  if (typeof value === 'object') {
+    const node = value as RichTextNode
+    if (node.root?.children) return collectRichTextNodes(node.root.children)
+    return [node]
+  }
+  return []
+}
+
+function nodePlainText(node: RichTextNode): string {
+  if (typeof node.text === 'string') return node.text
+  if (Array.isArray(node.children)) return node.children.map((child) => nodePlainText(child)).join('')
+  return ''
+}
+
+function extractRichTextBullets(value: unknown): string[] {
+  const nodes = collectRichTextNodes(value)
+  const bullets: string[] = []
+
+  const walk = (list: RichTextNode[]) => {
+    for (const node of list) {
+      const type = String(node.type || '').toLowerCase()
+      if (type === 'li') {
+        const text = nodePlainText(node).replace(/\s+/g, ' ').trim()
+        if (text) bullets.push(text)
+        continue
+      }
+      if (node.children?.length) walk(node.children)
+    }
+  }
+
+  walk(nodes)
+
+  if (bullets.length) return bullets
+
+  const paragraphs = nodes
+    .map((node) => {
+      const type = String(node.type || '').toLowerCase()
+      if (type === 'p' || type === 'paragraph' || (!node.type && node.children)) {
+        return nodePlainText(node).replace(/\s+/g, ' ').trim()
+      }
+      if (typeof node.text === 'string') return node.text.replace(/\s+/g, ' ').trim()
+      return ''
+    })
+    .filter(Boolean)
+
+  if (paragraphs.length) return paragraphs
+
+  const plain = toPlainText(value)
+  return plain ? [plain] : []
+}
+
+function linkDisplayValue(label: string, url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname.includes('linkedin.com')) {
+      return parsed.pathname.replace(/\/$/, '') || '/linkedin'
+    }
+    if (parsed.hostname.includes('github.com')) {
+      return parsed.pathname.replace(/\/$/, '') || '/github'
+    }
+  } catch {
+    // keep fallbacks below
+  }
+
+  if (url.startsWith('mailto:')) return url.replace(/^mailto:/i, '')
+  if (url.startsWith('tel:')) return 'on request'
+  return label || url
+}
+
+function buildContactStrip(home: HomeData | null): ReforgedContactItem[] {
+  const items: ReforgedContactItem[] = []
+
+  if (home?.email) {
+    items.push({
+      label: 'Email',
+      value: home.email,
+      href: `mailto:${home.email}`,
+    })
+  }
+
+  for (const link of home?.links || []) {
+    const url = String(link?.url || '').trim()
+    if (!url || url.toLowerCase().startsWith('mailto:') || url.toLowerCase().startsWith('tel:')) continue
+    const label = String(link?.label || 'Link').trim() || 'Link'
+    items.push({
+      label,
+      value: linkDisplayValue(label, url),
+      href: url,
+      external: true,
+    })
+  }
+
+  items.push({
+    label: 'Phone',
+    value: 'on request',
+    href: '/reach-by-phone',
+  })
+
+  return items.slice(0, 4)
+}
+
+function buildContactLinks(home: HomeData | null): ReforgedContactItem[] {
+  return (home?.links || [])
+    .map((link): ReforgedContactItem | null => {
+      const url = String(link?.url || '').trim()
+      if (!url || url.toLowerCase().startsWith('mailto:') || url.toLowerCase().startsWith('tel:')) return null
+      const label = String(link?.label || 'Link').trim() || 'Link'
+      return {
+        label,
+        value: label,
+        href: url,
+        external: true,
+      }
+    })
+    .filter((item): item is ReforgedContactItem => Boolean(item))
+}
+
+function getCaseStudyHref(project: ProjectRow): string | undefined {
+  if (project.caseStudyUrl) return project.caseStudyUrl
+  if (project.caseStudyPost && typeof project.caseStudyPost !== 'string' && project.caseStudyPost.slug) {
+    return `/blog/${project.caseStudyPost.slug}`
+  }
+  return undefined
+}
+
+function mapProjects(projects: ProjectRow[]): ReforgedProject[] {
+  return projects.map((project, index) => ({
+    id: project.id || project.slug || `project-${index}`,
+    title: project.title || 'Untitled project',
+    focusAreas: Array.isArray(project.focusAreas)
+      ? project.focusAreas.map((area) => String(area || '').toLowerCase()).filter(Boolean)
+      : [],
+    bullets: extractRichTextBullets(project.summary),
+    liveUrl: project.liveUrl || undefined,
+    liveUrlLabel: project.liveUrlLabel || undefined,
+    repoUrl: project.repoUrl || undefined,
+    caseStudyUrl: getCaseStudyHref(project),
+  }))
+}
+
+function mapExperiences(experiences: ExperienceRow[]): ReforgedExperience[] {
+  return experiences.map((exp, index) => ({
+    id: exp.id || `${exp.company}-${exp.role}-${index}`,
+    role: exp.role || 'Role',
+    org: exp.company || '',
+    period: getExperienceDateRange(exp),
+    place: exp.location || undefined,
+    current: Boolean(exp.current),
+    bullets: extractRichTextBullets(exp.summary),
+  }))
+}
+
+function mapEducation(education: EducationRow[]): ReforgedEducation[] {
+  return education.map((entry, index) => {
+    const degreeLine = [entry.degree, entry.fieldOfStudy].filter(Boolean).join(', ')
+    const title = degreeLine
+      ? `${degreeLine}${entry.institution ? `, ${entry.institution}.` : '.'}`
+      : entry.institution || 'Education'
+    const highlights = (entry.highlights || [])
+      .map((item) => String(item?.highlight || '').trim())
+      .filter(Boolean)
+
+    const summaryBullets = extractRichTextBullets(entry.summary)
+    const mergedHighlights = highlights.length ? highlights : summaryBullets
+
+    return {
+      id: entry.id || `${entry.institution}-${entry.degree}-${index}`,
+      title,
+      lead: entry.institution
+        ? `${entry.institution}${getEducationDateRange(entry) ? ` · ${getEducationDateRange(entry)}` : ''}`
+        : getEducationDateRange(entry) || undefined,
+      period: getEducationDateRange(entry) || undefined,
+      place: entry.location || undefined,
+      current: Boolean(entry.current),
+      highlights: mergedHighlights,
+    }
   })
 }
 
-function latestUpdatedAt(items: Array<{ updatedAt?: string }>): number {
-  return items.reduce((latest, item) => {
-    const timestamp = Date.parse(String(item?.updatedAt || ''))
-    if (Number.isNaN(timestamp)) return latest
-    return Math.max(latest, timestamp)
-  }, 0)
+function mapNotes(blogs: BlogPost[]): ReforgedNote[] {
+  return blogs.map((post, index) => {
+    const dateLabel = formatDate(post.publishedDate || post.createdAt)
+    const readTime = getReadTime(post)
+    return {
+      id: post.id || post.slug || `note-${index}`,
+      title: post.title || 'Untitled note',
+      blurb: toPlainText(post.summary),
+      meta: [dateLabel, readTime].filter(Boolean).join(' · '),
+      tags: getTags(post).slice(0, 3),
+      href: `/blog/${post.slug || ''}`,
+    }
+  })
 }
 
-function SocialLinkIcon({ type }: { type: SocialIconType }) {
-  if (type === 'email') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24">
-        <path
-          d="M3.5 5.5h17a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-17a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1m0 2v.23l8.5 5.67 8.5-5.67V7.5l-8.5 5.67L3.5 7.5m0 2.03v6.97h17V9.53l-7.95 5.3a1 1 0 0 1-1.1 0L3.5 9.53"
-          fill="currentColor"
-        />
-      </svg>
-    )
-  }
+function mapOpenSource(resources: OpenSourceResource[]): ReforgedOpenSource[] {
+  return resources.map((resource) => ({
+    id: resource.id,
+    title: resource.title,
+    description: resource.description,
+    stack: resource.stack.slice(0, 4),
+    githubUrl: resource.links?.github,
+  }))
+}
 
-  if (type === 'phone') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24">
-        <path
-          d="M7.26 3.24c.39-.39 1-.49 1.5-.24l2.27 1.13c.56.28.84.92.67 1.53l-.49 1.8a1 1 0 0 0 .25.97l2.57 2.57a1 1 0 0 0 .97.25l1.8-.49c.61-.17 1.25.11 1.53.67L21 13.7c.25.5.15 1.11-.24 1.5l-1.55 1.55c-.98.98-2.43 1.35-3.75.96-2.6-.78-5.28-2.95-7.58-5.25-2.3-2.3-4.47-4.98-5.25-7.58-.39-1.32-.02-2.77.96-3.75z"
-          fill="currentColor"
-        />
-      </svg>
-    )
-  }
+function mapSkillGroups(groupedSkills: Record<string, SkillRow[]>): ReforgedSkillGroup[] {
+  const groups = Object.entries(groupedSkills)
+    .map(([category, rows]) => ({
+      title: formatCategoryTitle(category),
+      items: rows.map((row) => String(row?.name || '').trim()).filter(Boolean),
+    }))
+    .filter((group) => group.items.length)
 
-  if (type === 'linkedin') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24">
-        <path
-          d="M6.939 8.5H3.41A.41.41 0 0 0 3 8.91v11.68c0 .227.184.41.41.41h3.53a.41.41 0 0 0 .41-.41V8.91a.41.41 0 0 0-.41-.41M5.175 3A2.175 2.175 0 1 0 5.176 7.35 2.175 2.175 0 0 0 5.175 3M20.593 13.52v7.07a.41.41 0 0 1-.41.41h-3.524a.41.41 0 0 1-.41-.41v-6.26c0-.94-.18-2.06-1.44-2.06-1.35 0-1.63 1.02-1.63 2.06v6.26a.41.41 0 0 1-.41.41H9.248a.41.41 0 0 1-.41-.41V8.91c0-.226.184-.41.41-.41h3.37a.41.41 0 0 1 .41.41v1.01h.03c.4-.76 1.42-1.38 2.93-1.38 3.17 0 4.61 1.86 4.61 4.98"
-          fill="currentColor"
-        />
-      </svg>
-    )
-  }
+  return groups.length ? groups : defaultSkillGroups
+}
 
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path
-        d="M12 .5C5.65.5.5 5.66.5 12.02c0 5.08 3.29 9.39 7.85 10.91.57.11.77-.25.77-.55 0-.27-.01-1.16-.02-2.1-3.19.69-3.86-1.36-3.86-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.69.08-.69 1.15.08 1.75 1.18 1.75 1.18 1.02 1.76 2.68 1.25 3.33.95.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.21-1.5 3.18-1.18 3.18-1.18.62 1.6.23 2.77.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.68 5.38-5.24 5.67.41.35.78 1.05.78 2.12 0 1.53-.01 2.77-.01 3.15 0 .3.2.67.78.55A11.53 11.53 0 0 0 23.5 12.02C23.5 5.66 18.35.5 12 .5"
-        fill="currentColor"
-      />
-    </svg>
-  )
+function splitHighlightRow(highlight: string, fallbackLabel: string): { label: string; body: string } {
+  const idx = highlight.indexOf(':')
+  if (idx > 0 && idx < 48) {
+    return {
+      label: highlight.slice(0, idx).trim(),
+      body: highlight.slice(idx + 1).trim(),
+    }
+  }
+  return { label: fallbackLabel, body: highlight }
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
@@ -352,6 +490,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     String(modeParam || '').toLowerCase() === 'resume' ||
     String(viewParam || '').toLowerCase() === 'resume' ||
     ['1', 'true', 'yes'].includes(String(resumeParam || '').toLowerCase())
+
   let home: HomeData | null = null
   let projects: ProjectRow[] = []
   let skills: SkillRow[] = []
@@ -359,7 +498,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   let education: EducationRow[] = []
   let blogs: BlogPost[] = []
   let openSource: OpenSourceResource[] = defaultOpenSourceResources
-  let nowData: NowData | null = null
 
   const [homeResult, projectsResult, skillsResult, experiencesResult, educationResult, blogResult, openSourceResult] =
     await Promise.allSettled([
@@ -415,19 +553,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     logHomepageFetchError('open source resources', openSourceResult.reason)
   }
 
+  // Keep now fetch for parity with prior homepage data loading (visibility still CMS-driven).
   try {
-    nowData = await fetchNow<NowData>()
+    await fetchNow<NowData>()
   } catch {
-    nowData = null
+    // optional preview section omitted in reforged layout
   }
 
   const skillRows = skills.flatMap((doc) => {
-    if (Array.isArray(doc?.skills) && doc.skills.length) {
-      return doc.skills
-    }
-    if (doc?.name) {
-      return [doc]
-    }
+    if (Array.isArray(doc?.skills) && doc.skills.length) return doc.skills
+    if (doc?.name) return [doc]
     return []
   })
 
@@ -440,42 +575,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   if (!groupedSkills['ai-engineering']?.length) {
     groupedSkills['ai-engineering'] = defaultAISkills
   }
+
   const openSourcePreview = openSource.filter((item) => item.showOnHomepage !== false).slice(0, 3)
-  const githubFromLinks = (home?.links || [])
-    .map((link) => extractGitHubUsername(link?.url || ''))
-    .find(Boolean)
-  const githubUsername = String(home?.githubSnapshot?.username || githubFromLinks || '').trim()
-  const githubFeaturedRepos = (home?.githubSnapshot?.featuredRepos || []).map((entry) => String(entry?.repository || '').trim()).filter(Boolean)
   const sectionVisibility = isResumeMode ? home?.resumeSectionVisibility || home?.sectionVisibility || {} : home?.sectionVisibility || {}
   const showProjects = sectionVisibility.projects !== false
   const showSkills = sectionVisibility.skills !== false
   const showOpenSource = sectionVisibility.openSource !== false
-  const showNowPreview = sectionVisibility.nowPreview !== false
-  const showGitHubSnapshot = sectionVisibility.githubSnapshot !== false && home?.githubSnapshot?.enabled !== false && Boolean(githubUsername)
   const showExperience = sectionVisibility.experience !== false
   const showEducation = sectionVisibility.education !== false
   const showBlog = sectionVisibility.blog !== false
-  const nowUpdated = formatNowDate(nowData?.updatedAt)
+
   const resumeFileUrl = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.url || '' : ''
   const resumeFileName = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.filename || 'resume.pdf' : 'resume.pdf'
-  const resumeUpdatedAt = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.updatedAt || '' : ''
-  const latestPortfolioUpdate = Math.max(latestUpdatedAt(projects), latestUpdatedAt(experiences), latestUpdatedAt(education))
-  const showResumeSyncWarning = Boolean(resumeFileUrl && latestPortfolioUpdate && Date.parse(resumeUpdatedAt) < latestPortfolioUpdate)
-  const latestPortfolioUpdateLabel = latestPortfolioUpdate ? formatNowDate(new Date(latestPortfolioUpdate).toISOString()) : ''
   const featuredProjects = projects.filter((project) => project.featured)
   const homepageProjects = featuredProjects.length ? featuredProjects : projects
-  const contactLinks = (home?.links || []).filter((link) => {
-    const url = String(link?.url || '').toLowerCase()
-    return Boolean(url) && !url.startsWith('mailto:') && !url.startsWith('tel:')
-  })
-  const homepageLayout: HomepageLayout = home?.homepageLayout === 'classic' ? 'classic' : 'softwareEngineering'
-  const experienceDescription = getSectionDescription(home, 'experience')
-  const projectsDescription = getSectionDescription(home, 'projects')
-  const blogDescription = getSectionDescription(home, 'blog')
-  const skillsDescription = getSectionDescription(home, 'skills')
-  const openSourceDescription = getSectionDescription(home, 'openSource')
-  const educationDescription = getSectionDescription(home, 'education')
-  const contactDescription = getSectionDescription(home, 'contact')
+
   const terminalPrompt = normalizeOptionalText(home?.terminalHero?.prompt) || 'alexander@portfolio:~$'
   const heroStatement =
     normalizeOptionalText(home?.terminalHero?.statement) ||
@@ -491,439 +605,63 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const showAnnouncement = home?.announcement?.enabled !== false
   const announcementMessage =
     normalizeOptionalText(home?.announcement?.message) ||
-    'I am currently redesigning this site. Things may shift, and you might run into a bug or two.'
+    'currently redesigning — things may shift, you might hit a bug or two.'
+
+  const aboutBodyHtml = renderRichText(home?.bio) || undefined
+  const educationForUi = mapEducation(education).map((entry) => ({
+    ...entry,
+    highlights: entry.highlights.map((highlight, index) => {
+      const split = splitHighlightRow(highlight, index === 0 ? 'background' : `detail ${index + 1}`)
+      return `${split.label}: ${split.body}`
+    }),
+  }))
 
   return (
-    <main className="container page-home">
-      <nav aria-label="Portfolio sections" className="portfolio-nav reveal">
-        <a className="portfolio-prompt" href="#about">
-          {terminalPrompt}
-        </a>
-        <div className="portfolio-nav-links">
-          <a href="#about">about</a>
-          <a href="#experience">experience</a>
-          <a href="#projects">projects</a>
-          <a href="#notes">notes</a>
-          <a href="#skills">skills</a>
-          <a href="#open-source">open source</a>
-          <a href="#contact">contact</a>
-        </div>
-      </nav>
-
-      {showAnnouncement ? (
-        <aside aria-label="Site announcement" className="site-announcement reveal" role="status">
-          <span aria-hidden="true" className="site-announcement-indicator" />
-          <p>
-            <strong>Site update:</strong> {announcementMessage}
-          </p>
-        </aside>
-      ) : null}
-
-      <header className="hero reveal" id="about">
-        <div className="card hero-terminal">
-          <div aria-hidden="true" className="terminal-chrome">
-            <span className="terminal-dot terminal-dot-red" />
-            <span className="terminal-dot terminal-dot-yellow" />
-            <span className="terminal-dot terminal-dot-green" />
-            <span className="terminal-title">{terminalPrompt.replace(/\$$/, '')}</span>
-          </div>
-          <div className="hero-copy">
-            <p className="terminal-command">$ {identityCommand}</p>
-            <h1>{home?.name || siteConfig.ownerName}</h1>
-            <p className="eyebrow">{home?.headline || 'Software Engineer'}</p>
-            <p className="hero-founder-title">CEO &amp; Founder of Turnkeeper</p>
-            <p className="hero-statement">{heroStatement}</p>
-            <p className="terminal-command terminal-about-command">$ {aboutCommand}</p>
-            <RichTextContent
-              className="bio rich-text-content"
-              fallback="Full-stack software engineer focused on React, Next.js, TypeScript, platform reliability, and practical product delivery."
-              value={home?.bio}
-            />
-            {!isResumeMode ? (
-              <p className="hero-personal-note">
-                <span>off_hours:</span> {personalNote}
-              </p>
-            ) : null}
-            <div className="hero-actions">
-              <a className="terminal-button terminal-button-primary" href="#projects">
-                {projectsLabel} <span aria-hidden="true">→</span>
-              </a>
-              {resumeFileUrl ? (
-                <a className="terminal-button" data-journey-type="resume-open" href={resumeFileUrl} rel="noreferrer" target="_blank">
-                  {resumeLabel} <span aria-hidden="true">↓</span>
-                </a>
-              ) : (
-                <Link className="terminal-button" href="/?mode=resume">
-                  {resumeLabel} <span aria-hidden="true">↓</span>
-                </Link>
-              )}
-              <a className="terminal-button" href="#contact">
-                {contactLabel} <span aria-hidden="true">→</span>
-              </a>
-            </div>
-          </div>
-          <ResumeModeToggle enabled={isResumeMode} resumeFileName={resumeFileName} resumeFileUrl={resumeFileUrl} />
-        </div>
-
-        <div className="hero-portrait-wrap">
-          <img
-            alt={home?.profilePhoto?.alt || `Portrait of ${home?.name || siteConfig.ownerName}`}
-            className="hero-portrait"
-            src={home?.profilePhoto?.url || defaultPortrait.src}
-          />
-          <div className="links hero-social-links">
-          {showResumeSyncWarning ? (
-            <span className="pill social-link-pill resume-sync-warning">
-              Portfolio current as of {latestPortfolioUpdateLabel || 'recently'} · résumé available above
-            </span>
-          ) : null}
-          {home?.email ? (
-            <a className="pill social-link-pill" href={`mailto:${home.email}`}>
-              <span aria-hidden="true" className="link-pill-icon">
-                <SocialLinkIcon type="email" />
-              </span>
-              Email
-            </a>
-          ) : null}
-          {(home?.links || []).map((link) => {
-            if (!link?.url || String(link.url).toLowerCase().startsWith('mailto:')) return null
-            const customIconUrl = getCustomIconUrl(link)
-            const iconType = inferSocialIcon(link)
-
-            return (
-              <a className="social-link-pill" href={link.url} key={`${link.label}-${link.url}`} rel="noreferrer" target="_blank">
-                {customIconUrl ? (
-                  <img alt="" aria-hidden="true" className="link-pill-image-icon" src={customIconUrl} />
-                ) : iconType ? (
-                  <span aria-hidden="true" className="link-pill-icon">
-                    <SocialLinkIcon type={iconType} />
-                  </span>
-                ) : null}
-                {link.label || 'Link'}
-              </a>
-            )
-          })}
-          <Link data-journey-type="contact" href="/reach-by-phone" className="pill-link social-link-pill">
-            <span aria-hidden="true" className="link-pill-icon">
-              <SocialLinkIcon type="phone" />
-            </span>
-            Phone
-          </Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="grid">
-        {isResumeMode && showExperience ? (
-          <article className="card reveal full experience-card primary-section-card" id="experience">
-            <h2>experience --log</h2>
-            {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
-            {experiences.length ? (
-              <div className="stack">
-                {experiences.map((exp) => {
-                  const dateRange = getExperienceDateRange(exp)
-
-                  return (
-                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
-                      <h3>
-                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
-                      </h3>
-                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
-                      <div className="meta">
-                        {dateRange ? <span className="badge">{dateRange}</span> : null}
-                        {exp.location ? <span className="badge">{exp.location}</span> : null}
-                        {exp.current ? <span className="badge featured">Current</span> : null}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="empty-state">No experience entries yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        {isResumeMode && showEducation ? (
-          <article className="card reveal full" id="education">
-            <h2>education --cat</h2>
-            {educationDescription ? <p className="section-intro">{educationDescription}</p> : null}
-            {education.length ? (
-              <div className="stack">
-                {education.map((entry) => {
-                  const dateRange = getEducationDateRange(entry)
-                  const degreeLine = [entry.degree, entry.fieldOfStudy].filter(Boolean).join(', ')
-
-                  return (
-                    <article className="item" key={entry.id || `${entry.institution}-${entry.degree}`}>
-                      <h3>
-                        {degreeLine || 'Education'} {entry.institution ? `- ${entry.institution}` : ''}
-                      </h3>
-                      {entry.summary ? (
-                        <RichTextContent className="rich-text-content summary-richtext" fallback="" value={entry.summary} />
-                      ) : null}
-                      {entry.highlights?.length ? (
-                        <ul className="summary-list">
-                          {entry.highlights.map((item, index) =>
-                            item?.highlight ? <li key={`${entry.id || entry.degree}-highlight-${index}`}>{item.highlight}</li> : null,
-                          )}
-                        </ul>
-                      ) : null}
-                      <div className="meta">
-                        {dateRange ? <span className="badge">{dateRange}</span> : null}
-                        {entry.location ? <span className="badge">{entry.location}</span> : null}
-                        {entry.current ? <span className="badge featured">Current</span> : null}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="empty-state">No education entries yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        {!isResumeMode && homepageLayout === 'softwareEngineering' && showExperience ? (
-          <article className="card reveal full experience-card primary-section-card" id="experience">
-            <h2>experience --log</h2>
-            {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
-            {experiences.length ? (
-              <div className="stack">
-                {experiences.map((exp) => {
-                  const dateRange = getExperienceDateRange(exp)
-
-                  return (
-                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
-                      <h3>
-                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
-                      </h3>
-                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
-                      <div className="meta">
-                        {dateRange ? <span className="badge">{dateRange}</span> : null}
-                        {exp.location ? <span className="badge">{exp.location}</span> : null}
-                        {exp.current ? <span className="badge featured">Current</span> : null}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="empty-state">No experience entries yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        {showProjects ? (
-          <article className="card reveal full featured-projects-card" id="projects">
-            <h2>featured projects</h2>
-            {projectsDescription ? <p className="section-intro">{projectsDescription}</p> : null}
-            <PaginatedProjects projects={homepageProjects} />
-          </article>
-        ) : null}
-
-        {showBlog && (isResumeMode || homepageLayout === 'softwareEngineering') ? (
-          <article className="card reveal full notes-card" id="notes">
-            <div className="section-head">
-              <h2>engineering notes --ls</h2>
-              <Link className="view-all-link" href="/blog">
-                View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
-              </Link>
-            </div>
-            {blogDescription ? <p className="section-intro">{blogDescription}</p> : null}
-
-            {blogs.length ? (
-              <div className="blog-grid home-blog-grid">
-                {blogs.map((post) => (
-                  <BlogCard key={post.id || post.slug} post={post} variant="preview" />
-                ))}
-              </div>
-            ) : (
-              <p className="empty-state">No notes published yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        {showSkills ? (
-          <article className="card reveal full skills-card" id="skills">
-            <h2>skills --version</h2>
-            {skillsDescription ? <p className="section-intro">{skillsDescription}</p> : null}
-            <PaginatedSkillCategories groupedSkills={groupedSkills} />
-          </article>
-        ) : null}
-
-        {showOpenSource ? (
-          <article className="card reveal full" id="open-source">
-            <div className="section-head">
-              <h2>open source --ls</h2>
-              <Link className="view-all-link" href="/open-source">
-                View All Resources
-              </Link>
-            </div>
-            {openSourceDescription ? <p className="open-source-subtitle">{openSourceDescription}</p> : null}
-            <div className="open-source-grid">
-              {openSourcePreview.map((resource) => (
-                <OpenSourceCard key={resource.id} resource={resource} />
-              ))}
-            </div>
-          </article>
-        ) : null}
-
-        {showNowPreview && nowData?.enabled !== false && (nowData?.title || nowData?.intro || nowUpdated) ? (
-          <article className="card reveal full now-preview-card" id="now">
-            <div className="section-head">
-              <h2>{nowData?.title || 'Now'}</h2>
-              <Link className="view-all-link" href="/now">
-                View Now Page
-              </Link>
-            </div>
-            <p className="now-preview-intro">
-              {nowData?.intro ||
-                'A live snapshot of what I am building, improving, and shipping right now across product and engineering work.'}
-            </p>
-            {nowUpdated ? <p className="now-preview-updated">Updated {nowUpdated}</p> : null}
-          </article>
-        ) : null}
-
-        {showGitHubSnapshot ? (
-          <GitHubSnapshot
-            description={home?.githubSnapshot?.description}
-            featuredRepos={githubFeaturedRepos}
-            title={home?.githubSnapshot?.title}
-            username={githubUsername}
-          />
-        ) : null}
-
-        {!isResumeMode && homepageLayout === 'classic' && showExperience ? (
-          <article className="card reveal full experience-card primary-section-card" id="experience">
-            <h2>experience --log</h2>
-            {experienceDescription ? <p className="section-intro">{experienceDescription}</p> : null}
-            {experiences.length ? (
-              <div className="stack">
-                {experiences.map((exp) => {
-                  const dateRange = getExperienceDateRange(exp)
-
-                  return (
-                    <article className="item" key={exp.id || `${exp.company}-${exp.role}`}>
-                      <h3>
-                        {exp.role || 'Role'} {exp.company ? `- ${exp.company}` : ''}
-                      </h3>
-                      <RichTextContent className="rich-text-content summary-richtext" fallback="No summary yet." value={exp.summary} />
-                      <div className="meta">
-                        {dateRange ? <span className="badge">{dateRange}</span> : null}
-                        {exp.location ? <span className="badge">{exp.location}</span> : null}
-                        {exp.current ? <span className="badge featured">Current</span> : null}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="empty-state">No experience entries yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        {!isResumeMode && showEducation ? (
-          <article className="card reveal full" id="education">
-            <h2>education --cat</h2>
-            {educationDescription ? <p className="section-intro">{educationDescription}</p> : null}
-            {education.length ? (
-              <div className="stack">
-                {education.map((entry) => {
-                  const dateRange = getEducationDateRange(entry)
-                  const degreeLine = [entry.degree, entry.fieldOfStudy].filter(Boolean).join(', ')
-
-                  return (
-                    <article className="item" key={entry.id || `${entry.institution}-${entry.degree}`}>
-                      <h3>
-                        {degreeLine || 'Education'} {entry.institution ? `- ${entry.institution}` : ''}
-                      </h3>
-                      {entry.summary ? (
-                        <RichTextContent className="rich-text-content summary-richtext" fallback="" value={entry.summary} />
-                      ) : null}
-                      {entry.highlights?.length ? (
-                        <ul className="summary-list">
-                          {entry.highlights.map((item, index) =>
-                            item?.highlight ? <li key={`${entry.id || entry.degree}-highlight-${index}`}>{item.highlight}</li> : null,
-                          )}
-                        </ul>
-                      ) : null}
-                      <div className="meta">
-                        {dateRange ? <span className="badge">{dateRange}</span> : null}
-                        {entry.location ? <span className="badge">{entry.location}</span> : null}
-                        {entry.current ? <span className="badge featured">Current</span> : null}
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="empty-state">No education entries yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        {!isResumeMode && homepageLayout === 'classic' && showBlog ? (
-          <article className="card reveal full notes-card" id="notes">
-            <div className="section-head">
-              <h2>engineering notes --ls</h2>
-              <Link className="view-all-link" href="/blog">
-                View All {siteConfig.blogLabel === 'Lab / Notes' ? 'Notes' : 'Posts'}
-              </Link>
-            </div>
-            {blogDescription ? <p className="section-intro">{blogDescription}</p> : null}
-
-            {blogs.length ? (
-              <div className="blog-grid home-blog-grid">
-                {blogs.map((post) => (
-                  <BlogCard key={post.id || post.slug} post={post} variant="preview" />
-                ))}
-              </div>
-            ) : (
-              <p className="empty-state">No notes published yet.</p>
-            )}
-          </article>
-        ) : null}
-
-        <article className="card reveal full contact-card" id="contact">
-          <h2>contact --say-hi</h2>
-          {contactDescription ? <p className="section-intro">{contactDescription}</p> : null}
-          <div className="links contact-actions">
-            {home?.email ? (
-              <a className="pill-link social-link-pill" data-journey-type="contact" href={`mailto:${home.email}`}>
-                <span aria-hidden="true" className="link-pill-icon">
-                  <SocialLinkIcon type="email" />
-                </span>
-                Email Me
-              </a>
-            ) : null}
-            <Link data-journey-type="contact" href="/reach-by-phone" className="pill-link social-link-pill">
-              <span aria-hidden="true" className="link-pill-icon">
-                <SocialLinkIcon type="phone" />
-              </span>
-              Reach Me by Phone
-            </Link>
-            {contactLinks.map((link) => {
-              const customIconUrl = getCustomIconUrl(link)
-              const iconType = inferSocialIcon(link)
-
-              return (
-                <a className="social-link-pill" href={link.url} key={`contact-${link.label}-${link.url}`} rel="noreferrer" target="_blank">
-                  {customIconUrl ? (
-                    <img alt="" aria-hidden="true" className="link-pill-image-icon" src={customIconUrl} />
-                  ) : iconType ? (
-                    <span aria-hidden="true" className="link-pill-icon">
-                      <SocialLinkIcon type={iconType} />
-                    </span>
-                  ) : null}
-                  {link.label || 'Link'}
-                </a>
-              )
-            })}
-          </div>
-        </article>
-      </section>
-    </main>
+    <ReforgedHome
+      aboutBodyHtml={aboutBodyHtml}
+      aboutCommand={aboutCommand}
+      aboutLead="Full-stack software engineer focused on building modern web applications and developer-friendly systems."
+      aboutTitle="Systems built to hold up in production."
+      announcementEnabled={showAnnouncement}
+      announcementMessage={announcementMessage}
+      avatarAlt={home?.profilePhoto?.alt || `Portrait of ${home?.name || siteConfig.ownerName}`}
+      avatarUrl={home?.profilePhoto?.url || defaultPortrait.src}
+      contactDescription={getSectionDescription(home, 'contact')}
+      contactLabel={contactLabel}
+      contactLinks={buildContactLinks(home)}
+      contactStrip={buildContactStrip(home)}
+      currentYear={new Date().getFullYear()}
+      education={educationForUi}
+      educationDescription={getSectionDescription(home, 'education')}
+      email={home?.email}
+      experienceDescription={getSectionDescription(home, 'experience')}
+      experiences={mapExperiences(experiences)}
+      founderLine="CEO & Founder of Turnkeeper"
+      headline={home?.headline || 'Full-Stack Software Engineer'}
+      heroStatement={heroStatement}
+      identityCommand={identityCommand}
+      isResumeMode={isResumeMode}
+      name={home?.name || siteConfig.ownerName}
+      notes={mapNotes(blogs)}
+      notesDescription={getSectionDescription(home, 'blog')}
+      openSource={mapOpenSource(openSourcePreview)}
+      openSourceDescription={getSectionDescription(home, 'openSource')}
+      personalNote={personalNote}
+      projects={mapProjects(homepageProjects)}
+      projectsDescription={getSectionDescription(home, 'projects')}
+      projectsLabel={projectsLabel}
+      resumeFileName={resumeFileName}
+      resumeLabel={resumeLabel}
+      resumeUrl={resumeFileUrl || undefined}
+      showBlog={showBlog}
+      showEducation={showEducation}
+      showExperience={showExperience}
+      showOpenSource={showOpenSource}
+      showProjects={showProjects}
+      showSkills={showSkills}
+      skills={mapSkillGroups(groupedSkills)}
+      skillsDescription={getSectionDescription(home, 'skills')}
+      terminalPrompt={terminalPrompt}
+    />
   )
 }
