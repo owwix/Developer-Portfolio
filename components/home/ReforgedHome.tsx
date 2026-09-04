@@ -6,11 +6,12 @@ import Reveal from './Reveal'
 
 const NAV = [
   { label: 'about', href: '#about' },
-  { label: 'experience', href: '#experience' },
   { label: 'projects', href: '#projects' },
-  { label: 'notes', href: '#notes' },
   { label: 'skills', href: '#skills' },
   { label: 'open source', href: '#open-source' },
+  { label: 'experience', href: '#experience' },
+  { label: 'education', href: '#education' },
+  { label: 'notes', href: '#notes' },
   { label: 'contact', href: '#contact' },
 ] as const
 

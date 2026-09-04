@@ -1,18 +1,19 @@
 /* Alexok.dev Reforged — plain CSS design system (ported from Lovable, no Tailwind) */
 
 .rf-root {
-  --rf-background: oklch(0.085 0.006 145);
-  --rf-foreground: oklch(0.82 0.16 143);
-  --rf-surface: oklch(0.12 0.007 145);
-  --rf-surface-2: oklch(0.155 0.009 145);
-  --rf-muted: oklch(0.155 0.009 145);
-  --rf-muted-foreground: oklch(0.7 0.1 143);
-  --rf-accent: oklch(0.9 0.22 138);
-  --rf-accent-foreground: oklch(0.085 0.006 145);
-  --rf-steel: oklch(0.6 0.1 143);
-  --rf-border: oklch(0.6 0.13 145 / 12%);
-  --rf-border-strong: oklch(0.6 0.13 145 / 24%);
-  --rf-grid-line: oklch(0.55 0.13 145 / 8%);
+  --rf-background: #070908;
+  --rf-foreground: #f1f2ed;
+  --rf-surface: #0c0f0d;
+  --rf-surface-2: #121612;
+  --rf-muted: #141814;
+  --rf-muted-foreground: #a2a8a0;
+  --rf-accent: #9bd36f;
+  --rf-accent-strong: #b6e48f;
+  --rf-accent-foreground: #0a0d09;
+  --rf-steel: #70786f;
+  --rf-border: rgb(193 207 189 / 11%);
+  --rf-border-strong: rgb(193 207 189 / 22%);
+  --rf-grid-line: rgb(176 194 172 / 6%);
   --rf-radius: 0;
   --rf-max: 72rem;
   --rf-pad: 1.25rem;
@@ -22,7 +23,7 @@
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  background: var(--rf-background);
+  background: transparent;
   color: var(--rf-foreground);
   font-family: var(--rf-font-sans);
   -webkit-font-smoothing: antialiased;
@@ -34,7 +35,16 @@
   }
 }
 
-body:has(.rf-root) #network-bg,
+body:has(.rf-root) {
+  background: #070908;
+}
+
+body:has(.rf-root) #network-bg {
+  opacity: 1;
+  pointer-events: none;
+  visibility: visible;
+}
+
 body:has(.rf-root) .bg-grid {
   opacity: 0;
   pointer-events: none;
@@ -80,13 +90,13 @@ main.rf-root ~ .site-footer {
   top: 0;
   z-index: 50;
   border-bottom: 1px solid var(--rf-border);
-  background: color-mix(in oklab, var(--rf-background) 85%, transparent);
+  background: color-mix(in oklab, var(--rf-background) 88%, transparent);
   backdrop-filter: blur(12px);
 }
 
 .rf-nav-inner {
   display: flex;
-  height: 4rem;
+  height: 4.5rem;
   align-items: center;
   justify-content: space-between;
   margin: 0 auto;
@@ -102,7 +112,7 @@ main.rf-root ~ .site-footer {
 }
 
 .rf-nav-brand-user {
-  color: var(--rf-accent);
+  color: var(--rf-foreground);
 }
 
 .rf-nav-brand-suffix {
@@ -112,7 +122,7 @@ main.rf-root ~ .site-footer {
 .rf-nav-links {
   display: none;
   align-items: center;
-  gap: 1.75rem;
+  gap: 1.35rem;
   font-family: var(--rf-font-mono);
   font-size: 13px;
 }
@@ -229,17 +239,18 @@ main.rf-root ~ .site-footer {
   z-index: 10;
   margin: 0 auto;
   max-width: var(--rf-max);
-  padding: 3rem var(--rf-pad) 3.5rem;
+  padding: 3rem var(--rf-pad) 4rem;
 }
 
 @media (min-width: 640px) {
   .rf-hero-inner {
-    padding-top: 4rem;
-    padding-bottom: 5rem;
+    padding-top: 4.75rem;
+    padding-bottom: 5.25rem;
   }
 }
 
 .rf-announce {
+  margin: 0;
   font-family: var(--rf-font-mono);
   font-size: 11px;
   line-height: 1.5;
@@ -252,10 +263,10 @@ main.rf-root ~ .site-footer {
 
 .rf-hero-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 13rem;
+  grid-template-columns: minmax(0, 1fr) clamp(15rem, 22vw, 19rem);
   align-items: center;
   gap: clamp(2rem, 6vw, 5rem);
-  margin-top: 2.5rem;
+  margin-top: 3.5rem;
 }
 
 .rf-hero-copy {
@@ -266,7 +277,7 @@ main.rf-root ~ .site-footer {
   position: relative;
   width: 100%;
   margin: 0;
-  padding: 0.4rem;
+  padding: 0.55rem;
   border: 1px solid var(--rf-border-strong);
   background: color-mix(in oklab, var(--rf-surface) 78%, transparent);
 }
@@ -338,18 +349,19 @@ main.rf-root ~ .site-footer {
 
 .rf-hero-name {
   margin: 1rem 0 0;
-  font-size: clamp(2.75rem, 9vw, 6rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.045em;
-  color: var(--rf-accent);
+  max-width: 12ch;
+  font-size: clamp(3.25rem, 8vw, 6.6rem);
+  font-weight: 600;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  color: var(--rf-foreground);
 }
 
 .rf-hero-role {
-  margin: 1.25rem 0 0;
+  margin: 1.5rem 0 0;
   font-family: var(--rf-font-mono);
   font-size: 0.875rem;
-  color: var(--rf-steel);
+  color: #c3c8c0;
 }
 
 .rf-hero-role-sep {
@@ -361,7 +373,7 @@ main.rf-root ~ .site-footer {
   max-width: 42rem;
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--rf-muted-foreground);
+  color: #b5bbb2;
 }
 
 .rf-cta-row {
@@ -386,7 +398,7 @@ main.rf-root ~ .site-footer {
 
 @media (min-width: 640px) {
   .rf-contact-strip-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   }
 
   .rf-contact-strip-grid > * + * {
@@ -480,35 +492,46 @@ main.rf-root ~ .site-footer {
 }
 
 .rf-cta-solid {
-  background: var(--rf-foreground);
-  color: var(--rf-background);
-  border-color: var(--rf-foreground);
+  background: var(--rf-accent);
+  color: var(--rf-accent-foreground);
+  border-color: var(--rf-accent);
 }
 
 .rf-cta-solid::before {
-  background: var(--rf-accent);
+  background: var(--rf-accent-strong);
 }
 
 .rf-cta-solid:hover {
   color: var(--rf-accent-foreground);
-  border-color: var(--rf-accent);
+  border-color: var(--rf-accent-strong);
+}
+
+.rf-cta:focus-visible,
+.rf-tab:focus-visible,
+.rf-nav-link:focus-visible,
+.rf-nav-brand:focus-visible,
+.rf-inline-link:focus-visible,
+.rf-note-row:focus-visible {
+  outline: 2px solid var(--rf-accent);
+  outline-offset: 4px;
 }
 
 /* Sections */
 .rf-section {
   border-bottom: 1px solid var(--rf-border);
+  background: color-mix(in oklab, var(--rf-background) 89%, transparent);
 }
 
 .rf-section-inner {
   margin: 0 auto;
   max-width: var(--rf-max);
-  padding: 5rem var(--rf-pad);
+  padding: 4.5rem var(--rf-pad);
 }
 
 @media (min-width: 640px) {
   .rf-section-inner {
-    padding-top: 7rem;
-    padding-bottom: 7rem;
+    padding-top: 5.75rem;
+    padding-bottom: 5.75rem;
   }
 }
 
@@ -540,7 +563,7 @@ main.rf-root ~ .site-footer {
 .rf-section-title {
   margin: 1.5rem 0 0;
   font-size: 1.875rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.025em;
   line-height: 1.15;
 }
@@ -696,13 +719,16 @@ main.rf-root ~ .site-footer {
 }
 
 .rf-project {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 14rem);
+  gap: 0.5rem 3rem;
   margin-top: 2rem;
   border-top: 1px solid var(--rf-border-strong);
-  padding-top: 1.25rem;
+  padding: 1.75rem 0;
 }
 
 .rf-project + .rf-project {
-  margin-top: 2.5rem;
+  margin-top: 0;
 }
 
 .rf-project-head {
@@ -728,7 +754,7 @@ main.rf-root ~ .site-footer {
 .rf-project-title {
   margin: 0;
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.025em;
 }
 
@@ -776,10 +802,15 @@ main.rf-root ~ .site-footer {
 }
 
 .rf-project-links {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  margin-top: 1.75rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 0;
+  padding-left: 2rem;
+  border-left: 1px solid var(--rf-border);
   font-family: var(--rf-font-mono);
   font-size: 13px;
 }
@@ -815,7 +846,7 @@ main.rf-root ~ .site-footer {
 /* Skills */
 .rf-skills-grid {
   display: grid;
-  gap: 2rem 2.5rem;
+  gap: 0;
   margin-top: 2.5rem;
   padding-top: 2rem;
   border-top: 1px solid var(--rf-border);
@@ -829,8 +860,24 @@ main.rf-root ~ .site-footer {
 
 @media (min-width: 1024px) {
   .rf-skills-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2.5rem 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+  }
+}
+
+.rf-skills-grid > div {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--rf-border);
+}
+
+@media (min-width: 640px) {
+  .rf-skills-grid > div:nth-child(odd) {
+    padding-right: 2rem;
+  }
+
+  .rf-skills-grid > div:nth-child(even) {
+    padding-left: 2rem;
+    border-left: 1px solid var(--rf-border);
   }
 }
 
@@ -843,26 +890,30 @@ main.rf-root ~ .site-footer {
 
 /* Open source */
 .rf-os-card {
-  margin-top: 3rem;
-  padding: 1.5rem;
-  border: 1px solid var(--rf-border);
-  background: var(--rf-surface);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem);
+  gap: 0 3rem;
+  margin-top: 2.5rem;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--rf-border);
+  background: transparent;
 }
 
 @media (min-width: 640px) {
   .rf-os-card {
-    padding: 2rem;
+    padding: 2rem 0;
   }
 }
 
 .rf-os-card + .rf-os-card {
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .rf-os-title {
   margin: 0;
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--rf-foreground);
   letter-spacing: -0.025em;
 }
 
@@ -890,10 +941,15 @@ main.rf-root ~ .site-footer {
 }
 
 .rf-os-actions {
+  grid-column: 2;
+  grid-row: 1 / span 3;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
+  margin-top: 0;
+  padding-left: 2rem;
+  border-left: 1px solid var(--rf-border);
 }
 
 /* Experience / education / notes rows */
@@ -975,7 +1031,7 @@ main.rf-root ~ .site-footer {
 .rf-exp-role {
   margin: 0.65rem 0 0;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.025em;
   line-height: 1.3;
 }
@@ -1088,7 +1144,7 @@ main.rf-root ~ .site-footer {
 .rf-note-title {
   margin: 0.65rem 0 0;
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.025em;
   line-height: 1.3;
   transition: color 200ms ease;
@@ -1170,6 +1226,7 @@ main.rf-root ~ .site-footer {
 /* Contact + footer */
 .rf-contact {
   border-top: 1px solid var(--rf-border);
+  background-color: var(--rf-surface);
 }
 
 .rf-contact-actions {
@@ -1224,6 +1281,24 @@ main.rf-root ~ .site-footer {
     opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
     transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
   will-change: opacity, transform;
+}
+
+@media (max-width: 767px) {
+  .rf-project,
+  .rf-os-card {
+    grid-template-columns: 1fr;
+  }
+
+  .rf-project-links,
+  .rf-os-actions {
+    grid-column: 1;
+    grid-row: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding-left: 0;
+    border-left: 0;
+  }
 }
 
 .rf-reveal-in {
