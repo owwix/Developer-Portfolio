@@ -63,13 +63,13 @@ export default function NetworkBackground() {
     const palette = () =>
       isLight
         ? {
-            background: '#eef1ea',
-            grid: 'rgba(42, 58, 40, 0.07)',
-            edge: 'rgba(18, 22, 18, 0.08)',
-            edgeNear: 'rgba(63, 125, 44, 0.28)',
-            node: 'rgba(18, 22, 18, 0.18)',
-            nodeEmphasis: 'rgba(63, 125, 44, 0.38)',
-            pulse: '63, 125, 44',
+            background: '#f3f5f0',
+            grid: 'rgba(28, 40, 28, 0.08)',
+            edge: 'rgba(16, 20, 16, 0.1)',
+            edgeNear: 'rgba(47, 107, 34, 0.32)',
+            node: 'rgba(16, 20, 16, 0.2)',
+            nodeEmphasis: 'rgba(47, 107, 34, 0.42)',
+            pulse: '47, 107, 34',
           }
         : {
             background: '#070908',

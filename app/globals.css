@@ -2241,6 +2241,12 @@ html[data-theme='light'] #network-bg {
   filter: invert(1) grayscale(1) contrast(1.2) brightness(0.72);
 }
 
+/* Reforged homepage draws its own light lattice — skip the legacy invert wash. */
+html[data-theme='light'] body:has(.rf-root) #network-bg {
+  opacity: 0.92;
+  filter: none;
+}
+
 html[data-theme='light'] .bg-layer {
   background:
     radial-gradient(1200px 640px at -16% -8%, rgba(24, 36, 56, 0.08), transparent 62%),
