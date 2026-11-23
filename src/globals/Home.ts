@@ -165,7 +165,7 @@ export const Home: GlobalConfig = {
           label: 'Experience Description',
           type: 'textarea',
           defaultValue:
-            'Professional and product-focused engineering work first: roles and applied systems where I owned implementation, reliability, and delivery.',
+            'Founding work, platform engineering, university systems, and chess coaching.',
         },
         {
           name: 'projects',

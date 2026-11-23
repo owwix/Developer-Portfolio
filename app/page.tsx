@@ -191,7 +191,7 @@ function logHomepageFetchError(label: string, error: unknown): void {
 
 const defaultSectionDescriptions: Required<SectionDescriptions> = {
   experience:
-    'Founding work, platform engineering, and university systems.',
+    'Founding work, platform engineering, university systems, and chess coaching.',
   projects:
     'Shipped systems, from product strategy through infrastructure and public developer tooling.',
   blog: 'Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I ship.',

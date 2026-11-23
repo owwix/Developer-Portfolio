@@ -633,7 +633,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
           <Reveal>
             <SectionHead
               cmd="experience --log"
-              lead={experienceDescription || 'Founding work, platform engineering, and university systems.'}
+              lead={experienceDescription || 'Founding work, platform engineering, university systems, and chess coaching.'}
               title="Where I have been shipping."
             />
           </Reveal>
