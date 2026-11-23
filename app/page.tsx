@@ -126,6 +126,16 @@ type EducationRow = {
   updatedAt?: string
 }
 
+type ProjectMedia = {
+  url?: string
+  alt?: string
+  sizes?: {
+    avatar?: {
+      url?: string
+    }
+  }
+}
+
 type ProjectRow = {
   id?: string
   displayOrder?: number
@@ -143,6 +153,14 @@ type ProjectRow = {
         slug?: string
         title?: string
       }
+  projectImage?: string | ProjectMedia
+  projectImages?: Array<
+    | string
+    | ProjectMedia
+    | {
+        image?: string | ProjectMedia
+      }
+  >
   focusAreas?: string[]
   updatedAt?: string
 }
@@ -380,6 +398,58 @@ function getCaseStudyHref(project: ProjectRow): string | undefined {
   return undefined
 }
 
+function getProjectMediaUrl(image?: ProjectMedia | null): string {
+  if (!image) return ''
+  return String(image.url || image.sizes?.avatar?.url || '').trim()
+}
+
+function isProjectMedia(value: unknown): value is ProjectMedia {
+  return Boolean(value) && typeof value === 'object' && ('url' in (value as object) || 'sizes' in (value as object) || 'alt' in (value as object))
+}
+
+function resolveProjectMedia(entry: string | ProjectMedia | { image?: string | ProjectMedia } | null | undefined): ProjectMedia | null {
+  if (!entry || typeof entry === 'string') return null
+  if (isProjectMedia(entry)) return entry
+  if ('image' in entry) {
+    const nested = entry.image
+    if (!isProjectMedia(nested)) return null
+    return nested
+  }
+  return null
+}
+
+function getProjectImages(project: ProjectRow): ReforgedProject['images'] {
+  const title = project.title || 'Project'
+  const gallery = Array.isArray(project.projectImages)
+    ? project.projectImages
+        .map((entry) => {
+          const media = resolveProjectMedia(entry)
+          if (!media) return null
+          const url = getProjectMediaUrl(media)
+          if (!url) return null
+          return {
+            url,
+            alt: String(media.alt || `${title} project image`).trim() || `${title} project image`,
+          }
+        })
+        .filter((image): image is ReforgedProject['images'][number] => Boolean(image))
+    : []
+
+  if (gallery.length) return gallery
+
+  const primary = resolveProjectMedia(project.projectImage)
+  if (!primary) return []
+  const url = getProjectMediaUrl(primary)
+  if (!url) return []
+
+  return [
+    {
+      url,
+      alt: String(primary.alt || `${title} project image`).trim() || `${title} project image`,
+    },
+  ]
+}
+
 function mapProjects(projects: ProjectRow[]): ReforgedProject[] {
   return projects.map((project, index) => ({
     id: project.id || project.slug || `project-${index}`,
@@ -388,6 +458,7 @@ function mapProjects(projects: ProjectRow[]): ReforgedProject[] {
       ? project.focusAreas.map((area) => String(area || '').toLowerCase()).filter(Boolean)
       : [],
     bullets: extractRichTextBullets(project.summary),
+    images: getProjectImages(project),
     liveUrl: project.liveUrl || undefined,
     liveUrlLabel: project.liveUrlLabel || undefined,
     repoUrl: project.repoUrl || undefined,

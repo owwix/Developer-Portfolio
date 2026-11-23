@@ -30,11 +30,17 @@ export type ReforgedSkillGroup = {
   items: string[]
 }
 
+export type ReforgedProjectImage = {
+  url: string
+  alt: string
+}
+
 export type ReforgedProject = {
   id: string
   title: string
   focusAreas: string[]
   bullets: string[]
+  images: ReforgedProjectImage[]
   liveUrl?: string
   liveUrlLabel?: string
   repoUrl?: string
@@ -210,6 +216,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [tab, setTab] = useState<ProjectTab>('All')
   const [activeId, setActiveId] = useState('')
+  const [projectImageIndices, setProjectImageIndices] = useState<Record<string, number>>({})
 
   const promptUser = terminalPrompt.replace(/:~\$\s*$/, '') || 'alexander@portfolio'
 
@@ -437,50 +444,111 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
           </Reveal>
           <Reveal delay={120}>
             {filteredProjects.length ? (
-              filteredProjects.map((project, index) => (
-                <article className="rf-project" key={project.id}>
-                  <div className="rf-project-head">
-                    <div className="rf-project-title-row">
-                      <span className="rf-project-index">{String(index + 1).padStart(2, '0')}</span>
-                      <h3 className="rf-project-title">{project.title}</h3>
+              filteredProjects.map((project, index) => {
+                const images = project.images || []
+                const imageCount = images.length
+                const activeImageIndex =
+                  imageCount <= 1 ? 0 : Math.min(Math.max(projectImageIndices[project.id] || 0, 0), imageCount - 1)
+                const activeImage = images[activeImageIndex]
+                const hasLinks = Boolean(project.liveUrl || project.repoUrl || project.caseStudyUrl)
+                const hasAside = Boolean(activeImage || hasLinks)
+
+                return (
+                  <article
+                    className={`rf-project${activeImage ? ' has-media' : ''}${hasAside ? '' : ' no-aside'}`}
+                    key={project.id}
+                  >
+                    <div className="rf-project-main">
+                      <div className="rf-project-head">
+                        <div className="rf-project-title-row">
+                          <span className="rf-project-index">{String(index + 1).padStart(2, '0')}</span>
+                          <h3 className="rf-project-title">{project.title}</h3>
+                        </div>
+                        {project.focusAreas.length ? (
+                          <p className="rf-project-tags">
+                            {project.focusAreas
+                              .map((area) => area.charAt(0).toUpperCase() + area.slice(1))
+                              .join('  ·  ')}
+                          </p>
+                        ) : null}
+                      </div>
+                      {project.bullets.length ? (
+                        <ul className="rf-bullet-list">
+                          {project.bullets.map((bullet) => (
+                            <li key={bullet}>
+                              <span aria-hidden="true" className="rf-bullet-mark" />
+                              <span>{bullet}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
                     </div>
-                    {project.focusAreas.length ? (
-                      <p className="rf-project-tags">
-                        {project.focusAreas
-                          .map((area) => area.charAt(0).toUpperCase() + area.slice(1))
-                          .join('  ·  ')}
-                      </p>
+                    {hasAside ? (
+                      <aside className="rf-project-aside">
+                        {activeImage ? (
+                          <figure className="rf-project-media">
+                            <div className="rf-project-media-frame">
+                              <img alt={activeImage.alt} src={activeImage.url} />
+                            </div>
+                            {imageCount > 1 ? (
+                              <div className="rf-project-media-controls">
+                                <button
+                                  aria-label={`Show previous image for ${project.title}`}
+                                  className="rf-project-media-btn"
+                                  onClick={() =>
+                                    setProjectImageIndices((prev) => ({
+                                      ...prev,
+                                      [project.id]: (activeImageIndex - 1 + imageCount) % imageCount,
+                                    }))
+                                  }
+                                  type="button"
+                                >
+                                  ←
+                                </button>
+                                <span className="rf-project-media-status">
+                                  {activeImageIndex + 1} / {imageCount}
+                                </span>
+                                <button
+                                  aria-label={`Show next image for ${project.title}`}
+                                  className="rf-project-media-btn"
+                                  onClick={() =>
+                                    setProjectImageIndices((prev) => ({
+                                      ...prev,
+                                      [project.id]: (activeImageIndex + 1) % imageCount,
+                                    }))
+                                  }
+                                  type="button"
+                                >
+                                  →
+                                </button>
+                              </div>
+                            ) : null}
+                          </figure>
+                        ) : null}
+                        {hasLinks ? (
+                          <div className="rf-project-links">
+                            {project.liveUrl ? (
+                              <a href={project.liveUrl} rel="noreferrer" target="_blank">
+                                {project.liveUrlLabel || `View ${project.title}`}
+                              </a>
+                            ) : null}
+                            {project.repoUrl ? (
+                              <a className="muted" href={project.repoUrl} rel="noreferrer" target="_blank">
+                                Repo
+                              </a>
+                            ) : null}
+                            {project.caseStudyUrl ? (
+                              <Link className="muted" href={project.caseStudyUrl}>
+                                Case study
+                              </Link>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </aside>
                     ) : null}
-                  </div>
-                  {project.bullets.length ? (
-                    <ul className="rf-bullet-list">
-                      {project.bullets.map((bullet) => (
-                        <li key={bullet}>
-                          <span aria-hidden="true" className="rf-bullet-mark" />
-                          <span>{bullet}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                  <div className="rf-project-links">
-                    {project.liveUrl ? (
-                      <a href={project.liveUrl} rel="noreferrer" target="_blank">
-                        {project.liveUrlLabel || `View ${project.title}`}
-                      </a>
-                    ) : null}
-                    {project.repoUrl ? (
-                      <a className="muted" href={project.repoUrl} rel="noreferrer" target="_blank">
-                        Repo
-                      </a>
-                    ) : null}
-                    {project.caseStudyUrl ? (
-                      <Link className="muted" href={project.caseStudyUrl}>
-                        Case study
-                      </Link>
-                    ) : null}
-                  </div>
-                </article>
-              ))
+                  </article>
+                )
+              })
             ) : (
               <p className="rf-empty">
                 {projects.length ? `No ${tab.toLowerCase()} projects published yet.` : 'No projects yet.'}
