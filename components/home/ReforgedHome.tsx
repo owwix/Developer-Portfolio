@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import ThemeToggle from '../ui/ThemeToggle'
 import Reveal from './Reveal'
 
 const NAV = [
@@ -87,7 +88,6 @@ export type ReforgedOpenSource = {
 export type ReforgedHomeProps = {
   name: string
   headline: string
-  founderLine?: string
   announcementEnabled?: boolean
   announcementMessage: string
   avatarAlt: string
@@ -169,7 +169,6 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
   const {
     name,
     headline,
-    founderLine = 'CEO & Founder of Turnkeeper',
     announcementEnabled = true,
     announcementMessage,
     avatarAlt,
@@ -270,16 +269,20 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                 {item.label}
               </a>
             ))}
+            <ThemeToggle />
           </nav>
-          <button
-            aria-expanded={menuOpen}
-            aria-label="Toggle navigation"
-            className="rf-nav-toggle"
-            onClick={() => setMenuOpen((open) => !open)}
-            type="button"
-          >
-            {menuOpen ? '[ close ]' : '[ menu ]'}
-          </button>
+          <div className="rf-nav-actions">
+            <ThemeToggle className="rf-theme-toggle-mobile" />
+            <button
+              aria-expanded={menuOpen}
+              aria-label="Toggle navigation"
+              className="rf-nav-toggle"
+              onClick={() => setMenuOpen((open) => !open)}
+              type="button"
+            >
+              {menuOpen ? '[ close ]' : '[ menu ]'}
+            </button>
+          </div>
         </div>
         <nav aria-label="Mobile portfolio sections" className={`rf-nav-mobile${menuOpen ? ' is-open' : ''}`}>
           <div className="rf-nav-mobile-grid">
@@ -313,9 +316,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
             <div className="rf-hero-copy">
               <p className="rf-cmd-line">$ {identityCommand}</p>
               <h1 className="rf-hero-name">{name}</h1>
-              <p className="rf-hero-role">
-                {headline} <span className="rf-hero-role-sep">·</span> {founderLine}
-              </p>
+              <p className="rf-hero-role">{headline}</p>
               <p className="rf-hero-statement">{heroStatement}</p>
               <div className="rf-cta-row">
                 <a className="rf-cta rf-cta-solid" href="#projects">

@@ -14,6 +14,7 @@
   --rf-border: rgb(193 207 189 / 11%);
   --rf-border-strong: rgb(193 207 189 / 22%);
   --rf-grid-line: rgb(176 194 172 / 6%);
+  --rf-media-bg: #050505;
   --rf-radius: 0;
   --rf-max: 72rem;
   --rf-pad: 1.25rem;
@@ -29,6 +30,23 @@
   -webkit-font-smoothing: antialiased;
 }
 
+html[data-theme='light'] .rf-root {
+  --rf-background: #eef1ea;
+  --rf-foreground: #121612;
+  --rf-surface: #f7f9f4;
+  --rf-surface-2: #e4e9df;
+  --rf-muted: #dde3d6;
+  --rf-muted-foreground: #4f584f;
+  --rf-accent: #3f7d2c;
+  --rf-accent-strong: #2f6121;
+  --rf-accent-foreground: #f4f8ef;
+  --rf-steel: #667066;
+  --rf-border: rgb(42 58 40 / 14%);
+  --rf-border-strong: rgb(42 58 40 / 26%);
+  --rf-grid-line: rgb(42 58 40 / 8%);
+  --rf-media-bg: #e2e7dc;
+}
+
 @media (min-width: 640px) {
   .rf-root {
     --rf-pad: 2rem;
@@ -36,7 +54,11 @@
 }
 
 body:has(.rf-root) {
-  background: #070908;
+  background: var(--rf-background, #070908);
+}
+
+html[data-theme='light'] body:has(.rf-root) {
+  background: #eef1ea;
 }
 
 body:has(.rf-root) #network-bg {
@@ -133,7 +155,14 @@ main.rf-root ~ .site-footer {
   }
 }
 
-.rf-nav-toggle {
+.rf-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.rf-nav-toggle,
+.rf-theme-toggle {
   font-family: var(--rf-font-mono);
   font-size: 13px;
   color: var(--rf-muted-foreground);
@@ -143,12 +172,36 @@ main.rf-root ~ .site-footer {
   transition: color 200ms ease;
 }
 
-.rf-nav-toggle:hover {
+.rf-nav-toggle:hover,
+.rf-theme-toggle:hover {
   color: var(--rf-foreground);
 }
 
+.rf-theme-toggle:focus-visible,
+.rf-nav-toggle:focus-visible {
+  outline: 2px solid var(--rf-accent);
+  outline-offset: 3px;
+}
+
+.rf-nav-links .rf-theme-toggle {
+  display: none;
+}
+
+.rf-theme-toggle-mobile {
+  display: inline-flex;
+}
+
 @media (min-width: 1024px) {
-  .rf-nav-toggle {
+  .rf-nav-toggle,
+  .rf-theme-toggle-mobile {
+    display: none;
+  }
+
+  .rf-nav-links .rf-theme-toggle {
+    display: inline-flex;
+  }
+
+  .rf-nav-actions {
     display: none;
   }
 }
@@ -865,7 +918,7 @@ main.rf-root ~ .site-footer {
   aspect-ratio: 16 / 10;
   object-fit: contain;
   object-position: center;
-  background: #050505;
+  background: var(--rf-media-bg);
   filter: saturate(0.9) contrast(1.03);
 }
 

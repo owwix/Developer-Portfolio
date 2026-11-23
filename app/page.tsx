@@ -707,7 +707,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       email={home?.email}
       experienceDescription={getSectionDescription(home, 'experience')}
       experiences={mapExperiences(experiences)}
-      founderLine="CEO & Founder of Turnkeeper"
       headline={home?.headline || 'Full-Stack Software Engineer'}
       heroStatement={heroStatement}
       identityCommand={identityCommand}

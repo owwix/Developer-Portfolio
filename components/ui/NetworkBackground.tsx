@@ -57,7 +57,29 @@ export default function NetworkBackground() {
     let nodes: LatticeNode[] = []
     let edges: LatticeEdge[] = []
     let pulses: SignalPulse[] = []
+    let isLight = document.documentElement.getAttribute('data-theme') === 'light'
     const pointer = { x: -1000, y: -1000, active: false }
+
+    const palette = () =>
+      isLight
+        ? {
+            background: '#eef1ea',
+            grid: 'rgba(42, 58, 40, 0.07)',
+            edge: 'rgba(18, 22, 18, 0.08)',
+            edgeNear: 'rgba(63, 125, 44, 0.28)',
+            node: 'rgba(18, 22, 18, 0.18)',
+            nodeEmphasis: 'rgba(63, 125, 44, 0.38)',
+            pulse: '63, 125, 44',
+          }
+        : {
+            background: '#070908',
+            grid: 'rgba(241, 242, 237, 0.025)',
+            edge: 'rgba(241, 242, 237, 0.055)',
+            edgeNear: 'rgba(155, 211, 111, 0.16)',
+            node: 'rgba(241, 242, 237, 0.15)',
+            nodeEmphasis: 'rgba(155, 211, 111, 0.25)',
+            pulse: '155, 211, 111',
+          }
 
     const buildLattice = () => {
       const random = seededRandom(Math.round(width * 13 + height * 7))
@@ -143,10 +165,11 @@ export default function NetworkBackground() {
     }
 
     const draw = (now: number) => {
-      ctx.fillStyle = '#070908'
+      const colors = palette()
+      ctx.fillStyle = colors.background
       ctx.fillRect(0, 0, width, height)
 
-      ctx.strokeStyle = 'rgba(241, 242, 237, 0.025)'
+      ctx.strokeStyle = colors.grid
       ctx.lineWidth = 1
       const gridOffset = -(scrollOffset % GRID_SIZE) * 0.15
       for (let x = GRID_SIZE / 2; x < width; x += GRID_SIZE) {
@@ -172,7 +195,7 @@ export default function NetworkBackground() {
           Math.hypot(to.x - pointer.x, to.y - pointer.y),
         )
         const nearby = pointer.active && pointerDistance < POINTER_RADIUS
-        ctx.strokeStyle = nearby ? 'rgba(155, 211, 111, 0.16)' : 'rgba(241, 242, 237, 0.055)'
+        ctx.strokeStyle = nearby ? colors.edgeNear : colors.edge
         ctx.lineWidth = nearby ? 1 : 0.75
         ctx.beginPath()
         ctx.moveTo(from.x, from.y)
@@ -182,7 +205,7 @@ export default function NetworkBackground() {
 
       for (const node of nodes) {
         const size = node.emphasis ? 3 : 2
-        ctx.fillStyle = node.emphasis ? 'rgba(155, 211, 111, 0.25)' : 'rgba(241, 242, 237, 0.15)'
+        ctx.fillStyle = node.emphasis ? colors.nodeEmphasis : colors.node
         ctx.fillRect(Math.round(node.x - size / 2), Math.round(node.y - size / 2), size, size)
       }
 
@@ -205,7 +228,7 @@ export default function NetworkBackground() {
         const x = from.x + (to.x - from.x) * eased
         const y = from.y + (to.y - from.y) * eased
         const opacity = Math.sin(progress * Math.PI) * 0.38
-        ctx.fillStyle = `rgba(155, 211, 111, ${opacity.toFixed(3)})`
+        ctx.fillStyle = `rgba(${colors.pulse}, ${opacity.toFixed(3)})`
         ctx.fillRect(Math.round(x - 1.5), Math.round(y - 1.5), 3, 3)
         return true
       })
@@ -243,6 +266,12 @@ export default function NetworkBackground() {
       restart()
     })
 
+    const themeObserver = new MutationObserver(() => {
+      isLight = document.documentElement.getAttribute('data-theme') === 'light'
+      if (reducedMotion.matches) draw(performance.now())
+    })
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+
     resize()
     observer.observe(canvas)
     restart()
@@ -255,6 +284,7 @@ export default function NetworkBackground() {
     reducedMotion.addEventListener('change', restart)
 
     return () => {
+      themeObserver.disconnect()
       observer.disconnect()
       window.cancelAnimationFrame(rafId)
       window.removeEventListener('resize', resize)
