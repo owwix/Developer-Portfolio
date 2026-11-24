@@ -2,22 +2,23 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import type { HomepageCopy } from '../../src/utils/homepageCopy'
+import { DEFAULT_HOMEPAGE_COPY } from '../../src/utils/homepageCopy'
 import ThemeToggle from '../ui/ThemeToggle'
 import Reveal from './Reveal'
 
-const NAV = [
-  { label: 'about', href: '#about' },
-  { label: 'projects', href: '#projects' },
-  { label: 'skills', href: '#skills' },
-  { label: 'open source', href: '#open-source' },
-  { label: 'experience', href: '#experience' },
-  { label: 'education', href: '#education' },
-  { label: 'notes', href: '#notes' },
-  { label: 'contact', href: '#contact' },
+const NAV_HREFS = [
+  { key: 'about', href: '#about' },
+  { key: 'experience', href: '#experience' },
+  { key: 'projects', href: '#projects' },
+  { key: 'skills', href: '#skills' },
+  { key: 'notes', href: '#notes' },
+  { key: 'openSource', href: '#open-source' },
+  { key: 'education', href: '#education' },
+  { key: 'contact', href: '#contact' },
 ] as const
 
-const PROJECT_TABS = ['All', 'Frontend', 'Backend', 'AI', 'Infra'] as const
-type ProjectTab = (typeof PROJECT_TABS)[number]
+type ProjectTabKey = 'all' | 'frontend' | 'backend' | 'ai' | 'infra'
 
 export type ReforgedContactItem = {
   label: string
@@ -94,10 +95,7 @@ export type ReforgedHomeProps = {
   avatarUrl: string
   terminalPrompt: string
   identityCommand: string
-  aboutCommand: string
   heroStatement: string
-  aboutTitle?: string
-  aboutLead?: string
   aboutBodyHtml?: string
   personalNote?: string
   projectsLabel: string
@@ -109,19 +107,13 @@ export type ReforgedHomeProps = {
   isResumeMode?: boolean
   contactStrip: ReforgedContactItem[]
   projects: ReforgedProject[]
-  projectsDescription?: string
   skills: ReforgedSkillGroup[]
-  skillsDescription?: string
   experiences: ReforgedExperience[]
-  experienceDescription?: string
   education: ReforgedEducation[]
-  educationDescription?: string
   notes: ReforgedNote[]
-  notesDescription?: string
   openSource: ReforgedOpenSource[]
-  openSourceDescription?: string
-  contactDescription?: string
   contactLinks: ReforgedContactItem[]
+  copy?: HomepageCopy
   showProjects?: boolean
   showSkills?: boolean
   showOpenSource?: boolean
@@ -159,26 +151,22 @@ function Section({ id, children }: { id: string; children: ReactNode }) {
   )
 }
 
-function focusMatchesTab(areas: string[], tab: ProjectTab): boolean {
-  if (tab === 'All') return true
-  const needle = tab.toLowerCase()
-  return areas.some((area) => area === needle || area.includes(needle))
+function focusMatchesTab(areas: string[], tab: ProjectTabKey): boolean {
+  if (tab === 'all') return true
+  return areas.some((area) => area === tab || area.includes(tab))
 }
 
 export default function ReforgedHome(props: ReforgedHomeProps) {
   const {
     name,
     headline,
-    announcementEnabled = true,
+    announcementEnabled = false,
     announcementMessage,
     avatarAlt,
     avatarUrl,
     terminalPrompt,
     identityCommand,
-    aboutCommand,
     heroStatement,
-    aboutTitle = 'Systems built to hold up in production.',
-    aboutLead,
     aboutBodyHtml,
     personalNote,
     projectsLabel,
@@ -190,19 +178,13 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
     isResumeMode = false,
     contactStrip,
     projects,
-    projectsDescription,
     skills,
-    skillsDescription,
     experiences,
-    experienceDescription,
     education,
-    educationDescription,
     notes,
-    notesDescription,
     openSource,
-    openSourceDescription,
-    contactDescription,
     contactLinks,
+    copy = DEFAULT_HOMEPAGE_COPY,
     showProjects = true,
     showSkills = true,
     showOpenSource = true,
@@ -213,14 +195,25 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
   } = props
 
   const [menuOpen, setMenuOpen] = useState(false)
-  const [tab, setTab] = useState<ProjectTab>('All')
+  const [tab, setTab] = useState<ProjectTabKey>('all')
   const [activeId, setActiveId] = useState('')
   const [projectImageIndices, setProjectImageIndices] = useState<Record<string, number>>({})
 
   const promptUser = terminalPrompt.replace(/:~\$\s*$/, '') || 'alexander@portfolio'
+  const navItems = NAV_HREFS.map((item) => ({
+    ...item,
+    label: copy.nav[item.key],
+  }))
+  const projectTabs: Array<{ key: ProjectTabKey; label: string }> = [
+    { key: 'all', label: copy.labels.projectTabAll },
+    { key: 'frontend', label: copy.labels.projectTabFrontend },
+    { key: 'backend', label: copy.labels.projectTabBackend },
+    { key: 'ai', label: copy.labels.projectTabAi },
+    { key: 'infra', label: copy.labels.projectTabInfra },
+  ]
 
   useEffect(() => {
-    const ids = NAV.map((n) => n.href.slice(1))
+    const ids = NAV_HREFS.map((n) => n.href.slice(1))
     const sections = ids.map((id) => document.getElementById(id)).filter((s): s is HTMLElement => Boolean(s))
     if (!sections.length) return
 
@@ -246,9 +239,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
   const sayHiHref = email ? `mailto:${email}` : '#contact'
   const resumeHref = resumeUrl || '/?mode=resume'
   const resumeIsExternal = Boolean(resumeUrl)
-
-  const aboutLeadText =
-    aboutLead || 'Full-stack software engineer focused on building modern web applications and developer-friendly systems.'
+  const activeTabLabel = projectTabs.find((item) => item.key === tab)?.label || tab
 
   return (
     <main className="rf-root" id="top">
@@ -259,7 +250,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
             <span className="rf-nav-brand-suffix">:~$</span>
           </a>
           <nav aria-label="Portfolio sections" className="rf-nav-links">
-            {NAV.map((item) => (
+            {navItems.map((item) => (
               <a
                 className={`rf-nav-link${activeId === item.href.slice(1) ? ' rf-nav-link-active' : ''}`}
                 href={item.href}
@@ -280,13 +271,13 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
               onClick={() => setMenuOpen((open) => !open)}
               type="button"
             >
-              {menuOpen ? '[ close ]' : '[ menu ]'}
+              {menuOpen ? copy.labels.menuCloseLabel : copy.labels.menuOpenLabel}
             </button>
           </div>
         </div>
         <nav aria-label="Mobile portfolio sections" className={`rf-nav-mobile${menuOpen ? ' is-open' : ''}`}>
           <div className="rf-nav-mobile-grid">
-            {NAV.map((item) => (
+            {navItems.map((item) => (
               <a
                 className={activeId === item.href.slice(1) ? 'is-active' : undefined}
                 href={item.href}
@@ -307,7 +298,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
         <div className="rf-hero-inner">
           {announcementEnabled ? (
             <p className="rf-announce">
-              <span className="rf-announce-label">site update · </span>
+              <span className="rf-announce-label">{copy.labels.announcementPrefix}</span>
               {announcementMessage}
             </p>
           ) : null}
@@ -323,7 +314,13 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                   <span>{projectsLabel}</span>
                 </a>
                 {resumeIsExternal ? (
-                  <a className="rf-cta" data-journey-type="resume-open" href={resumeHref} rel="noreferrer" target="_blank">
+                  <a
+                    className="rf-cta"
+                    data-journey-type="resume-download"
+                    download={resumeFileName || 'resume.pdf'}
+                    href={resumeHref}
+                    rel="noreferrer"
+                  >
                     <span>{resumeLabel}</span>
                   </a>
                 ) : (
@@ -339,7 +336,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
 
             <figure className="rf-avatar-frame">
               <img alt={avatarAlt} className="rf-avatar" src={avatarUrl} />
-              <figcaption>alexander.okonkwo</figcaption>
+              <figcaption>{copy.labels.portraitCaption}</figcaption>
             </figure>
           </div>
         </div>
@@ -365,7 +362,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
 
       <Section id="about">
         <Reveal>
-          <SectionHead cmd={aboutCommand} lead={aboutLeadText} title={aboutTitle} />
+          <SectionHead cmd={copy.about.command} lead={copy.about.lead} title={copy.about.title} />
         </Reveal>
         <Reveal delay={80}>
           <div className="rf-about-grid">
@@ -373,36 +370,33 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
               {aboutBodyHtml ? (
                 <div className="rf-about-body" dangerouslySetInnerHTML={{ __html: aboutBodyHtml }} />
               ) : (
-                <p className="rf-about-body">
-                  I work across the entire stack using React, Next.js, TypeScript, Node.js, and PostgreSQL, designing
-                  scalable platforms from frontend interfaces to backend services and cloud infrastructure.
-                </p>
+                <p className="rf-about-body">{copy.about.bodyFallback}</p>
               )}
             </div>
             <div>
               {!isResumeMode && personalNote ? (
                 <>
-                  <p className="rf-label">off_hours</p>
+                  <p className="rf-label">{copy.labels.offHoursLabel}</p>
                   <p className="rf-off-hours">{personalNote}</p>
                 </>
               ) : null}
 
               {isResumeMode ? (
                 <div className="rf-resume-banner" role="status">
-                  <p>Resume mode is enabled: streamlined for recruiters and quick portfolio review.</p>
+                  <p>{copy.labels.resumeModeBanner}</p>
                   <div className="rf-resume-actions">
-                    <Link href="/">Disable Resume Mode</Link>
+                    <Link href="/">{copy.labels.disableResumeModeLabel}</Link>
                     {resumeUrl ? (
                       <>
                         <a data-journey-type="resume-open" href={resumeUrl} rel="noreferrer" target="_blank">
-                          View Resume
+                          {copy.labels.viewResumeLabel}
                         </a>
                         <a
                           data-journey-type="resume-download"
                           download={resumeFileName || 'resume.pdf'}
                           href={resumeUrl}
                         >
-                          Download PDF
+                          {copy.labels.downloadPdfLabel}
                         </a>
                       </>
                     ) : null}
@@ -410,7 +404,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                 </div>
               ) : (
                 <Link className="rf-inline-link" href="/?mode=resume">
-                  Recruiter? Open streamlined view →
+                  {copy.labels.recruiterLinkLabel}
                 </Link>
               )}
             </div>
@@ -418,27 +412,71 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
         </Reveal>
       </Section>
 
+      {showExperience ? (
+        <Section id="experience">
+          <Reveal>
+            <SectionHead
+              cmd={copy.sections.experience.command}
+              lead={copy.sections.experience.description}
+              title={copy.sections.experience.title}
+            />
+          </Reveal>
+          <div className="rf-stack">
+            {experiences.length ? (
+              experiences.map((exp, index) => (
+                <Reveal delay={index * 70} key={exp.id}>
+                  <div className="rf-exp-row rf-row-hover">
+                    <div>
+                      <div className="rf-exp-meta-row">
+                        <span aria-hidden="true" className="rf-row-marker" />
+                        {exp.period ? <p className="rf-exp-period">{exp.period}</p> : null}
+                        {exp.current ? <span className="rf-exp-current">current</span> : null}
+                      </div>
+                      <h3 className="rf-exp-role">{exp.role}</h3>
+                      {exp.org ? <p className="rf-exp-org">{exp.org}</p> : null}
+                      {exp.place ? <p className="rf-exp-place">{exp.place}</p> : null}
+                    </div>
+                    {exp.bullets.length ? (
+                      <ul className="rf-exp-bullets">
+                        {exp.bullets.map((bullet) => (
+                          <li key={bullet}>
+                            <span aria-hidden="true" className="rf-bullet-mark" />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </Reveal>
+              ))
+            ) : (
+              <p className="rf-empty">No experience entries yet.</p>
+            )}
+          </div>
+        </Section>
+      ) : null}
+
       {showProjects ? (
         <Section id="projects">
           <Reveal>
             <SectionHead
-              cmd="featured projects"
-              lead={projectsDescription || 'Shipped systems, from product strategy through infrastructure and public developer tooling.'}
-              title="Work I own end to end."
+              cmd={copy.sections.projects.command}
+              lead={copy.sections.projects.description}
+              title={copy.sections.projects.title}
             />
           </Reveal>
           <Reveal delay={60}>
             <div className="rf-tabs" role="tablist" aria-label="Project focus areas">
-              {PROJECT_TABS.map((item) => (
+              {projectTabs.map((item) => (
                 <button
-                  aria-selected={tab === item}
-                  className={`rf-tab${tab === item ? ' is-active' : ''}`}
-                  key={item}
-                  onClick={() => setTab(item)}
+                  aria-selected={tab === item.key}
+                  className={`rf-tab${tab === item.key ? ' is-active' : ''}`}
+                  key={item.key}
+                  onClick={() => setTab(item.key)}
                   role="tab"
                   type="button"
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </div>
@@ -535,12 +573,12 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                             ) : null}
                             {project.repoUrl ? (
                               <a className="muted" href={project.repoUrl} rel="noreferrer" target="_blank">
-                                Repo
+                                {copy.labels.repoLabel}
                               </a>
                             ) : null}
                             {project.caseStudyUrl ? (
                               <Link className="muted" href={project.caseStudyUrl}>
-                                Case study
+                                {copy.labels.caseStudyLabel}
                               </Link>
                             ) : null}
                           </div>
@@ -552,7 +590,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
               })
             ) : (
               <p className="rf-empty">
-                {projects.length ? `No ${tab.toLowerCase()} projects published yet.` : 'No projects yet.'}
+                {projects.length ? `No ${activeTabLabel.toLowerCase()} projects published yet.` : 'No projects yet.'}
               </p>
             )}
           </Reveal>
@@ -563,9 +601,9 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
         <Section id="skills">
           <Reveal>
             <SectionHead
-              cmd="skills --version"
-              lead={skillsDescription || 'Tools I use daily to take a product from interface to infrastructure.'}
-              title="The stack I reach for."
+              cmd={copy.sections.skills.command}
+              lead={copy.sections.skills.description}
+              title={copy.sections.skills.title}
             />
           </Reveal>
           <Reveal delay={80}>
@@ -585,13 +623,57 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
         </Section>
       ) : null}
 
+      {showBlog ? (
+        <Section id="notes">
+          <Reveal>
+            <SectionHead
+              cmd={copy.sections.notes.command}
+              lead={copy.sections.notes.description}
+              title={copy.sections.notes.title}
+            />
+          </Reveal>
+          <div className="rf-stack">
+            {notes.length ? (
+              notes.map((note, index) => (
+                <Reveal delay={index * 70} key={note.id}>
+                  <Link className="rf-note-row rf-row-hover" href={note.href}>
+                    <div>
+                      <div className="rf-exp-meta-row">
+                        <span aria-hidden="true" className="rf-row-marker" />
+                        <p className="rf-note-meta">{note.meta}</p>
+                      </div>
+                      <h3 className="rf-note-title">{note.title}</h3>
+                      {note.blurb ? <p className="rf-note-blurb">{note.blurb}</p> : null}
+                    </div>
+                    <div className="rf-note-side">
+                      {note.tags.length ? (
+                        <div className="rf-note-tags">
+                          {note.tags.map((tag) => (
+                            <span key={`${note.id}-${tag}`}>{tag}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                      <span className="rf-link-arrow">
+                        {copy.labels.readArticleLabel} <span className="rf-arrow">→</span>
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))
+            ) : (
+              <p className="rf-empty">No notes published yet.</p>
+            )}
+          </div>
+        </Section>
+      ) : null}
+
       {showOpenSource ? (
         <Section id="open-source">
           <Reveal>
             <SectionHead
-              cmd="open source --ls"
-              lead={openSourceDescription || 'Public starting points, documented and production-ready.'}
-              title="Templates other engineers can ship on."
+              cmd={copy.sections.openSource.command}
+              lead={copy.sections.openSource.description}
+              title={copy.sections.openSource.title}
             />
           </Reveal>
           <Reveal delay={80}>
@@ -611,11 +693,11 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                   ) : null}
                   <div className="rf-os-actions">
                     <Link className="rf-cta" href="/open-source">
-                      <span>View All Resources</span>
+                      <span>{copy.labels.viewAllResourcesLabel}</span>
                     </Link>
                     {item.githubUrl ? (
                       <a className="rf-cta" href={item.githubUrl} rel="noreferrer" target="_blank">
-                        <span>View GitHub</span>
+                        <span>{copy.labels.viewGithubLabel}</span>
                       </a>
                     ) : null}
                   </div>
@@ -628,61 +710,13 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
         </Section>
       ) : null}
 
-      {showExperience ? (
-        <Section id="experience">
-          <Reveal>
-            <SectionHead
-              cmd="experience --log"
-              lead={experienceDescription || 'Founding work, platform engineering, university systems, and chess coaching.'}
-              title="Where I have been shipping."
-            />
-          </Reveal>
-          <div className="rf-stack">
-            {experiences.length ? (
-              experiences.map((exp, index) => (
-                <Reveal delay={index * 70} key={exp.id}>
-                  <div className="rf-exp-row rf-row-hover">
-                    <div>
-                      <div className="rf-exp-meta-row">
-                        <span aria-hidden="true" className="rf-row-marker" />
-                        {exp.period ? <p className="rf-exp-period">{exp.period}</p> : null}
-                        {exp.current ? <span className="rf-exp-current">current</span> : null}
-                      </div>
-                      <h3 className="rf-exp-role">{exp.role}</h3>
-                      {exp.org ? <p className="rf-exp-org">{exp.org}</p> : null}
-                      {exp.place ? <p className="rf-exp-place">{exp.place}</p> : null}
-                    </div>
-                    {exp.bullets.length ? (
-                      <ul className="rf-exp-bullets">
-                        {exp.bullets.map((bullet) => (
-                          <li key={bullet}>
-                            <span aria-hidden="true" className="rf-bullet-mark" />
-                            <span>{bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                </Reveal>
-              ))
-            ) : (
-              <p className="rf-empty">No experience entries yet.</p>
-            )}
-          </div>
-        </Section>
-      ) : null}
-
       {showEducation ? (
         <Section id="education">
           <Reveal>
             <SectionHead
-              cmd="education --cat"
-              lead={
-                education[0]?.lead ||
-                educationDescription ||
-                'California State Polytechnic University, Pomona · Alumni Class of 26'
-              }
-              title={education[0]?.title || 'Computer Science, Cal Poly Pomona.'}
+              cmd={copy.sections.education.command}
+              lead={education[0]?.lead || copy.sections.education.description}
+              title={education[0]?.title || copy.sections.education.title}
             />
           </Reveal>
           <div className="rf-stack">
@@ -729,74 +763,24 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
         </Section>
       ) : null}
 
-      {showBlog ? (
-        <Section id="notes">
-          <Reveal>
-            <SectionHead
-              cmd="engineering notes --ls"
-              lead={
-                notesDescription ||
-                'Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I ship.'
-              }
-              title="Build logs and tradeoffs, written down."
-            />
-          </Reveal>
-          <div className="rf-stack">
-            {notes.length ? (
-              notes.map((note, index) => (
-                <Reveal delay={index * 70} key={note.id}>
-                  <Link className="rf-note-row rf-row-hover" href={note.href}>
-                    <div>
-                      <div className="rf-exp-meta-row">
-                        <span aria-hidden="true" className="rf-row-marker" />
-                        <p className="rf-note-meta">{note.meta}</p>
-                      </div>
-                      <h3 className="rf-note-title">{note.title}</h3>
-                      {note.blurb ? <p className="rf-note-blurb">{note.blurb}</p> : null}
-                    </div>
-                    <div className="rf-note-side">
-                      {note.tags.length ? (
-                        <div className="rf-note-tags">
-                          {note.tags.map((tag) => (
-                            <span key={`${note.id}-${tag}`}>{tag}</span>
-                          ))}
-                        </div>
-                      ) : null}
-                      <span className="rf-link-arrow">
-                        Read article <span className="rf-arrow">→</span>
-                      </span>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))
-            ) : (
-              <p className="rf-empty">No notes published yet.</p>
-            )}
-          </div>
-        </Section>
-      ) : null}
-
       <section className="rf-contact rf-blueprint" id="contact">
         <div className="rf-section-inner">
           <Reveal>
             <SectionHead
-              cmd="contact --say-hi"
-              lead={
-                contactDescription ||
-                'For software engineering roles, product engineering work, or technical discussions, start here.'
-              }
-              title="Let's talk about what you're building."
+              cmd={copy.sections.contact.command}
+              lead={copy.sections.contact.description}
+              title={copy.sections.contact.title}
             />
           </Reveal>
           <Reveal delay={80}>
             <div className="rf-contact-actions">
               {email ? (
                 <a className="rf-cta rf-cta-solid" data-journey-type="contact" href={`mailto:${email}`}>
-                  <span>Email Me</span>
+                  <span>{copy.labels.emailMeLabel}</span>
                 </a>
               ) : null}
               <Link className="rf-cta" data-journey-type="contact" href="/reach-by-phone">
-                <span>Reach Me by Phone</span>
+                <span>{copy.labels.reachByPhoneLabel}</span>
               </Link>
               {contactLinks.map((link) => (
                 <a

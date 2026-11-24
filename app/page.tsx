@@ -8,10 +8,11 @@ import ReforgedHome, {
   type ReforgedSkillGroup,
 } from '../components/home/ReforgedHome'
 import { type BlogPost, formatDate, getReadTime, getTags, toPlainText } from '../lib/blog'
-import { fetchBlogPosts, fetchEducation, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
+import { fetchBlogPosts, fetchCMS, fetchEducation, fetchExperiences, fetchHome, fetchNow, fetchOpenSourceResources, fetchProjects, fetchSkills } from '../lib/cms'
 import { defaultOpenSourceResources, normalizeOpenSourceResources, type OpenSourceResource, type OpenSourceResourceRow } from '../lib/openSource'
 import { renderRichText } from '../lib/renderRichText'
 import { siteConfig } from '../src/utils/siteConfig'
+import { resolveHomepageCopy } from '../src/utils/homepageCopy'
 import { sortByDisplayOrder } from '../src/utils/order'
 import defaultPortrait from '../src/media/559C6E16-E47C-4706-8EFE-892284F85DB5.jpg'
 
@@ -34,10 +35,16 @@ type SectionDescriptions = {
   experience?: string | null
   projects?: string | null
   blog?: string | null
+  notes?: string | null
   skills?: string | null
   openSource?: string | null
   education?: string | null
   contact?: string | null
+}
+
+type SectionHeading = {
+  command?: string | null
+  title?: string | null
 }
 
 type HomeData = {
@@ -57,6 +64,23 @@ type HomeData = {
     resumeLabel?: string | null
     contactLabel?: string | null
   }
+  aboutSection?: {
+    command?: string | null
+    title?: string | null
+    lead?: string | null
+    bodyFallback?: string | null
+  }
+  sectionHeadings?: {
+    projects?: SectionHeading
+    skills?: SectionHeading
+    openSource?: SectionHeading
+    experience?: SectionHeading
+    education?: SectionHeading
+    notes?: SectionHeading
+    contact?: SectionHeading
+  }
+  navLabels?: Record<string, string | null | undefined>
+  uiLabels?: Record<string, string | null | undefined>
   homepageLayout?: HomepageLayout
   openSourceSubtitle?: string | null
   sectionDescriptions?: SectionDescriptions
@@ -189,18 +213,6 @@ function logHomepageFetchError(label: string, error: unknown): void {
   console.error(`[homepage] Failed to load ${label}`, error)
 }
 
-const defaultSectionDescriptions: Required<SectionDescriptions> = {
-  experience:
-    'Founding work, platform engineering, university systems, and chess coaching.',
-  projects:
-    'Shipped systems, from product strategy through infrastructure and public developer tooling.',
-  blog: 'Technical writing that documents architecture decisions, tradeoffs, deployment lessons, and build logs from systems I ship.',
-  skills: 'Tools I use daily to take a product from interface to infrastructure.',
-  openSource: 'Public starting points, documented and production-ready.',
-  education: 'California State Polytechnic University, Pomona · Alumni Class of 26',
-  contact: 'For software engineering roles, product engineering work, or technical discussions, start here.',
-}
-
 const defaultAISkills: SkillRow[] = [
   { category: 'ai-engineering', name: 'Agentic Workflow Design' },
   { category: 'ai-engineering', name: 'LLM API Integration' },
@@ -224,15 +236,6 @@ const defaultSkillGroups: ReforgedSkillGroup[] = [
 function normalizeOptionalText(value: unknown): string | undefined {
   if (value === undefined || value === null) return undefined
   return String(value).trim()
-}
-
-function getSectionDescription(home: HomeData | null, key: keyof SectionDescriptions): string {
-  if (home?.sectionDescriptions) {
-    return normalizeOptionalText(home.sectionDescriptions[key]) || ''
-  }
-
-  if (key === 'openSource') return normalizeOptionalText(home?.openSourceSubtitle) ?? defaultSectionDescriptions.openSource
-  return defaultSectionDescriptions[key]
 }
 
 function formatExperienceDate(value?: string): string {
@@ -552,6 +555,49 @@ function splitHighlightRow(highlight: string, fallbackLabel: string): { label: s
   return { label: fallbackLabel, body: highlight }
 }
 
+async function resolveResumeFile(home: HomeData | null): Promise<{ url: string; filename: string }> {
+  const resume = home?.resumeFile
+
+  if (resume && typeof resume !== 'string' && resume.url) {
+    return {
+      url: String(resume.url).trim(),
+      filename: String(resume.filename || 'resume.pdf').trim() || 'resume.pdf',
+    }
+  }
+
+  const resumeId = typeof resume === 'string' ? resume.trim() : ''
+  if (resumeId) {
+    try {
+      const doc = await fetchCMS<{ url?: string; filename?: string }>(`/api/resume-files/${resumeId}`)
+      if (doc?.url) {
+        return {
+          url: String(doc.url).trim(),
+          filename: String(doc.filename || 'resume.pdf').trim() || 'resume.pdf',
+        }
+      }
+    } catch {
+      // Fall through to newest resume file.
+    }
+  }
+
+  try {
+    const list = await fetchCMS<{ docs?: Array<{ url?: string; filename?: string }> }>(
+      '/api/resume-files?limit=1&sort=-updatedAt',
+    )
+    const doc = list?.docs?.[0]
+    if (doc?.url) {
+      return {
+        url: String(doc.url).trim(),
+        filename: String(doc.filename || 'resume.pdf').trim() || 'resume.pdf',
+      }
+    }
+  } catch {
+    // No resume available.
+  }
+
+  return { url: '', filename: 'resume.pdf' }
+}
+
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await Promise.resolve(searchParams || {})
   const modeParam = Array.isArray(resolvedSearchParams.mode) ? resolvedSearchParams.mode[0] : resolvedSearchParams.mode
@@ -656,8 +702,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const showEducation = sectionVisibility.education !== false
   const showBlog = sectionVisibility.blog !== false
 
-  const resumeFileUrl = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.url || '' : ''
-  const resumeFileName = home?.resumeFile && typeof home.resumeFile !== 'string' ? home.resumeFile.filename || 'resume.pdf' : 'resume.pdf'
+  const resolvedResume = await resolveResumeFile(home)
+  const resumeFileUrl = resolvedResume.url
+  const resumeFileName = resolvedResume.filename
   const featuredProjects = projects.filter((project) => project.featured)
   const homepageProjects = featuredProjects.length ? featuredProjects : projects
 
@@ -669,16 +716,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     normalizeOptionalText(home?.terminalHero?.personalNote) ||
     'Outside of work, I lift weights, play chess, build personal coding projects, and seek out the occasional adrenaline rush. I have been interested in technology since childhood; some of my earliest experiences with code came from building simple Roblox games around 2009.'
   const identityCommand = normalizeOptionalText(home?.terminalHero?.identityCommand) || 'whoami'
-  const aboutCommand = normalizeOptionalText(home?.terminalHero?.aboutCommand) || 'cat about.txt'
   const projectsLabel = normalizeOptionalText(home?.terminalHero?.projectsLabel) || 'view projects'
   const resumeLabel = normalizeOptionalText(home?.terminalHero?.resumeLabel) || 'resume'
   const contactLabel = normalizeOptionalText(home?.terminalHero?.contactLabel) || 'say hi'
-  const showAnnouncement = home?.announcement?.enabled !== false
-  const announcementMessage =
-    normalizeOptionalText(home?.announcement?.message) ||
-    'currently redesigning — things may shift, you might hit a bug or two.'
+  const showAnnouncement = home?.announcement?.enabled === true
+  const announcementMessage = normalizeOptionalText(home?.announcement?.message) || ''
 
   const aboutBodyHtml = renderRichText(home?.bio) || undefined
+  const homepageCopy = resolveHomepageCopy(home)
   const educationForUi = mapEducation(education).map((entry) => ({
     ...entry,
     highlights: entry.highlights.map((highlight, index) => {
@@ -690,22 +735,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <ReforgedHome
       aboutBodyHtml={aboutBodyHtml}
-      aboutCommand={aboutCommand}
-      aboutLead="Full-stack software engineer focused on building modern web applications and developer-friendly systems."
-      aboutTitle="Systems built to hold up in production."
       announcementEnabled={showAnnouncement}
       announcementMessage={announcementMessage}
       avatarAlt={home?.profilePhoto?.alt || `Portrait of ${home?.name || siteConfig.ownerName}`}
       avatarUrl={home?.profilePhoto?.url || defaultPortrait.src}
-      contactDescription={getSectionDescription(home, 'contact')}
       contactLabel={contactLabel}
       contactLinks={buildContactLinks(home)}
       contactStrip={buildContactStrip(home)}
+      copy={homepageCopy}
       currentYear={new Date().getFullYear()}
       education={educationForUi}
-      educationDescription={getSectionDescription(home, 'education')}
       email={home?.email}
-      experienceDescription={getSectionDescription(home, 'experience')}
       experiences={mapExperiences(experiences)}
       headline={home?.headline || 'Full-Stack Software Engineer'}
       heroStatement={heroStatement}
@@ -713,12 +753,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       isResumeMode={isResumeMode}
       name={home?.name || siteConfig.ownerName}
       notes={mapNotes(blogs)}
-      notesDescription={getSectionDescription(home, 'blog')}
       openSource={mapOpenSource(openSourcePreview)}
-      openSourceDescription={getSectionDescription(home, 'openSource')}
       personalNote={personalNote}
       projects={mapProjects(homepageProjects)}
-      projectsDescription={getSectionDescription(home, 'projects')}
       projectsLabel={projectsLabel}
       resumeFileName={resumeFileName}
       resumeLabel={resumeLabel}
@@ -730,7 +767,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       showProjects={showProjects}
       showSkills={showSkills}
       skills={mapSkillGroups(groupedSkills)}
-      skillsDescription={getSectionDescription(home, 'skills')}
       terminalPrompt={terminalPrompt}
     />
   )

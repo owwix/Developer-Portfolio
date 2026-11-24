@@ -534,6 +534,7 @@ main.rf-root ~ .site-footer {
   background: var(--rf-foreground);
   transform: translateY(101%);
   transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  pointer-events: none;
 }
 
 .rf-cta > * {
@@ -577,20 +578,38 @@ main.rf-root ~ .site-footer {
 
 /* Sections */
 .rf-section {
-  border-bottom: 1px solid var(--rf-border);
+  position: relative;
+  border-bottom: 1px solid var(--rf-border-strong);
   background: color-mix(in oklab, var(--rf-background) 89%, transparent);
+}
+
+.rf-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--rf-accent) 0,
+    var(--rf-accent) 2.5rem,
+    var(--rf-border-strong) 2.5rem,
+    var(--rf-border-strong) 100%
+  );
+  opacity: 0.9;
 }
 
 .rf-section-inner {
   margin: 0 auto;
   max-width: var(--rf-max);
-  padding: 4.5rem var(--rf-pad);
+  padding: 5.25rem var(--rf-pad);
 }
 
 @media (min-width: 640px) {
   .rf-section-inner {
-    padding-top: 5.75rem;
-    padding-bottom: 5.75rem;
+    padding-top: 6.75rem;
+    padding-bottom: 6.75rem;
   }
 }
 
@@ -612,15 +631,21 @@ main.rf-root ~ .site-footer {
 .rf-cmd-rule {
   flex: 1;
   height: 1px;
-  background: var(--rf-border);
+  background: linear-gradient(
+    to right,
+    color-mix(in oklab, var(--rf-accent) 55%, transparent),
+    var(--rf-border-strong) 28%,
+    var(--rf-border) 100%
+  );
 }
 
 .rf-section-head {
   max-width: 48rem;
+  padding-bottom: 0.35rem;
 }
 
 .rf-section-title {
-  margin: 1.5rem 0 0;
+  margin: 1.65rem 0 0;
   font-size: 1.875rem;
   font-weight: 500;
   letter-spacing: -0.025em;
@@ -1383,8 +1408,38 @@ main.rf-root ~ .site-footer {
 
 /* Contact + footer */
 .rf-contact {
-  border-top: 1px solid var(--rf-border);
+  position: relative;
+  border-top: 1px solid var(--rf-border-strong);
   background-color: var(--rf-surface);
+}
+
+.rf-contact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    var(--rf-accent) 0,
+    var(--rf-accent) 2.5rem,
+    var(--rf-border-strong) 2.5rem,
+    var(--rf-border-strong) 100%
+  );
+  opacity: 0.9;
+}
+
+.rf-contact .rf-section-inner {
+  padding-top: 5.25rem;
+  padding-bottom: 5.25rem;
+}
+
+@media (min-width: 640px) {
+  .rf-contact .rf-section-inner {
+    padding-top: 6.75rem;
+    padding-bottom: 6.75rem;
+  }
 }
 
 .rf-contact-actions {
@@ -1434,10 +1489,10 @@ main.rf-root ~ .site-footer {
 /* Reveal motion */
 .rf-reveal {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(16px);
   transition:
-    opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    opacity 580ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 580ms cubic-bezier(0.2, 0.7, 0.2, 1);
   will-change: opacity, transform;
 }
 
