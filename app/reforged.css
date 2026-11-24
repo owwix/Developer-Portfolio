@@ -175,12 +175,22 @@ main.rf-root ~ .site-footer {
   background: none;
   border: 0;
   cursor: pointer;
+  text-decoration: none;
   transition: color 200ms ease;
+}
+
+a.rf-theme-toggle {
+  display: inline-flex;
+  align-items: center;
 }
 
 .rf-nav-toggle:hover,
 .rf-theme-toggle:hover {
   color: var(--rf-foreground);
+}
+
+a.rf-theme-toggle.is-active {
+  color: var(--rf-accent);
 }
 
 .rf-theme-toggle:focus-visible,
@@ -745,6 +755,11 @@ main.rf-root ~ .site-footer {
   font-family: var(--rf-font-mono);
   font-size: 12px;
   color: var(--rf-muted-foreground);
+}
+
+.rf-resume-banner-hero {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 .rf-resume-banner a {

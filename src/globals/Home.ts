@@ -413,6 +413,25 @@ export const Home: GlobalConfig = {
                   ],
                 },
                 {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'enableResumeModeLabel',
+                      label: 'Enable Resume Mode',
+                      type: 'text',
+                      defaultValue: DEFAULT_HOMEPAGE_COPY.labels.enableResumeModeLabel,
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'disableResumeModeLabel',
+                      label: 'Disable Resume Mode',
+                      type: 'text',
+                      defaultValue: DEFAULT_HOMEPAGE_COPY.labels.disableResumeModeLabel,
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
                   name: 'resumeModeBanner',
                   label: 'Resume Mode Banner',
                   type: 'textarea',
@@ -422,25 +441,18 @@ export const Home: GlobalConfig = {
                   type: 'row',
                   fields: [
                     {
-                      name: 'disableResumeModeLabel',
-                      label: 'Disable Resume Mode',
-                      type: 'text',
-                      defaultValue: DEFAULT_HOMEPAGE_COPY.labels.disableResumeModeLabel,
-                      admin: { width: '33%' },
-                    },
-                    {
                       name: 'viewResumeLabel',
                       label: 'View Resume',
                       type: 'text',
                       defaultValue: DEFAULT_HOMEPAGE_COPY.labels.viewResumeLabel,
-                      admin: { width: '33%' },
+                      admin: { width: '50%' },
                     },
                     {
                       name: 'downloadPdfLabel',
                       label: 'Download PDF',
                       type: 'text',
                       defaultValue: DEFAULT_HOMEPAGE_COPY.labels.downloadPdfLabel,
-                      admin: { width: '33%' },
+                      admin: { width: '50%' },
                     },
                   ],
                 },

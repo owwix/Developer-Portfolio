@@ -239,6 +239,12 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
   const sayHiHref = email ? `mailto:${email}` : '#contact'
   const resumeHref = resumeUrl || '/?mode=resume'
   const resumeIsExternal = Boolean(resumeUrl)
+  const resumeModeHref = isResumeMode ? '/' : '/?mode=resume'
+  const resumeModeCtaLabel = isResumeMode ? 'full site' : copy.labels.enableResumeModeLabel
+  const resumeModeToggleLabel = isResumeMode
+    ? copy.labels.disableResumeModeLabel
+    : copy.labels.enableResumeModeLabel
+  const resumeModeNavLabel = `[ ${resumeModeCtaLabel} ]`
   const activeTabLabel = projectTabs.find((item) => item.key === tab)?.label || tab
 
   return (
@@ -260,9 +266,25 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                 {item.label}
               </a>
             ))}
+            <Link
+              aria-label={resumeModeToggleLabel}
+              className={`rf-theme-toggle${isResumeMode ? ' is-active' : ''}`}
+              href={resumeModeHref}
+              prefetch={false}
+            >
+              {resumeModeNavLabel}
+            </Link>
             <ThemeToggle />
           </nav>
           <div className="rf-nav-actions">
+            <Link
+              aria-label={resumeModeToggleLabel}
+              className={`rf-theme-toggle rf-theme-toggle-mobile${isResumeMode ? ' is-active' : ''}`}
+              href={resumeModeHref}
+              prefetch={false}
+            >
+              {resumeModeNavLabel}
+            </Link>
             <ThemeToggle className="rf-theme-toggle-mobile" />
             <button
               aria-expanded={menuOpen}
@@ -290,6 +312,13 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                 {item.label}
               </a>
             ))}
+            <Link
+              href={resumeModeHref}
+              onClick={() => setMenuOpen(false)}
+              prefetch={false}
+            >
+              {resumeModeToggleLabel}
+            </Link>
           </div>
         </nav>
       </header>
@@ -301,6 +330,31 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
               <span className="rf-announce-label">{copy.labels.announcementPrefix}</span>
               {announcementMessage}
             </p>
+          ) : null}
+
+          {isResumeMode ? (
+            <div className="rf-resume-banner rf-resume-banner-hero" role="status">
+              <p>{copy.labels.resumeModeBanner}</p>
+              <div className="rf-resume-actions">
+                <Link href="/" prefetch={false}>
+                  {copy.labels.disableResumeModeLabel}
+                </Link>
+                {resumeUrl ? (
+                  <>
+                    <a data-journey-type="resume-open" href={resumeUrl} rel="noreferrer" target="_blank">
+                      {copy.labels.viewResumeLabel}
+                    </a>
+                    <a
+                      data-journey-type="resume-download"
+                      download={resumeFileName || 'resume.pdf'}
+                      href={resumeUrl}
+                    >
+                      {copy.labels.downloadPdfLabel}
+                    </a>
+                  </>
+                ) : null}
+              </div>
+            </div>
           ) : null}
 
           <div className="rf-hero-main">
@@ -328,6 +382,9 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                     <span>{resumeLabel}</span>
                   </Link>
                 )}
+                <Link className="rf-cta" href={resumeModeHref} prefetch={false}>
+                  <span>{resumeModeCtaLabel}</span>
+                </Link>
                 <a className="rf-cta" href={sayHiHref}>
                   <span>{contactLabel}</span>
                 </a>
@@ -385,7 +442,9 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                 <div className="rf-resume-banner" role="status">
                   <p>{copy.labels.resumeModeBanner}</p>
                   <div className="rf-resume-actions">
-                    <Link href="/">{copy.labels.disableResumeModeLabel}</Link>
+                    <Link href="/" prefetch={false}>
+                      {copy.labels.disableResumeModeLabel}
+                    </Link>
                     {resumeUrl ? (
                       <>
                         <a data-journey-type="resume-open" href={resumeUrl} rel="noreferrer" target="_blank">
@@ -403,7 +462,7 @@ export default function ReforgedHome(props: ReforgedHomeProps) {
                   </div>
                 </div>
               ) : (
-                <Link className="rf-inline-link" href="/?mode=resume">
+                <Link className="rf-inline-link" href="/?mode=resume" prefetch={false}>
                   {copy.labels.recruiterLinkLabel}
                 </Link>
               )}

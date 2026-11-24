@@ -20,6 +20,7 @@ export type HomepageUiLabels = {
   portraitCaption: string
   offHoursLabel: string
   recruiterLinkLabel: string
+  enableResumeModeLabel: string
   resumeModeBanner: string
   disableResumeModeLabel: string
   viewResumeLabel: string
@@ -121,6 +122,7 @@ export const DEFAULT_HOMEPAGE_COPY: HomepageCopy = {
     portraitCaption: 'alexander.okonkwo',
     offHoursLabel: 'off_hours',
     recruiterLinkLabel: 'Recruiter? Open streamlined view →',
+    enableResumeModeLabel: 'resume mode',
     resumeModeBanner: 'Resume mode is enabled: streamlined for recruiters and quick portfolio review.',
     disableResumeModeLabel: 'Disable Resume Mode',
     viewResumeLabel: 'View Resume',
@@ -221,6 +223,7 @@ export function resolveHomepageCopy(home: {
       portraitCaption: text(labels?.portraitCaption, DEFAULT_HOMEPAGE_COPY.labels.portraitCaption),
       offHoursLabel: text(labels?.offHoursLabel, DEFAULT_HOMEPAGE_COPY.labels.offHoursLabel),
       recruiterLinkLabel: text(labels?.recruiterLinkLabel, DEFAULT_HOMEPAGE_COPY.labels.recruiterLinkLabel),
+      enableResumeModeLabel: text(labels?.enableResumeModeLabel, DEFAULT_HOMEPAGE_COPY.labels.enableResumeModeLabel),
       resumeModeBanner: text(labels?.resumeModeBanner, DEFAULT_HOMEPAGE_COPY.labels.resumeModeBanner),
       disableResumeModeLabel: text(labels?.disableResumeModeLabel, DEFAULT_HOMEPAGE_COPY.labels.disableResumeModeLabel),
       viewResumeLabel: text(labels?.viewResumeLabel, DEFAULT_HOMEPAGE_COPY.labels.viewResumeLabel),
